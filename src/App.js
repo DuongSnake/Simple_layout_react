@@ -1,24 +1,74 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import Home from "./pages/Home";
+import About from "./pages/About";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserProfile from "./pages/UserProfile";
+
+import Header from "./layout/Header";
+import Navbar from "./layout/Navbar";
+import Content from "./layout/Content";
+import Footer from "./layout/Footer";
+
+import HeaderUser from "./layout_user/Header_User";
+import NavbarUser from "./layout_user/Navbar_User";
+import ContentUser from "./layout_user/Content_User";
+import FooterUser from "./layout_user/Footer_User";
+
+import HeaderAdmin from "./layout_admin/Header_Admin";
+import NavbarAdmin from "./layout_admin/Navbar_Admin";
+import ContentAdmin from "./layout_admin/Content_Admin";
+import FooterAdmin from "./layout_admin/Footer_Admin";
+
+function LayoutSelector({ children }) {
+  const location = useLocation();
+
+  if (location.pathname.startsWith("/admin")) {
+    return (
+      <>
+        <HeaderAdmin />
+        <NavbarAdmin />
+        <ContentAdmin>{children}</ContentAdmin>
+        <FooterAdmin />
+      </>
+    );
+  } else if (location.pathname.startsWith("/user")) {
+    return (
+      <>
+        <HeaderUser />
+        <NavbarUser />
+        <ContentUser>{children}</ContentUser>
+        <FooterUser />
+      </>
+    );
+  } else {
+    return (
+      <>
+        <Header />
+        <Navbar />
+        <Content>{children}</Content>
+        <Footer />
+      </>
+    );
+  }
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <LayoutSelector>
+        <Routes>
+          {/* Default layout routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+
+          {/* User layout routes */}
+          <Route path="/user/profile" element={<UserProfile />} />
+
+          {/* Admin layout routes */}
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        </Routes>
+      </LayoutSelector>
+    </Router>
   );
 }
 
