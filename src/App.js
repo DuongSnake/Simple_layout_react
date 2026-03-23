@@ -21,7 +21,6 @@ import FooterAdmin from "./layout_admin/Footer_Admin";
 
 function LayoutSelector({ children }) {
   const location = useLocation();
-
   if (location.pathname.startsWith("/admin")) {
     return (
       <>
@@ -56,17 +55,6 @@ function App() {
   return (
     <Router>
       <LayoutSelector>
-        <Routes>
-          {/* Default layout routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-
-          {/* User layout routes */}
-          <Route path="/user/profile" element={<UserProfile />} />
-
-          {/* Admin layout routes */}
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        </Routes>
       </LayoutSelector>
     </Router>
   );
