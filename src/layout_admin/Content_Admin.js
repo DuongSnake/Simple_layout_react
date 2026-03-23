@@ -8,8 +8,8 @@ function Content() {
         {/* Phan noi dung hien thi trong admin layout */}
       <Routes>
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/about" element={<About />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
       </Routes>
     </main>
   );

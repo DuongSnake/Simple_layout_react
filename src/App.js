@@ -1,8 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import Home from "./pages/Home";
+import { BrowserRouter as Router, Navigate, useLocation } from "react-router-dom";
 import About from "./pages/About";
 import AdminDashboard from "./pages/AdminDashboard";
-import UserProfile from "./pages/UserProfile";
 
 import Header from "./layout/Header";
 import Navbar from "./layout/Navbar";
@@ -18,10 +16,34 @@ import HeaderAdmin from "./layout_admin/Header_Admin";
 import NavbarAdmin from "./layout_admin/Navbar_Admin";
 import ContentAdmin from "./layout_admin/Content_Admin";
 import FooterAdmin from "./layout_admin/Footer_Admin";
+import AdminLogin from "./layout_login/AdminLoginTemplate";
 
 function LayoutSelector({ children }) {
   const location = useLocation();
+  const attribute1 = sessionStorage.getItem("attribute1");
+
+  // Admin routes
   if (location.pathname.startsWith("/admin")) {
+    // render standalone login template (without admin wrapper)
+    if (location.pathname === "/admin/login") {
+      if (attribute1) {
+        return <Navigate to="/admin/dashboard" replace />;
+      }
+      return <AdminLogin />;
+    }
+
+    // protect all other admin pages
+    if (!attribute1) {
+      return (
+        <Navigate
+          to="/admin/login"
+          state={{ urlAfterLoginSuccess: location.pathname }}
+          replace
+        />
+      );
+    }
+
+    // authenticated admin layout
     return (
       <>
         <HeaderAdmin />
@@ -30,7 +52,19 @@ function LayoutSelector({ children }) {
         <FooterAdmin />
       </>
     );
-  } else if (location.pathname.startsWith("/user")) {
+  }
+
+  // User layout
+  else if (location.pathname.startsWith("/user")) {
+    if (!attribute1) {
+      return (
+        <Navigate
+          to="/user/login"
+          state={{ urlAfterLoginSuccess: location.pathname }}
+          replace
+        />
+      );
+    }
     return (
       <>
         <HeaderUser />
@@ -39,7 +73,31 @@ function LayoutSelector({ children }) {
         <FooterUser />
       </>
     );
-  } else {
+  }
+
+  // Guest layout
+  else if (location.pathname.startsWith("/guest")) {
+    if (!attribute1) {
+      return (
+        <Navigate
+          to="/guest/login"
+          state={{ urlAfterLoginSuccess: location.pathname }}
+          replace
+        />
+      );
+    }
+    return (
+      <>
+        <Header />
+        <Navbar />
+        <Content>{children}</Content>
+        <Footer />
+      </>
+    );
+  }
+
+  // Default layout
+  else {
     return (
       <>
         <Header />
@@ -50,6 +108,7 @@ function LayoutSelector({ children }) {
     );
   }
 }
+
 
 function App() {
   return (
