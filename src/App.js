@@ -12,10 +12,7 @@ import NavbarUser from "./layout_user/Navbar_User";
 import ContentUser from "./layout_user/Content_User";
 import FooterUser from "./layout_user/Footer_User";
 
-import HeaderAdmin from "./layout_admin/Header_Admin";
-import NavbarAdmin from "./layout_admin/Navbar_Admin";
-import ContentAdmin from "./layout_admin/Content_Admin";
-import FooterAdmin from "./layout_admin/Footer_Admin";
+import LayoutAdmin from "./layout_admin/LayoutAdmin";
 import AdminLogin from "./layout_login/AdminLoginTemplate";
 
 function LayoutSelector({ children }) {
@@ -44,14 +41,7 @@ function LayoutSelector({ children }) {
     }
 
     // authenticated admin layout
-    return (
-      <>
-        <HeaderAdmin />
-        <NavbarAdmin />
-        <ContentAdmin>{children}</ContentAdmin>
-        <FooterAdmin />
-      </>
-    );
+    return <LayoutAdmin>{children}</LayoutAdmin>;
   }
 
   // User layout
