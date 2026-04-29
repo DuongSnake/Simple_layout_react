@@ -1,4 +1,10 @@
+import { useNavigate } from "react-router-dom";
 function HeaderAdmin() {
+  const navigate = useNavigate();
+    const handleLogout = () => {
+    sessionStorage.removeItem("access_token");
+    navigate("/admin/login", { replace: true });
+  };
   return (
       // <!-- Start nav -->
   <nav class="fixed z-30 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
@@ -95,6 +101,7 @@ function HeaderAdmin() {
         </div>
       </div>
     </div>
+    <button onClick={handleLogout}>Logout</button>
   </nav>
   // <!-- End nav -->
   );

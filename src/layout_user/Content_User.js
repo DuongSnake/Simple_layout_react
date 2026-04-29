@@ -1,7 +1,7 @@
 import { Routes, Route  } from "react-router-dom";
 import HomeUser from "../pages/Home_User";
 import UserProfile from "../pages/UserProfile";
-import UserLogin from "../layout_login/UserLoginTemplate";
+import UserLogin from "../layout_login/user_layout/UserLoginTemplate";
 function ContentUser() {
   return (
     <main style={{ padding: "20px" }}>

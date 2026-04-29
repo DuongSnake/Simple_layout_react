@@ -12,12 +12,12 @@ import NavbarUser from "./layout_user/Navbar_User";
 import ContentUser from "./layout_user/Content_User";
 import FooterUser from "./layout_user/Footer_User";
 
-import LayoutAdmin from "./layout_admin/LayoutAdmin";
-import AdminLogin from "./layout_login/AdminLoginTemplate";
+import LayoutAdmin from "./layout_admin/common_layout/LayoutAdmin";
+import AdminLogin from "./layout_login/admin_layout/AdminLoginTemplate";
 
 function LayoutSelector({ children }) {
   const location = useLocation();
-  const attribute1 = sessionStorage.getItem("attribute1");
+  const attribute1 = sessionStorage.getItem("access_token");
 
   // Admin routes
   if (location.pathname.startsWith("/admin")) {

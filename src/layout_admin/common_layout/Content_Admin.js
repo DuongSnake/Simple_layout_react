@@ -1,9 +1,9 @@
 import { Routes, Route  } from "react-router-dom";
 import React, { useState } from 'react';
-import AdminDashboard from "../pages/AdminDashboard";
-import About from "../pages/About";
+import AdminDashboard from "../../pages/AdminDashboard";
+import About from "../../pages/About";
 import NavbarAdmin from "./Navbar_Admin";
-import AdminLogin from "../layout_login/AdminLoginTemplate";
+import AdminLogin from "../../layout_login/admin_layout/AdminLoginTemplate";
 function Content() {
   return (
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
