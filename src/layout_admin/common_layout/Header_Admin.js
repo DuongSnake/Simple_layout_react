@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { ACCESS_TOKEN, USER_NAME } from '../../config/constant/Constants';
 function HeaderAdmin() {
   const navigate = useNavigate();
     const handleLogout = () => {
-    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem(ACCESS_TOKEN);
+    sessionStorage.removeItem(USER_NAME);
     navigate("/admin/login", { replace: true });
   };
   return (
@@ -11,6 +13,7 @@ function HeaderAdmin() {
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
       <div class="flex items-center justify-between">
         <div class="flex items-center justify-start">
+          {/* Xu ly handle doan nay de nut menu thut ra thut vao */}
           <button id="toggleSidebarMobile" aria-expanded="true" aria-controls="sidebar"
             class="p-2 text-gray-600 rounded cursor-pointer lg:hidden hover:text-gray-900 hover:bg-gray-100 focus:bg-gray-100 dark:focus:bg-gray-700 focus:ring-2 focus:ring-gray-100 dark:focus:ring-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
             <svg id="toggleSidebarMobileHamburger" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
@@ -91,9 +94,9 @@ function HeaderAdmin() {
                     role="menuitem">Earnings</a>
                 </li>
                 <li>
-                  <a href="#"
+                  <button onClick={handleLogout}
                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                    role="menuitem">Sign out</a>
+                    role="menuitem">Sign out</button>
                 </li>
               </ul>
             </div>

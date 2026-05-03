@@ -2,6 +2,7 @@ import { Routes, Route  } from "react-router-dom";
 import React, { useState } from 'react';
 import AdminDashboard from "../../pages/AdminDashboard";
 import About from "../../pages/About";
+import UserManagement from "../user_management/UserManagementLayout";
 import NavbarAdmin from "./Navbar_Admin";
 import AdminLogin from "../../layout_login/admin_layout/AdminLoginTemplate";
 function Content() {
@@ -15,7 +16,8 @@ function Content() {
       <Routes>
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/about" element={<About />} />
+        <Route path="/admin/about" element={<UserManagement />} />
+        <Route path="/admin/user-management" element={<UserManagement />} />
       </Routes>
       </main>
       </div>

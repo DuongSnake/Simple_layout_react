@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { authenticate, changePassword } from "../admin_layout/AdminLoginAPI";
 import { useDispatch, useSelector } from "react-redux";
+import { ACCESS_TOKEN, USER_NAME } from '../../config/constant/Constants';
 function AdminLoginTemplate() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ function AdminLoginTemplate() {
         console.log("Login successful:", response.payload);
         // Store token and user info
         if (response.payload.data != null && response.payload.data.token) {
-          sessionStorage.setItem("access_token", response.payload.data.token);
+          sessionStorage.setItem(ACCESS_TOKEN, response.payload.data.token);
         }
         // Redirect to dashboard
         const redirectUrl = location.state?.urlAfterLoginSuccess || "/admin/dashboard";
@@ -48,6 +49,7 @@ function AdminLoginTemplate() {
       <button onClick={handleLogin} disabled={login.loading}>
         {login.loading ? "Logging in..." : "Login as Admin"}
       </button>
+      <br/>
       <button onClick={handleChangePassword} disabled={changePasswordState.loading}>
         {changePasswordState.loading ? "Changing password..." : "Change Password"}
       </button>

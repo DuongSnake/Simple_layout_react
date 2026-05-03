@@ -11,13 +11,14 @@ import HeaderUser from "./layout_user/Header_User";
 import NavbarUser from "./layout_user/Navbar_User";
 import ContentUser from "./layout_user/Content_User";
 import FooterUser from "./layout_user/Footer_User";
+import { ACCESS_TOKEN, USER_NAME } from './config/constant/Constants';
 
 import LayoutAdmin from "./layout_admin/common_layout/LayoutAdmin";
 import AdminLogin from "./layout_login/admin_layout/AdminLoginTemplate";
 
 function LayoutSelector({ children }) {
   const location = useLocation();
-  const attribute1 = sessionStorage.getItem("access_token");
+  const attribute1 = sessionStorage.getItem(ACCESS_TOKEN);
 
   // Admin routes
   if (location.pathname.startsWith("/admin")) {

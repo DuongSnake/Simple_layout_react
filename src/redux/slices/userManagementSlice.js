@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi } from '../../layout_admin/user_management/UserManagementAPI';
+import { createApi, updateApi, deleteApi, selectListApi, selectAllRolesApi } from '../../layout_admin/user_management/UserManagementAPI';
 
 const initialState = {
   create: {
@@ -17,14 +17,40 @@ const initialState = {
     loading: false,
     error: null,
   },
+  selectList: {
+    data: null,
+    loading: false,
+    error: null,
+    totalRecord: 0
+  },
+  selectAllRoles: {
+    data: null,
+    loading: false,
+    error: null,
+  }
 };
 
 const userManagementSlice = createSlice({
   name: 'userManagement',
   initialState,
   extraReducers: (builder) => {
-    // Create User handlers
     builder
+      // Select List handlers
+      .addCase(selectListApi.pending, (state) => {
+        state.selectList.loading = true;
+        state.selectList.error = null;
+      })
+      .addCase(selectListApi.fulfilled, (state, action) => {
+        state.selectList.loading = false;
+        state.selectList.error = null;
+        state.selectList.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectList.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      })
+      .addCase(selectListApi.rejected, (state, action) => {
+        state.selectList.loading = false;
+        state.selectList.error = action.payload || action.error.message;
+      })
+      // Create User handlers
       .addCase(createApi.pending, (state) => {
         state.create.loading = true;
         state.create.error = null;
@@ -65,6 +91,20 @@ const userManagementSlice = createSlice({
       .addCase(deleteApi.rejected, (state, action) => {
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
+      })
+      // Select All Roles handlers
+      .addCase(selectAllRolesApi.pending, (state) => {
+        state.selectAllRoles.loading = true;
+        state.selectAllRoles.error = null;
+      })
+      .addCase(selectAllRolesApi.fulfilled, (state, action) => {
+        state.selectAllRoles.loading = false;
+        state.selectAllRoles.error = null;
+        state.selectAllRoles.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+      })
+      .addCase(selectAllRolesApi.rejected, (state, action) => {
+        state.selectAllRoles.loading = false;
+        state.selectAllRoles.error = action.payload || action.error.message;
       });
   },
 });

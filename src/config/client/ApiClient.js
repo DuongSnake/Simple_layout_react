@@ -12,7 +12,24 @@ export const apiClient = axios.create({
   baseURL: SERVER_API_URL,
   timeout: 15000,
   withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+apiClient.interceptors.request.use(
+  config => {
+    config.headers = config.headers || {};
+    const token = getAuthToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['token'] = `${token}`;
+    }
+      config.headers['lang'] = 'vi';
+    return config;
+  },
+  error => Promise.reject(error)
+);
 
 export const downloadFileWithAxios = (urlApi, query, fileName) => {
   const token = getAuthToken();

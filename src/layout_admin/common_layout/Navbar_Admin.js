@@ -3,12 +3,6 @@ import { useNavigate } from "react-router-dom";
 function Navbar() {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("access_token");
-    sessionStorage.removeItem("userId");
-    navigate("/admin/login", { replace: true });
-  };
-
   return (
 <>
     {/* // <!-- Start sidebar --> */}
