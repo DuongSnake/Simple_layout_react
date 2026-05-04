@@ -44,6 +44,19 @@ function UserManagement() {
     roles: '',
   });
 
+  // State for form data (Search User modal)
+  const [formDataSearch, setFormDataSearch] = useState({
+    id: '',
+    username: '',
+    email: '',
+    phone: '',
+    fullName: '',
+    identityCard: null,
+    address: null,
+    note: null,
+    roles: '',
+  });
+
   // State for date picker
   const [isFromDatePickerOpen, setIsFromDatePickerOpen] = useState(false);
   const [isToDatePickerOpen, setIsToDatePickerOpen] = useState(false);
@@ -308,6 +321,22 @@ function UserManagement() {
     } catch (error) {
       console.error("select list error:", error);
     }
+  };  
+  //Handle for select list user API call 
+  const handleSelectListUsersSearch = async () => {
+    try {
+      const response = await dispatch(selectListApi({ username: formDataSearch.username, email: formDataSearch.email
+        ,phone : formDataSearch.phone, fullName: formDataSearch.fullName, identityCard: null, status: null
+        , id: null, pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
+       }));
+      if (response.type.endsWith('/fulfilled')) {
+        // Redux selector listDataUser will reflect the updated value on next render
+      } else {
+        console.error("select list failed:", response.payload);
+      }
+    } catch (error) {
+      console.error("select list error:", error);
+    }
   };
 
   //Handle for select list all roles API call 
@@ -334,6 +363,12 @@ function UserManagement() {
   const handleInputChangeEdit = (event) => {
     const { name, value } = event.target;
     setFormDataEdit((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handler for edit form input changes
+  const handleInputChangeSearch = (event) => {
+    const { name, value } = event.target;
+    setFormDataSearch((prev) => ({ ...prev, [name]: value }));
   };
 
   // Date picker handlers
@@ -396,22 +431,51 @@ function UserManagement() {
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
-              <form className="lg:pr-3" action="#" method="GET">
-                <div className="relative mt-1 lg:w-64 xl:w-96">
-                <label htmlFor="users-search">Email</label>
-                  <input type="text" name="email" id="users-search"
+              <form className="lg:pr-3">
+              <div className="relative mt-1 lg:w-64 xl:w-96">
+                <label htmlFor="users-name-search">Tên đăng nhập</label>
+                  <input type="text" name="username" id="users-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm email"/>
+                    placeholder="Tìm kiếm tên đăng nhập" onChange={handleInputChangeSearch} />
+                </div>
+                <div className="relative mt-1 lg:w-64 xl:w-96">
+                <label htmlFor="users-email-search">Email</label>
+                  <input type="text" name="email" id="users-email-search"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Tìm kiếm email" onChange={handleInputChangeSearch} />
+                </div>
+
+                <div className="relative mt-1 lg:w-64 xl:w-96">
+                <label htmlFor="users-full-name-search">Họ và tên</label>
+                  <input type="text" name="fullName" id="users-full-name-search"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                    placeholder="Tìm kiếm họ và tên" onChange={handleInputChangeSearch} />
                 </div>
               </form>
             </div>
           </div>
           <div className="sm:flex">   
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
+
+              <button
+                type="button"
+                onClick={handleSelectListUsersSearch} // Use state handler instead of data attributes
+                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              >
+                <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd"
+                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                    clipRule="evenodd"></path>
+                </svg>
+                Tìm kiếm
+              </button>   
+            <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
               {!listDataUserLoading && !listDataUser?.length && <span>Không tìm thấy dữ liệu.</span>}
               {!listDataUserLoading && listDataUser?.length > 0 && (
                 <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
               )}
+            </div>
             </div>
             {/* Button insert and export excel */}
             <div className="flex items-center ml-auto space-x-2 sm:space-x-3">
@@ -428,7 +492,7 @@ function UserManagement() {
                 </svg>
                 Thêm mới
               </button>
-              <a href="#"
+              {/* <a href="#"
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"
                 data-modal-hide="delete-user-modal">
                 <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
@@ -438,7 +502,7 @@ function UserManagement() {
                     clipRule="evenodd"></path>
                 </svg>
                 Xuất exel
-              </a>
+              </a> */}
               <button
                 type="button"
                 id="edit-user-button"
