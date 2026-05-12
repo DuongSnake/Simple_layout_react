@@ -134,6 +134,22 @@ function UserManagement() {
       } else {
         newSelected.add(userId);
       }
+    //Set value for edit form when click checkbox of user
+    listDataUser.forEach(user => {
+      if (user.id === userId) {
+        setFormDataEdit({
+          id: user?.id || '',
+          username: user?.username || '',
+          email: user?.email || '',
+          phone: user?.phone || '',
+          fullName: user?.fullName || '',
+          identityCard: user?.identityCard || null,
+          address: user?.address || null,
+          note: user?.note || null,
+          roles: user?.roles?.id || '',
+        });
+      }
+    });
       return newSelected;
     });
   };
@@ -202,21 +218,6 @@ function UserManagement() {
 
   // Handler for opening edit modal with user data
   const handleOpenEditModal = () => {
-    listDataUser.forEach(user => {
-      if (user.id === selectedUsers[0]) {
-        setFormDataEdit({
-          id: user?.id || '',
-          username: user?.username || '',
-          email: user?.email || '',
-          phone: user?.phone || '',
-          fullName: user?.fullName || '',
-          identityCard: user?.identityCard || null,
-          address: user?.address || null,
-          note: user?.note || null,
-          roles: user?.roles?.id || '',
-        });
-      }
-    });
     setIsEditModalOpen(true);
   };
 
@@ -438,7 +439,7 @@ function UserManagement() {
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Tìm kiếm tên đăng nhập" onChange={handleInputChangeSearch} />
                 </div>
-                <div className="relative mt-1 lg:w-64 xl:w-96">
+                {/* <div className="relative mt-1 lg:w-64 xl:w-96">
                 <label htmlFor="users-email-search">Email</label>
                   <input type="text" name="email" id="users-email-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -450,7 +451,7 @@ function UserManagement() {
                   <input type="text" name="fullName" id="users-full-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Tìm kiếm họ và tên" onChange={handleInputChangeSearch} />
-                </div>
+                </div> */}
               </form>
             </div>
           </div>
@@ -462,12 +463,6 @@ function UserManagement() {
                 onClick={handleSelectListUsersSearch} // Use state handler instead of data attributes
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"></path>
-                </svg>
                 Tìm kiếm
               </button>   
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
@@ -484,12 +479,6 @@ function UserManagement() {
                 onClick={openAddModal} // Use state handler instead of data attributes
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"></path>
-                </svg>
                 Thêm mới
               </button>
               {/* <a href="#"
@@ -509,12 +498,6 @@ function UserManagement() {
                 onClick={handleOpenEditModal} // Use state handler instead of data attributes
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd"
-                    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-                    clipRule="evenodd"></path>
-                </svg>
                 Sửa
               </button>
               <button
@@ -523,12 +506,6 @@ function UserManagement() {
                 onClick={handleDeleteUser} // Use state handler instead of data attributes
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd"
-                    d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
-                    clipRule="evenodd"></path>
-                </svg>
                 Xóa
               </button>
             </div>
