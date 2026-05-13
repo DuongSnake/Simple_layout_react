@@ -1,13 +1,15 @@
 import { Routes, Route  } from "react-router-dom";
-import Home from "../pages/Home";
-import About from "../pages/About";
+import HomeUser from "../pages/Home_User";
+import UserProfile from "../pages/UserProfile";
+import UserLogin from "../layout_login/user_layout/UserLoginTemplate";
 function ContentUser() {
   return (
     <main style={{ padding: "20px" }}>
-        {/* Hien thi giao dien o day */}
+        {/* Phan noi dung hien thi trong user layout */}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/user" element={<HomeUser />} />
+        <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/user/login" element={<UserLogin />} />
       </Routes>
     </main>
   );
