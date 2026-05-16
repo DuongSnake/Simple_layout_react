@@ -4,6 +4,9 @@ import AdminDashboard from "../../pages/AdminDashboard";
 import About from "../../pages/About";
 import UserManagement from "../user_management/UserManagementLayout";
 import MajorManagement from "../major_management/MajorManagementLayout";
+import StudentManagement from "../student_management/StudentManagementLayout";
+import InstructorManagement from "../instructor_management/InstructorManagementLayout";
+import AdmissionPeriodManagement from "../admission_period_management/AdmissionPeriodManagementLayout";
 import NavbarAdmin from "./Navbar_Admin";
 import AdminLogin from "../../layout_login/admin_layout/AdminLoginTemplate";
 function Content() {
@@ -20,6 +23,9 @@ function Content() {
         <Route path="/admin/about" element={<About />} />
         <Route path="/admin/user-management" element={<UserManagement />} />
         <Route path="/admin/major-management" element={<MajorManagement />} />
+        <Route path="/admin/student-management" element={<StudentManagement />} />
+        <Route path="/admin/instructor-management" element={<InstructorManagement />} />
+        <Route path="/admin/admission-period-management" element={<AdmissionPeriodManagement />} />
       </Routes>
       </main>
       </div>
