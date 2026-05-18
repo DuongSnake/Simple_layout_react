@@ -46,7 +46,7 @@ const { RangePicker } = DatePicker;
     instructorId: '',
     periodAssignmentId: '',
     assignmentStudentRegisterName: '',
-    statusAutoMap: '',
+    statusAutoMap: 'N',
     oldValueId: ''
   });
 
@@ -231,6 +231,7 @@ const { RangePicker } = DatePicker;
     handleSelectListAllStudents();
     handleSelectListAllInstructors();
     handleSelectListAllPeriodAssignments();
+    console.log('Component mounted, fetched initial data:'+JSON.stringify(listAllStudents));
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
@@ -277,37 +278,35 @@ const { RangePicker } = DatePicker;
 
   //Handle for create admission period API call 
   const handleCreate = async () => {
+    console.log("Form state before submission:", formData);
+    
     const formData123 = new FormData();
-    if(formData.fileUpload != undefined && formData.fileUpload != ""){
-    formData123.append("fileUpload", formData.fileUpload);
+    if (formData.fileUpload instanceof File) {
+      formData123.append("fileUpload", formData.fileUpload);
     }
-    formData123.append("admissionPeriodId", formData.admissionPeriodId);
-    formData123.append("majorId", formData.majorId);
-    formData123.append("assignmentStudentRegisterName", formData.assignmentStudentRegisterName);
-    formData123.append("studentMapInstructorId", formData.studentMapInstructorId);
-    formData123.append("statusAutoMap", formData.statusAutoMap);
-    console.log('Form data to submit:', JSON.stringify(formData123));
-
-
+    formData123.append("assignmentStudentRegisterName", formData.assignmentStudentRegisterName || "");
+    formData123.append("periodAssignmentId", formData.periodAssignmentId || "");
+    formData123.append("studentId", formData.studentId || "");
+    formData123.append("instructorId", formData.instructorId || "");
+    formData123.append("statusAutoMap", formData.statusAutoMap || "N");
+    
+    // Log FormData properly
+    console.log("FormData entries:");
+    for (let [key, value] of formData123.entries()) {
+      console.log(`  ${key}:`, value);
+    }
     try {
-      const response = await dispatch(createApi({ 
-        admissionPeriodId: formData.admissionPeriodId,
-        majorId: formData.majorId,
-        assignmentStudentRegisterName: formData.assignmentStudentRegisterName,
-        studentMapInstructorId: formData.studentMapInstructorId,
-        statusAutoMap: formData.statusAutoMap
-       }));
-      // Check if create was successful
+      const response = await dispatch(createApi(formData123));
       if (response.type.endsWith('/fulfilled')) {
-        // console.log("insert successful:", response.payload);
-        // Reset form
         setFormData({
-          admissionPeriodId: '',
-          majorId: '',
-          startPeriod: '',
-          endPeriod: '',
-          note: ''
+          fileUpload: '',
+          studentId: '',
+          instructorId: '',
+          periodAssignmentId: '',
+          assignmentStudentRegisterName: '',
+          statusAutoMap: 'N'
         });
+        setSelectedFileAdd(null);
       } else {
         // console.error("insert failed:", response.payload);
       }
@@ -471,16 +470,12 @@ const { RangePicker } = DatePicker;
 
     if (!file) {
       setSelectedFileAdd(null);
+      setFormData((prev) => ({ ...prev, fileUpload: '' }));
       return;
     }
-    // Read file content
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setSelectedFileAdd(e.target.result); // File content as string
-    setFormData((prev) => ({ ...prev, fileUpload: e.target.result }));
-    };
 
-    reader.readAsText(file);
+    setSelectedFileAdd(file);
+    setFormData((prev) => ({ ...prev, fileUpload: file }));
   };
     // Handle file selection
   const handleFileChangeUpdate = (event) => {
@@ -640,7 +635,7 @@ const { RangePicker } = DatePicker;
                       const assignmentStudentRegisterName = assignmentRegister?.assignmentStudentRegisterName;
                       const studentName = assignmentRegister?.studentName;
                       const instructorName = assignmentRegister?.instructorName;
-                      const statusAutoMap = statusAutoMap?.statusAutoMap;
+                      const statusAutoMap = assignmentRegister?.statusAutoMap;
                       const activeStatus = assignmentRegister?.status === '1' || assignmentRegister?.status === 1 || assignmentRegister?.status === true;
 
                       return (

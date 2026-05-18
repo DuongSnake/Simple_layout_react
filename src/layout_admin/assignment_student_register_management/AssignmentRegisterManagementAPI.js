@@ -13,11 +13,16 @@ export const createApi = createAsyncThunk(
   'assignmentRegister/create',
   async (authRequest, { rejectWithValue }) => {
     try {
-      // console.log('authRequest:', authRequest);
+      console.log('authRequest is FormData:', authRequest instanceof FormData);
+      if (authRequest instanceof FormData) {
+        for (let [key, value] of authRequest.entries()) {
+          console.log(`  ${key}:`, value);
+        }
+      }
       let urlCreateAssignmentRegister= SERVER_API_URL + API_CREATE_ASSIGNMENT_STUDENT_USER_SIDE;
-      // console.log('API URL:', urlCreateAssignmentRegister);
+      console.log('API URL:', urlCreateAssignmentRegister);
       const response = await apiClient.post(urlCreateAssignmentRegister, authRequest);
-      // console.log('API create assignmentRegister Success Response:', response.data);
+      console.log('API create assignmentRegister Success Response:', response.data);
       return response.data;
     } catch (error) {
       // console.error('API Error:', error.message);

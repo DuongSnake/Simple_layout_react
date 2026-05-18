@@ -25,7 +25,13 @@ apiClient.interceptors.request.use(
       config.headers['Authorization'] = `Bearer ${token}`;
       config.headers['token'] = `${token}`;
     }
-      config.headers['lang'] = 'vi';
+    config.headers['lang'] = 'vi';
+    
+    // Don't set Content-Type for FormData - let browser handle it
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
     return config;
   },
   error => Promise.reject(error)
