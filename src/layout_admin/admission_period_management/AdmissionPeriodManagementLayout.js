@@ -1,35 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { selectListApiMajors, createApi, updateApi, deleteApi } from "./MajorManagementAPI";
+import { DatePicker } from 'antd';
+import { selectListApiAdmissionPeriodsApi, createApi, updateApi, deleteApi } from "./AdmissionPeriodManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
+import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
-
-function MajorManagement() {
+import moment from 'moment';
+import { APP_DATE_FORMAT}  from '../../config/constant/Constants';
+function AdmissionPeriodManagement() {
+const { RangePicker } = DatePicker;
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const listDataMajor = useSelector(state => state.majorManagement.selectListApiMajors.data);
-  const totalRecord = useSelector(state => state.majorManagement.selectListApiMajors.totalRecord);
-  const listDataMajorLoading = useSelector(state => state.majorManagement.selectListApiMajors.loading);
+  const listDataAdmissionPeriod = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.data);
+  const totalRecord = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.totalRecord);
+  const listDataAdmissionPeriodLoading = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.loading);
+  const [rangeDateUpdate, setRangeDateUpdate] = useState([null, null]);
 
-  // State for form data (Add Major modal)
+  // State for form data (Add AdmissionPeriod modal)
   const [formData, setFormData] = useState({
-    majorName: ''
+    admissionPeriodName: '',
+    startPeriod: '',
+    endPeriod: ''
   });
 
-  // State for form data (Edit Major modal)
+  // State for form data (Edit AdmissionPeriod modal)
   const [formDataEdit, setFormDataEdit] = useState({
-    majorId: '',
-    majorName: ''
+    admissionPeriodId: '',
+    startPeriod: '',
+    endPeriod: '',
+    admissionPeriodName: ''
   });
 
-  // State for form data (Search Major modal)
+  // State for form data (Search AdmissionPeriod modal)
   const [formDataSearch, setFormDataSearch] = useState({
-    majorId: '',
-    majorName: '',
+    admissionPeriodId: '',
+    admissionPeriodName: '',
+    fromDate: '',
+    toDate: ''
   });
 
   // State for pagination
@@ -39,50 +50,50 @@ function MajorManagement() {
   });
 
   // State for checkbox selection
-  const [selectedMajors, setSelectedMajors] = useState(new Set());
+  const [selectedAdmissionPeriod, setSelectedAdmissionPeriod] = useState(new Set());
   
   const _onChangePagination = (page, pageSize) => {
     setPager({ ...pager, pageNum: page });
-    handleSelectListMajors(page, pageSize);
+    handleSelectListAdmissionPeriods(page, pageSize);
   };
 
   // Handler for select all checkbox
   const handleSelectAllChange = (e) => {
     if (e.target.checked) {
-      // Select all majors in current page
-      const allMajorIds = new Set(
-        listDataMajor?.map((major, idx) => major?.id ?? idx) || []
+      // Select all admissionPeriods in current page
+      const alladmissionPeriodIds = new Set(
+        listDataAdmissionPeriod?.map((admissionPeriod, idx) => admissionPeriod?.admissionPeriodId ?? idx) || []
       );
-      setSelectedMajors(allMajorIds);
+      setSelectedAdmissionPeriod(alladmissionPeriodIds);
     } else {
       // Deselect all
-      setSelectedMajors(new Set());
+      setSelectedAdmissionPeriod(new Set());
     }
   };
 
-  //Handle case when change size list selected major
+  //Handle case when change size list selected dmissionPeriod
   useEffect(() => {
     handleEnableButtonActions();
-  }, [selectedMajors]);
+  }, [selectedAdmissionPeriod]);
 
-  //Handle case when click button edit or delete but no major selected
+  //Handle case when click button edit or delete but no dmissionPeriod selected
   const handleEnableButtonActions = () => {
-    if(selectedMajors != null && selectedMajors.size === 0){
-      //Disable edit and delete button when no major selected
+    if(selectedAdmissionPeriod != null && selectedAdmissionPeriod.size === 0){
+      //Disable edit and delete button when no dmissionPeriod selected
       disableButtonEditDelete(true, true);
-    } else if(selectedMajors != null && selectedMajors.size === 1){
-      //Enable edit button and disable delete button when only 1 major selected
+    } else if(selectedAdmissionPeriod != null && selectedAdmissionPeriod.size === 1){
+      //Enable edit button and disable delete button when only 1 dmissionPeriod selected
       disableButtonEditDelete(false, false);
     }else{
-      //Disable edit and enable delete button when multiple majors selected
+      //Disable edit and enable delete button when multiple dmissionPeriod selected
       disableButtonEditDelete(true, false);
     }
   };
 
   const disableButtonEditDelete = (statusEdit, statusDelete) => {
     //Set disabled attribute for edit and delete button
-    const editBtn = document.getElementById("edit-major-button");
-    const deleteBtn = document.getElementById("delete-major-button");
+    const editBtn = document.getElementById("edit-admission-period-button");
+    const deleteBtn = document.getElementById("delete-admission-period-button");
     
     if(editBtn) {
       editBtn.disabled = statusEdit;
@@ -104,52 +115,56 @@ function MajorManagement() {
   };
 
   // Handler for individual row checkbox
-  const handleMajorCheckboxChange = (majorId) => {
-    setSelectedMajors((prevSelected) => {
+  const handleAdmissionPeriodCheckboxChange = (admissionPeriodId) => {
+    setSelectedAdmissionPeriod((prevSelected) => {
       const newSelected = new Set(prevSelected);
-      if (newSelected.has(majorId)) {
-        newSelected.delete(majorId);
+      if (newSelected.has(admissionPeriodId)) {
+        newSelected.delete(admissionPeriodId);
       } else {
-        newSelected.add(majorId);
+        newSelected.add(admissionPeriodId);
       }
-      //Set value for edit form when click checkbox of major
-      listDataMajor.forEach(major => {
-        if (major.majorId === majorId) {
+      //Set value for edit form when click checkbox of admissionPeriodId
+      listDataAdmissionPeriod.forEach(admissionPeriod => {
+        if (admissionPeriod.admissionPeriodId === admissionPeriodId) {
           setFormDataEdit({
-            majorId: major?.majorId || '',
-            majorName: major?.majorName || ''
+            admissionPeriodId: admissionPeriod?.admissionPeriodId || '',
+            startPeriod: admissionPeriod?.startPeriod || '',
+            endPeriod: admissionPeriod?.endPeriod || '',
+            admissionPeriodName: admissionPeriod?.admissionPeriodName || ''
           });
+          //set value default for range picker in edit form when click checkbox of admissionPeriodId
+          setRangeDateUpdate([dayjs(admissionPeriod?.startPeriod, APP_DATE_FORMAT), dayjs(admissionPeriod?.endPeriod, APP_DATE_FORMAT)]);
         }
       });
       return newSelected;
     });
   };
 
-  // Check if all majors are selected
+  // Check if all dmissionPeriod are selected
   const areAllSelected = 
-    Array.isArray(listDataMajor) && 
-    listDataMajor.length > 0 && 
-    listDataMajor.every((major, idx) => selectedMajors.has(major?.id ?? idx));
+    Array.isArray(listDataAdmissionPeriod) && 
+    listDataAdmissionPeriod.length > 0 && 
+    listDataAdmissionPeriod.every((admissionPeriod, idx) => selectedAdmissionPeriod.has(admissionPeriod?.admissionPeriodId ?? idx));
   
   // Check if some (but not all) are selected
   const areSomeSelected = 
-    Array.isArray(listDataMajor) && 
-    listDataMajor.length > 0 && 
-    selectedMajors.size > 0 && 
+    Array.isArray(listDataAdmissionPeriod) && 
+    listDataAdmissionPeriod.length > 0 && 
+    selectedAdmissionPeriod.size > 0 && 
     !areAllSelected;
 
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
-    //Select list major when component mounts
-    handleSelectListMajors(pager.pageNum, pager.pageSize);
+    //Select list admission period when component mounts
+    handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize);
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    console.log('Redux listDataMajor changed:', listDataMajor);
-    // Reset checkbox selection when major list changes
-    setSelectedMajors(new Set());
-  }, [listDataMajor]);
+    // console.log('Redux listDataAdmissionPeriod changed:', listDataAdmissionPeriod);
+    // Reset checkbox selection when admission period list changes
+    setSelectedAdmissionPeriod(new Set());
+  }, [listDataAdmissionPeriod]);
 
   // Handlers for modal toggles
   const openAddModal = () => setIsAddModalOpen(true);
@@ -159,128 +174,133 @@ function MajorManagement() {
   const openDeleteModal = () => setIsDeleteModalOpen(true);
   const closeDeleteModal = () => setIsDeleteModalOpen(false);
 
-  // Handler for opening edit modal with major data
-  const handleOpenEditModal = () => {
+  // Handler for opening edit modal with admission period data
+  const handleOpenEditAdmissionPeriod = () => {
     setIsEditModalOpen(true);
   };
 
-  // Handler for form submit in add major modal
+  // Handler for form submit in add admission period modal
   const handleFormSubmit = (event) => {
     event.preventDefault();
     handleCreate(); // Call the create API function
     closeAddModal(); // Close modal after submit
     //set timeout to ensure the create API call completes before refreshing the list
     setTimeout(() => {
-      handleSelectListMajors(pager.pageNum, pager.pageSize); // Refresh major list after creation
+      handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize); // Refresh admission period list after creation
     }, 1500);
   };
 
-  // Handler for form submit in edit major modal
-  const handleFormSubmitEditMajor = (event) => {
+  // Handler for form submit in edit admission period modal
+  const handleFormSubmitEditAdmissionPeriod = (event) => {
     event.preventDefault();
     handleUpdate(); // Call the update API function
     closeEditModal(); // Close modal after submit
     // set timeout to ensure the update API call completes before refreshing the list
     setTimeout(() => {
-      handleSelectListMajors(pager.pageNum, pager.pageSize); // Refresh major list after creation
+      handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize); // Refresh admission period list after update
     }, 500);
   };
 
-  //Handle for create major API call 
+  //Handle for create admission period API call 
   const handleCreate = async () => {
     try {
       const response = await dispatch(createApi({ 
-        majorName: formData.majorName
+        admissionPeriodName: formData.admissionPeriodName,
+        startPeriod: formData.startPeriod,
+        endPeriod: formData.endPeriod
        }));
       // Check if create was successful
       if (response.type.endsWith('/fulfilled')) {
-        console.log("insert successful:", response.payload);
+        // console.log("insert successful:", response.payload);
         // Reset form
         setFormData({
-          majorName: ''
+          admissionPeriodName: '',
+          startPeriod: '',
+          endPeriod: ''
         });
       } else {
-        console.error("insert failed:", response.payload);
+        // console.error("insert failed:", response.payload);
       }
     } catch (error) {
-      console.error("insert error:", error);
+      // console.error("insert error:", error);
     }
   };
 
-  //Handle for update major API call 
+  //Handle for update admission period API call 
   const handleUpdate = async () => {
     try {
       const response = await dispatch(updateApi({ 
-        id: formDataEdit.id,
-        majorId: formDataEdit.majorId, 
-        majorName: formDataEdit.majorName
+        admissionPeriodId: formDataEdit.admissionPeriodId,
+        startPeriod: formDataEdit.startPeriod, 
+        endPeriod: formDataEdit.endPeriod, 
+        admissionPeriodName: formDataEdit.admissionPeriodName
        }));
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
-        console.log("update successful:", response.payload);
+        // console.log("update successful:", response.payload);
       } else {
-        console.error("update failed:", response.payload);
+        // console.error("update failed:", response.payload);
       }
     } catch (error) {
-      console.error("update error:", error);
+    //   console.error("update error:", error);
     }
   };
 
-  //Handle for delete major API call 
-  const handleDeleteMajor = async () => {
+  //Handle for delete admission period API call 
+  const handleDeleteAdmissionPeriod = async () => {
     try {
-      const response = await dispatch(deleteApi({ listData: Array.from(selectedMajors) }));
+      const response = await dispatch(deleteApi({ listData: Array.from(selectedAdmissionPeriod) }));
       // Check if delete was successful
       if (response.type.endsWith('/fulfilled')) {
-        console.log("delete successful:", response.payload);
+        // console.log("delete successful:", response.payload);
         // set timeout to ensure the delete API call completes before refreshing the list
         setTimeout(() => {
-          handleSelectListMajors(pager.pageNum, pager.pageSize); // Refresh major list after deletion
+          handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize); // Refresh admission period list after deletion
         }, 500);
       } else {
-        console.error("delete failed:", response.payload);
+        // console.error("delete failed:", response.payload);
       }
     } catch (error) {
-      console.error("delete error:", error);
+    //   console.error("delete error:", error);
     }
     closeDeleteModal();
   };
 
-  //Handle for select list major API call 
-  const handleSelectListMajors = async (pageNum, pageSize) => {
+  //Handle for select list admission period API call 
+  const handleSelectListAdmissionPeriods = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListApiMajors({ 
-        majorId: null, 
-        majorName: null,
+      const response = await dispatch(selectListApiAdmissionPeriodsApi({ 
+        admissionPeriodId: null, 
+        admissionPeriodName: null,
         status: null,
         pageRequestDto : { pageNum, pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
-        // Redux selector listDataMajor will reflect the updated value on next render
+        // Redux selector listDataAdmissionPeriod will reflect the updated value on next render
       } else {
-        console.error("select list failed:", response.payload);
+        // console.error("select list failed:", response.payload);
       }
     } catch (error) {
-      console.error("select list error:", error);
+    //   console.error("select list error:", error);
     }
   };
 
-  //Handle for select list major API call with search
-  const handleSelectListMajorsSearch = async () => {
+  //Handle for select list admission period API call with search
+  const handleSelectListAdmissionPeriodsSearch = async () => {
     try {
-      const response = await dispatch(selectListApiMajors({ 
-        majorId: formDataSearch.majorId, 
-        majorName: formDataSearch.majorName,
+      const response = await dispatch(selectListApiAdmissionPeriodsApi({ 
+        admissionPeriodId: formDataSearch.admissionPeriodId, 
+        admissionPeriodName: formDataSearch.admissionPeriodName,
         status: null,
         pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
-        // Redux selector listDataMajor will reflect the updated value on next render
+        // Redux selector listDataAdmissionPeriod will reflect the updated value on next render
       } else {
-        console.error("select list failed:", response.payload);
+        // console.error("select list failed:", response.payload);
       }
     } catch (error) {
-      console.error("select list error:", error);
+    //   console.error("select list error:", error);
     }
   };
 
@@ -295,6 +315,19 @@ function MajorManagement() {
     const { name, value } = event.target;
     setFormDataEdit((prev) => ({ ...prev, [name]: value }));
   };
+  //Handle for change date insert
+  const onChangeDate = value => {
+    const AdmissionPeriodFromDt = value && value.length === 2 ? value[0].format(APP_DATE_FORMAT) : '';
+    const AdmissionPeriodToDt = value && value.length === 2 ? value[1].format(APP_DATE_FORMAT) : '';
+    setFormData((prev) => ({ ...prev, startPeriod: AdmissionPeriodFromDt, endPeriod: AdmissionPeriodToDt }));
+    };  
+  //Handle for change date insert
+  const onChangeDateUpdate = value => {
+    const AdmissionPeriodFromDt = value && value.length === 2 ? value[0].format(APP_DATE_FORMAT) : '';
+    const AdmissionPeriodToDt = value && value.length === 2 ? value[1].format(APP_DATE_FORMAT) : '';
+    setRangeDateUpdate([dayjs(AdmissionPeriodFromDt, APP_DATE_FORMAT), dayjs(AdmissionPeriodToDt, APP_DATE_FORMAT)]);
+    setFormDataEdit((prev) => ({ ...prev, startPeriod: AdmissionPeriodFromDt, endPeriod: AdmissionPeriodToDt }));
+    }; 
 
   // Handler for search form input changes
   const handleInputChangeSearch = (event) => {
@@ -308,22 +341,22 @@ function MajorManagement() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách chuyên ngành</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách kỳ học</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="major-code-search">Mã chuyên ngành</label>
-                  <input type="text" name="majorId" id="major-code-search"
+                  <label htmlFor="admission-period-id-search">Mã kỳ học</label>
+                  <input type="text" name="admissionPeriodId" id="admission-period-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã chuyên ngành" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm mã kỳ học" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="major-name-search">Tên chuyên ngành</label>
-                  <input type="text" name="majorName" id="major-name-search"
+                  <label htmlFor="admission-period-name-search">Tên kỳ học</label>
+                  <input type="text" name="admissionPeriodName" id="admission-period-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm tên chuyên ngành" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm tên kỳ học" onChange={handleInputChangeSearch} />
                 </div>
               </form>
             </div>
@@ -332,14 +365,14 @@ function MajorManagement() {
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
               <button
                 type="button"
-                onClick={handleSelectListMajorsSearch}
+                onClick={handleSelectListAdmissionPeriodsSearch}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Tìm kiếm
               </button>   
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                {!listDataMajorLoading && !listDataMajor?.length && <span>Không tìm thấy dữ liệu.</span>}
-                {!listDataMajorLoading && listDataMajor?.length > 0 && (
+                {!listDataAdmissionPeriodLoading && !listDataAdmissionPeriod?.length && <span>Không tìm thấy dữ liệu.</span>}
+                {!listDataAdmissionPeriodLoading && listDataAdmissionPeriod?.length > 0 && (
                   <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
                 )}
               </div>
@@ -355,15 +388,15 @@ function MajorManagement() {
               </button>
               <button
                 type="button"
-                id="edit-major-button"
-                onClick={handleOpenEditModal}
+                id="edit-admission-period-button"
+                onClick={handleOpenEditAdmissionPeriod}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Sửa
               </button>
               <button
                 type="button"
-                id="delete-major-button"
+                id="delete-admission-period-button"
                 onClick={openDeleteModal}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
@@ -374,7 +407,7 @@ function MajorManagement() {
         </div>
       </div>
 
-      {/* <!-- Start table major --> */}
+      {/* <!-- Start table admission period --> */}
       <div className="flex flex-col">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
@@ -399,11 +432,11 @@ function MajorManagement() {
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Mã chuyên ngành
+                      Mã kỳ học
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Tên chuyên ngành
+                      Tên kỳ học
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -412,31 +445,31 @@ function MajorManagement() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                  {Array.isArray(listDataMajor) && listDataMajor.length ? (
-                    listDataMajor.map((major, idx) => {
-                      const majorId = major?.majorId;
-                      const majorName = major?.majorName;
-                      const activeStatus = major?.status === '1' || major?.status === 1 || major?.status === true;
+                  {Array.isArray(listDataAdmissionPeriod) && listDataAdmissionPeriod.length ? (
+                    listDataAdmissionPeriod.map((admissionPeriod, idx) => {
+                      const admissionPeriodId = admissionPeriod?.admissionPeriodId;
+                      const admissionPeriodName = admissionPeriod?.admissionPeriodName;
+                      const activeStatus = admissionPeriod?.status === '1' || admissionPeriod?.status === 1 || admissionPeriod?.status === true;
 
                       return (
-                        <tr key={majorId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <tr key={admissionPeriodId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="w-4 p-4">
                             <div className="flex items-center">
                               <input 
-                                id={`checkbox-${majorId}`} 
+                                id={`checkbox-${admissionPeriodId}`} 
                                 aria-describedby="checkbox-1" 
                                 type="checkbox"
-                                checked={selectedMajors.has(majorId)}
-                                onChange={() => handleMajorCheckboxChange(majorId)}
+                                checked={selectedAdmissionPeriod.has(admissionPeriodId)}
+                                onChange={() => handleAdmissionPeriodCheckboxChange(admissionPeriodId)}
                                 className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label htmlFor={`checkbox-${majorId}`} className="sr-only">checkbox</label>
+                              <label htmlFor={`checkbox-${admissionPeriodId}`} className="sr-only">checkbox</label>
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {majorId}
+                            {admissionPeriodId}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {majorName}
+                            {admissionPeriodName}
                           </td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
@@ -460,7 +493,7 @@ function MajorManagement() {
           </div>
         </div>
       </div>
-      {/* <!-- End table major --> */}
+      {/* <!-- End table admission period --> */}
 
       {/* <!-- Start pagination --> */}
       <div
@@ -476,19 +509,19 @@ function MajorManagement() {
       </div>
       {/* <!-- End pagination --> */}
 
-      {/* <!-- Edit Major Modal --> */}
+      {/* <!-- Edit Admission Period Modal --> */}
       {isEditModalOpen && (
         <div
           onClick={closeEditModal}
           className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
-          id="edit-major-modal">
+          id="edit-admission-period-modal">
           <div onClick={(e) => e.stopPropagation()} className="relative w-full h-full max-w-2xl px-4 md:h-auto flex items-center justify-center">
             {/* <!-- Modal content --> */}
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Cập nhật chuyên ngành
+                  Cập nhật kỳ học
                 </h3>
                 <button type="button"
                   onClick={closeEditModal}
@@ -505,23 +538,32 @@ function MajorManagement() {
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-major-code" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã chuyên ngành</label>
-                      <input type="text" name="majorId" value={formDataEdit.majorId} onChange={handleInputChangeEdit} id="edit-major-code"
+                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã kỳ học</label>
+                      <input type="text" name="admissionPeriodId" value={formDataEdit.admissionPeriodId} onChange={handleInputChangeEdit} id="edit-admission-period-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Mã chuyên ngành" required/>
+                        placeholder="Mã kỳ học" required/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-major-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên chuyên ngành</label>
-                      <input type="text" name="majorName" value={formDataEdit.majorName} onChange={handleInputChangeEdit} id="edit-major-name"
+                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên kỳ học</label>
+                      <input type="text" name="admissionPeriodName" value={formDataEdit.admissionPeriodName} onChange={handleInputChangeEdit} id="edit-admission-period-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Tên chuyên ngành" required/>
+                        placeholder="Tên kỳ học" required/>
                     </div>
                   </div>
+                    <div className="grid grid-cols-6 gap-6">
+                        <div className="col-span-6 sm:col-span-3">
+                            
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thời gian</label>
+                      <RangePicker className="date" id="date12313"
+                      format="YYYY-MM-DD"
+                      value={rangeDateUpdate} onChange={onChangeDateUpdate} />
+                        </div>
+                    </div>
                   {/* <!-- Modal footer --> */}
                   <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
                     <button
                       className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                       onClick={handleFormSubmitEditMajor}>Cập nhật</button>
+                       onClick={handleFormSubmitEditAdmissionPeriod}>Cập nhật</button>
                   </div>
                 </form>
               </div>
@@ -530,19 +572,19 @@ function MajorManagement() {
         </div>
       )}
 
-      {/* <!-- Add Major Modal --> */}
+      {/* <!-- Add Admission Period Modal --> */}
       {isAddModalOpen && (
         <div
           onClick={closeAddModal}
           className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
-          id="add-major-modal">
+          id="add-admission-period-modal">
           <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl px-4 md:h-auto">
             {/* <!-- Modal content --> */}
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Thêm mới chuyên ngành
+                  Thêm mới kỳ học
                 </h3>
                 <button type="button"
                   onClick={closeAddModal}
@@ -559,10 +601,16 @@ function MajorManagement() {
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="major-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên chuyên ngành</label>
-                      <input type="text" name="majorName" value={formData.majorName} onChange={handleInputChange} id="major-name"
+                      <label htmlFor="admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên kỳ học</label>
+                      <input type="text" name="admissionPeriodName" value={formData.admissionPeriodName} onChange={handleInputChange} id="admission-period-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Tên chuyên ngành" required />
+                        placeholder="Tên kỳ học" required />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="admission-period-from-date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thời gian</label>
+                      <RangePicker className="date" id="date12313" onChange={onChangeDate} />
                     </div>
                   </div>
                   {/* <!-- Modal footer --> */}
@@ -578,12 +626,12 @@ function MajorManagement() {
         </div>
       )}
 
-      {/* <!-- Delete Major Modal --> */}
+      {/* <!-- Delete Admission Period Modal --> */}
       {isDeleteModalOpen && (
         <div
           onClick={closeDeleteModal}
           className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
-          id="delete-major-modal">
+          id="delete-admission-period-modal">
           <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md px-4 md:h-auto">
             {/* <!-- Modal content --> */}
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
@@ -606,9 +654,9 @@ function MajorManagement() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn xóa chuyên ngành này không?</h3>
+                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn xóa kỳ học này không?</h3>
                 <button
-                  onClick={handleDeleteMajor}
+                  onClick={handleDeleteAdmissionPeriod}
                   className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">
                   Chắc chắn
                 </button>
@@ -626,4 +674,4 @@ function MajorManagement() {
   );
 }
 
-export default MajorManagement;
+export default AdmissionPeriodManagement;

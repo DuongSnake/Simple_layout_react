@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApi, selectAllRolesApi } from '../../layout_admin/user_management/UserManagementAPI';
+import { createApi, updateApi, deleteApi, selectListApi, selectAllRolesApi, selectAllInstructorApi, selectAllStudentApi } from '../../layout_admin/user_management/UserManagementAPI';
 
 const initialState = {
   create: {
@@ -24,6 +24,16 @@ const initialState = {
     totalRecord: 0
   },
   selectAllRoles: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  selectAllStudents: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  selectAllInstructors: {
     data: null,
     loading: false,
     error: null,
@@ -105,6 +115,34 @@ const userManagementSlice = createSlice({
       .addCase(selectAllRolesApi.rejected, (state, action) => {
         state.selectAllRoles.loading = false;
         state.selectAllRoles.error = action.payload || action.error.message;
+      })
+      // Select All Students handlers
+      .addCase(selectAllStudentApi.pending, (state) => {
+        state.selectAllStudents.loading = true;
+        state.selectAllStudents.error = null;
+      })
+      .addCase(selectAllStudentApi.fulfilled, (state, action) => {
+        state.selectAllStudents.loading = false;
+        state.selectAllStudents.error = null;
+        state.selectAllStudents.data = (undefined === action.payload.data) ? null : action.payload.data;
+      })
+      .addCase(selectAllStudentApi.rejected, (state, action) => {
+        state.selectAllStudents.loading = false;
+        state.selectAllStudents.error = action.payload || action.error.message;
+      })
+      // Select All Instructors handlers
+      .addCase(selectAllInstructorApi.pending, (state) => {
+        state.selectAllInstructors.loading = true;
+        state.selectAllInstructors.error = null;
+      })
+      .addCase(selectAllInstructorApi.fulfilled, (state, action) => {
+        state.selectAllInstructors.loading = false;
+        state.selectAllInstructors.error = null;
+        state.selectAllInstructors.data = (undefined === action.payload.data) ? null : action.payload.data;
+      })
+      .addCase(selectAllInstructorApi.rejected, (state, action) => {
+        state.selectAllInstructors.loading = false;
+        state.selectAllInstructors.error = action.payload || action.error.message;
       });
   },
 });

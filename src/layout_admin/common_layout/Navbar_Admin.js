@@ -10,6 +10,26 @@ function Navbar() {
     navigate("/admin/major-management", { replace: true });
   };
 
+  const navigatePage3 = () => {
+    navigate("/admin/student-management", { replace: true });
+  };
+
+  const navigatePage4 = () => {
+    navigate("/admin/instructor-management", { replace: true });
+  };
+
+  const navigatePage5 = () => {
+    navigate("/admin/admission-period-management", { replace: true });
+  };
+
+  const navigatePage6 = () => {
+    navigate("/admin/period-assignment-management", { replace: true });
+  };
+
+  const navigatePage7 = () => {
+    navigate("/admin/assignment-register-management", { replace: true });
+  };
+
   return (
 <>
     {/* // <!-- Start sidebar --> */}
@@ -60,6 +80,26 @@ function Navbar() {
                   <li onClick={navigatePage2}>
                     <a href="/admin/major-management"
                       class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Chuyên ngành</a>
+                  </li>
+                  <li onClick={navigatePage3}>
+                    <a href="/admin/student-management"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Sinh viên</a>
+                  </li>
+                  <li onClick={navigatePage4}>
+                    <a href="/admin/instructor-management"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Giảng viên</a>
+                  </li>
+                  <li onClick={navigatePage5}>
+                    <a href="/admin/admission-period-management"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Kỳ học</a>
+                  </li>
+                  <li onClick={navigatePage6}>
+                    <a href="/admin/period-assignment-management"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Kỳ hạn đồ án</a>
+                  </li>
+                  <li onClick={navigatePage7}>
+                    <a href="/admin/assignment-register-management"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Đăng ký đồ án</a>
                   </li>
                 </ul>
               </li>

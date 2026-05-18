@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApiMajors } from '../../layout_admin/major_management/MajorManagementAPI';
+import { createApi, updateApi, deleteApi, selectListApiAdmissionPeriodsApi } from '../../layout_admin/admission_period_management/AdmissionPeriodManagementAPI';
 
 const initialState = {
   create: {
@@ -17,7 +17,7 @@ const initialState = {
     loading: false,
     error: null,
   },
-  selectListApiMajors: {
+  selectListApiAdmissionPeriods: {
     data: null,
     loading: false,
     error: null,
@@ -25,27 +25,27 @@ const initialState = {
   },
 };
 
-const majorManagementSlice = createSlice({
-  name: 'majorManagement',
+const admissionPeriodManagementSlice = createSlice({
+  name: 'admissionPeriodManagement',
   initialState,
   extraReducers: (builder) => {
     builder
       // Select List handlers
-      .addCase(selectListApiMajors.pending, (state) => {
-        state.selectListApiMajors.loading = true;
-        state.selectListApiMajors.error = null;
+      .addCase(selectListApiAdmissionPeriodsApi.pending, (state) => {
+        state.selectListApiAdmissionPeriods.loading = true;
+        state.selectListApiAdmissionPeriods.error = null;
       })
-      .addCase(selectListApiMajors.fulfilled, (state, action) => {
-        state.selectListApiMajors.loading = false;
-        state.selectListApiMajors.error = null;
-        state.selectListApiMajors.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
-        state.selectListApiMajors.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      .addCase(selectListApiAdmissionPeriodsApi.fulfilled, (state, action) => {
+        state.selectListApiAdmissionPeriods.loading = false;
+        state.selectListApiAdmissionPeriods.error = null;
+        state.selectListApiAdmissionPeriods.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListApiAdmissionPeriods.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
       })
-      .addCase(selectListApiMajors.rejected, (state, action) => {
-        state.selectListApiMajors.loading = false;
-        state.selectListApiMajors.error = action.payload || action.error.message;
+      .addCase(selectListApiAdmissionPeriodsApi.rejected, (state, action) => {
+        state.selectListApiAdmissionPeriods.loading = false;
+        state.selectListApiAdmissionPeriods.error = action.payload || action.error.message;
       })
-      // Create Major handlers
+      // Create Admission Period handlers
       .addCase(createApi.pending, (state) => {
         state.create.loading = true;
         state.create.error = null;
@@ -59,7 +59,7 @@ const majorManagementSlice = createSlice({
         state.create.loading = false;
         state.create.error = action.payload || action.error.message;
       })
-      // Update Major handlers
+      // Update Admission Period handlers
       .addCase(updateApi.pending, (state) => {
         state.update.loading = true;
         state.update.error = null;
@@ -73,7 +73,7 @@ const majorManagementSlice = createSlice({
         state.update.loading = false;
         state.update.error = action.payload || action.error.message;
       })
-      // Delete Major handlers
+      // Delete Admission Period handlers
       .addCase(deleteApi.pending, (state) => {
         state.delete.loading = true;
         state.delete.error = null;
@@ -90,4 +90,4 @@ const majorManagementSlice = createSlice({
   },
 });
 
-export default majorManagementSlice.reducer;
+export default admissionPeriodManagementSlice.reducer;

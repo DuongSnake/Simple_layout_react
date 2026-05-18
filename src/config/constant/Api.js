@@ -20,6 +20,8 @@ export const API_UPDATE_USER = PRE_FIX_API + 'user/update';
 export const API_DELETE_USER = PRE_FIX_API + 'user/delete';
 export const API_SELECT_LIST_USER = PRE_FIX_API + 'user/selectList';
 export const API_SELECT_ALL_ROLES = PRE_FIX_API + 'user/selectAllRole';
+export const API_SELECT_ALL_STUDENTS = PRE_FIX_API + 'user/selectAllStudent';
+export const API_SELECT_ALL_INSTRUCTORS = PRE_FIX_API + 'user/selectAllInstructor';
 
 
 
@@ -36,8 +38,8 @@ export const API_GET_ALL_SELECT_MAJOR_ACITVE = PRE_FIX_API + 'major/selectListAl
 /**
  * Admission Period Management
  */
-export const API_GET_LIST_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/selectList';
-export const API_ADD_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/insert';
+export const API_SELECT_LIST_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/selectList';
+export const API_CREATE_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/insert';
 export const API_UPDATE_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/update';
 export const API_DELETE_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/delete';
 export const API_SELECT_ADMISSION_PERIOD = PRE_FIX_API + 'admissionPeriod/select';
@@ -46,8 +48,8 @@ export const API_GET_ALL_SELECT_ADMISSION_PERIOD_ACITVE = PRE_FIX_API + 'admissi
 /**
  * Period Assignment Management
  */
-export const API_GET_LIST_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/selectList';
-export const API_ADD_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/insert';
+export const API_SELECT_LIST_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/selectList';
+export const API_CREATE_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/insert';
 export const API_UPDATE_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/update';
 export const API_DELETE_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/delete';
 export const API_SELECT_PERIOD_ASSIGNMENT = PRE_FIX_API + 'periodAssignment/select';
@@ -56,8 +58,8 @@ export const API_GET_ALL_PERIOD_ASSIGNMENT_ACITVE = PRE_FIX_API + 'periodAssignm
 /**
  * Instructor Map Period Assignment Management
  */
-export const API_GET_LIST_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/selectList';
-export const API_ADD_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/insert';
+export const API_SELECT_LIST_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/selectList';
+export const API_CREATE_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/insert';
 export const API_UPDATE_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/update';
 export const API_DELETE_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/delete';
 export const API_SELECT_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'instructorMapPeriodAssignment/select';
@@ -66,8 +68,8 @@ export const API_INSERT_LIST_INSTRUCTOR_MAP_PERIOD_ASSIGNMENT = PRE_FIX_API + 'i
 /**
  * Student map Instructor Management
  */
-export const API_GET_LIST_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/selectList';
-export const API_ADD_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/insert';
+export const API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/selectList';
+export const API_CREATE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/insert';
 export const API_UPDATE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/update';
 export const API_DELETE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/delete';
 export const API_SELECT_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/select';
@@ -76,8 +78,8 @@ export const API_GET_ALL_STUDENT_MAP_INSTRUCTOR_ACTIVE = PRE_FIX_API + 'studentM
 /**
  * Assignment Student Register Management
  */
-export const API_GET_LIST_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/selectList';
-export const API_ADD_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/insert';
+export const API_SELECT_LIST_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/selectList';
+export const API_CREATE_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/insert';
 export const API_UPDATE_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/update';
 export const API_DELETE_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/delete';
 export const API_SELECT_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentStudentRegister/select';
@@ -86,8 +88,8 @@ export const API_SELECT_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentS
 /**
  * Score assignement management
  */
-export const API_GET_LIST_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/selectList';
-export const API_ADD_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/insert';
+export const API_SELECT_LIST_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/selectList';
+export const API_CREATE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/insert';
 export const API_UPDATE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/update';
 export const API_DELETE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/delete';
 export const API_SELECT_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/select';
@@ -100,9 +102,9 @@ export const API_SELECT_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/select
 /**
  * List Assignment register
  */
-export const API_GET_LIST_ASSIGNMENT_WAITING_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListWaitingSend';
-export const API_GET_LIST_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/selectList';
-export const API_ADD_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/insert';
+export const API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListWaitingSend';
+export const API_SELECT_LIST_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/selectList';
+export const API_CREATE_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/insert';
 export const API_UPDATE_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/update';
 export const API_DELETE_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/delete';
 export const API_SELECT_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/select';
@@ -112,8 +114,27 @@ export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assi
 /**
  * List Assignment register approve
  */
-export const API_GET_LIST_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListAssApprove';
-export const API_GET_LIST_All_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListAllAssApprove';
-export const API_GET_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListFileAss';
-export const API_ADD_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/insertListFileAssignment';
+export const API_SELECT_LIST_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListAssApprove';
+export const API_SELECT_LIST_All_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListAllAssApprove';
+export const API_SELECT_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListFileAss';
+export const API_CREATE_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/insertListFileAssignment';
 export const API_UPDATE_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/updateListFileAssignment';
+
+/**
+ * Student management
+ */
+export const API_SELECT_LIST_STUDENT = PRE_FIX_API + 'student/selectList';
+export const API_CREATE_STUDENT = PRE_FIX_API + 'student/insert';
+export const API_UPDATE_STUDENT = PRE_FIX_API + 'student/update';
+export const API_DELETE_STUDENT = PRE_FIX_API + 'student/delete';
+export const API_SELECT_STUDENT = PRE_FIX_API + 'student/select';
+/**
+ * Instructor management
+ */
+export const API_SELECT_LIST_INSTRUCTOR = PRE_FIX_API + 'instructor/selectList';
+export const API_CREATE_INSTRUCTOR = PRE_FIX_API + 'instructor/insert';
+export const API_UPDATE_INSTRUCTOR = PRE_FIX_API + 'instructor/update';
+export const API_DELETE_INSTRUCTOR = PRE_FIX_API + 'instructor/delete';
+export const API_SELECT_INSTRUCTOR = PRE_FIX_API + 'instructor/select';
+
+

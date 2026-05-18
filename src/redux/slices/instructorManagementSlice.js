@@ -1,51 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApiMajors } from '../../layout_admin/major_management/MajorManagementAPI';
+import { createApi, updateApi, deleteApi, selectListInstructorApi } from '../../layout_admin/instructor_management/InstructorManagementAPI';
 
 const initialState = {
-  create: {
-    data: null,
-    loading: false,
-    error: null,
-  },
-  update: {
-    data: null,
-    loading: false,
-    error: null,
-  },
-  delete: {
-    data: null,
-    loading: false,
-    error: null,
-  },
-  selectListApiMajors: {
-    data: null,
-    loading: false,
-    error: null,
-    totalRecord: 0
-  },
+  create: { data: null, loading: false, error: null },
+  update: { data: null, loading: false, error: null },
+  delete: { data: null, loading: false, error: null },
+  selectListInstructor: { data: null, loading: false, error: null, totalRecord: 0 }
 };
 
-const majorManagementSlice = createSlice({
-  name: 'majorManagement',
+const instructorManagementSlice = createSlice({
+  name: 'instructorManagement',
   initialState,
   extraReducers: (builder) => {
     builder
-      // Select List handlers
-      .addCase(selectListApiMajors.pending, (state) => {
-        state.selectListApiMajors.loading = true;
-        state.selectListApiMajors.error = null;
+      .addCase(selectListInstructorApi.pending, (state) => {
+        state.selectListInstructor.loading = true;
+        state.selectListInstructor.error = null;
       })
-      .addCase(selectListApiMajors.fulfilled, (state, action) => {
-        state.selectListApiMajors.loading = false;
-        state.selectListApiMajors.error = null;
-        state.selectListApiMajors.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
-        state.selectListApiMajors.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      .addCase(selectListInstructorApi.fulfilled, (state, action) => {
+        state.selectListInstructor.loading = false;
+        state.selectListInstructor.error = null;
+        state.selectListInstructor.data = action.payload.data?.data ?? null;
+        state.selectListInstructor.totalRecord = action.payload.data?.totalRecord ?? 0;
       })
-      .addCase(selectListApiMajors.rejected, (state, action) => {
-        state.selectListApiMajors.loading = false;
-        state.selectListApiMajors.error = action.payload || action.error.message;
+      .addCase(selectListInstructorApi.rejected, (state, action) => {
+        state.selectListInstructor.loading = false;
+        state.selectListInstructor.error = action.payload || action.error.message;
       })
-      // Create Major handlers
       .addCase(createApi.pending, (state) => {
         state.create.loading = true;
         state.create.error = null;
@@ -59,7 +40,6 @@ const majorManagementSlice = createSlice({
         state.create.loading = false;
         state.create.error = action.payload || action.error.message;
       })
-      // Update Major handlers
       .addCase(updateApi.pending, (state) => {
         state.update.loading = true;
         state.update.error = null;
@@ -73,7 +53,6 @@ const majorManagementSlice = createSlice({
         state.update.loading = false;
         state.update.error = action.payload || action.error.message;
       })
-      // Delete Major handlers
       .addCase(deleteApi.pending, (state) => {
         state.delete.loading = true;
         state.delete.error = null;
@@ -87,7 +66,7 @@ const majorManagementSlice = createSlice({
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
       });
-  },
+  }
 });
 
-export default majorManagementSlice.reducer;
+export default instructorManagementSlice.reducer;
