@@ -111,6 +111,19 @@ export const API_SELECT_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignment
 export const API_RESERVE_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/reserveListAssignment';
 export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/sendRequestAssignment';
 
+
+/**
+ * List Assignment register
+ */
+export const API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE_ADMIN_SITE = PRE_FIX_API + 'assignmentStudentRegister/selectListWaitingSend';
+export const API_SELECT_LIST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/selectList';
+export const API_CREATE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/insert';
+export const API_UPDATE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/update';
+export const API_DELETE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/delete';
+export const API_SELECT_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/select';
+export const API_RESERVE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/reserveListAssignment';
+export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/sendRequestAssignment';
+
 /**
  * List Assignment register approve
  */

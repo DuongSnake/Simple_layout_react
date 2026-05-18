@@ -43,7 +43,8 @@ const { RangePicker } = DatePicker;
     assignmentStudentRegisterId: '',
     fileUpload: '',
     studentId: '',
-    instructorId: '',
+    studentName: '',
+    instructorName: '',
     periodAssignmentId: '',
     assignmentStudentRegisterName: '',
     statusAutoMap: 'N',
@@ -193,13 +194,14 @@ const { RangePicker } = DatePicker;
       //Set value for edit form when click checkbox of periodAssignmentId
       listDataAssignmentRegister.forEach(assignmentRegister => {
         if (assignmentRegister.assignmentStudentRegisterId === periodAssignmentId) {
+          console.log('Selected assignment register for edit:', assignmentRegister);
           setFormDataEdit({
             assignmentStudentRegisterId: assignmentRegister?.assignmentStudentRegisterId || '',
             assignmentStudentRegisterName: assignmentRegister?.assignmentStudentRegisterName || '',
             periodAssignmentId: assignmentRegister?.periodAssignmentId || '',
-            instructorId: assignmentRegister?.instructorId || '',
+            instructorName: assignmentRegister?.instructorName || '',
             studentId: assignmentRegister?.studentId || '',
-            fileName: assignmentRegister?.fileName || '',
+            studentName: assignmentRegister?.studentName || '',
             fileUpload: assignmentRegister?.fileName || '',
             statusAutoMap: assignmentRegister?.statusAutoMap || '',
             oldValueId: assignmentRegister?.oldValueId || ''
@@ -231,7 +233,6 @@ const { RangePicker } = DatePicker;
     handleSelectListAllStudents();
     handleSelectListAllInstructors();
     handleSelectListAllPeriodAssignments();
-    console.log('Component mounted, fetched initial data:'+JSON.stringify(listAllStudents));
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
@@ -278,8 +279,6 @@ const { RangePicker } = DatePicker;
 
   //Handle for create admission period API call 
   const handleCreate = async () => {
-    console.log("Form state before submission:", formData);
-    
     const formData123 = new FormData();
     if (formData.fileUpload instanceof File) {
       formData123.append("fileUpload", formData.fileUpload);
@@ -289,12 +288,6 @@ const { RangePicker } = DatePicker;
     formData123.append("studentId", formData.studentId || "");
     formData123.append("instructorId", formData.instructorId || "");
     formData123.append("statusAutoMap", formData.statusAutoMap || "N");
-    
-    // Log FormData properly
-    console.log("FormData entries:");
-    for (let [key, value] of formData123.entries()) {
-      console.log(`  ${key}:`, value);
-    }
     try {
       const response = await dispatch(createApi(formData123));
       if (response.type.endsWith('/fulfilled')) {
@@ -318,14 +311,18 @@ const { RangePicker } = DatePicker;
   //Handle for update admission period API call 
   const handleUpdate = async () => {
     try {
-      const response = await dispatch(updateApi({  
-        periodAssignmentId: formDataEdit.periodAssignmentId,
-        startPeriod: formDataEdit.startPeriod, 
-        endPeriod: formDataEdit.endPeriod,
-        admissionPeriodId: formDataEdit.admissionPeriodId,
-        majorId: formDataEdit.majorId,
-        note: formDataEdit.note
-       }));
+    const formData123 = new FormData();
+    if (formDataEdit.fileUpload instanceof File) {
+      formData123.append("fileUpload", formDataEdit.fileUpload);
+    }
+    formData123.append("assignmentStudentRegisterId", formDataEdit.assignmentStudentRegisterId || 0);
+    formData123.append("assignmentStudentRegisterName", formDataEdit.assignmentStudentRegisterName || 0);
+    formData123.append("periodAssignmentId", formDataEdit.periodAssignmentId || 0);
+    formData123.append("studentId", formDataEdit.studentId || 0);
+    formData123.append("instructorId", formDataEdit.instructorId || 0);
+    formData123.append("statusAutoMap", formDataEdit.statusAutoMap || "N");
+    formData123.append("oldValueId", formDataEdit.oldValueId || 0);
+      const response = await dispatch(updateApi(formData123));
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("update successful:", response.payload);
@@ -423,13 +420,12 @@ const { RangePicker } = DatePicker;
   const handleSelectListPeriodAssignments = async (pageNum, pageSize) => {
     try {
       const response = await dispatch(selectListAssignmentRegisterApi({ 
-        periodAssignmentId: null, 
-        startPeriod: null,
-        endPeriod: null,
+        assignmentStudentRegisterId: null, 
+        periodAssignmentId: null,
+        assignmentStudentRegisterName: null,
         admissionPeriodId: null,//Se khong hard code o day
-        majorId: null,
-        note: null,
-        status: null,
+        fromDate: null,
+        toDate: null,
         pageRequestDto : { pageNum, pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
@@ -446,9 +442,11 @@ const { RangePicker } = DatePicker;
   const handleSelectListPeriodAssignmentsSearch = async () => {
     try {
       const response = await dispatch(selectListAssignmentRegisterApi({ 
+        assignmentStudentRegisterId: formDataSearch.assignmentStudentRegisterId,
         periodAssignmentId: formDataSearch.periodAssignmentId, 
-        startPeriod: formDataSearch.startPeriod,
-        endPeriod: formDataSearch.endPeriod,
+        assignmentStudentRegisterName: formDataSearch.assignmentStudentRegisterName,
+        fromDate: formDataSearch.fromDate,
+        toDate: formDataSearch.toDate,
         admissionPeriodId: null,//Se khong hard code o day
         majorId: null,
         note: formDataSearch.note,
@@ -497,6 +495,7 @@ const { RangePicker } = DatePicker;
 
   // Handler for edit form input changes
   const handleInputChangeEdit = (event) => {
+    console.log('Edit form input change:', event.target.name, event.target.value);
     const { name, value } = event.target;
     setFormDataEdit((prev) => ({ ...prev, [name]: value }));
   };
@@ -653,6 +652,9 @@ const { RangePicker } = DatePicker;
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            {assignmentStudentRegisterId}
+                          </td>
+                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {assignmentStudentRegisterName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
@@ -734,7 +736,7 @@ const { RangePicker } = DatePicker;
                       <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã đăng ký đồ án sinh viên</label>
                       <input type="text" name="assignmentStudentRegisterId" value={formDataEdit.assignmentStudentRegisterId} onChange={handleInputChangeEdit} id="edit-admission-period-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Mã đăng ký đồ án sinh viên" required disabled={true} />
+                        placeholder="Mã đăng ký đồ án sinh viên"  style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="category-major" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên sinh viên</label>
@@ -746,7 +748,7 @@ const { RangePicker } = DatePicker;
                         {listAllStudents.map((student, idx) => {
                           return (
                           <option key={idx} value={student.id}>
-                            {student.username}
+                            {student.fullName}
                           </option>
                           );
                         })}
@@ -765,16 +767,16 @@ const { RangePicker } = DatePicker;
                         placeholder="Ghi chú" required/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-period-admission" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ hạn đồ án</label>
-                      <select id="category-period-admission" value={formDataEdit.periodAssignmentId || ''} onChange={handleAdmissionPeriodChangeEditModal}
+                      <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ hạn đồ án</label>
+                      <select id="category-period-admission-edit" value={formDataEdit.periodAssignmentId || ''} onChange={handleAdmissionPeriodChangeEditModal}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
                           <>
                         <option value="">Select period assignment</option>
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
-                          <option key={idx} value={periodAssignment.admissionPeriodId}>
-                            {periodAssignment.admissionPeriodName}
+                          <option key={idx} value={periodAssignment.periodAssignmentId}>
+                            {periodAssignment.admissionPeriodIdName}
                           </option>
                           );
                         })}
@@ -785,46 +787,31 @@ const { RangePicker } = DatePicker;
                       </select>
                     </div>
                     </div>
+                    {/* New element */}
+                    <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="default-checkbox" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tự chọn viên hướng dẫn</label>
+                      <input id="default-checkbox" type="checkbox" checked={formDataEdit.isAutoMapChecked == 'Y' ? true: false} className="mt-2 w-4 h-4 border border-default-medium rounded-xs 
+                      bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}} readOnly={true}/>
+                    </div>
+                    {/* start content to show and hide by status auto map */}
+                      <div className="col-span-6 sm:col-span-3" style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}>
+                        <label htmlFor="category-instructor-update" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên giảng viên</label>
+                      <input type="text" name="category-instructor-update" value={formDataEdit.instructorName} id="category-instructor-update"
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder=""   style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
+                      </div>
+                    {/* end content to show and hide by status auto map */}
+
+                    </div>
+                    
                     <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="file_input"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
                       <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
                       text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
-                      shadow-xs placeholder:text-body" id="file_input" type="file" value={formDataEdit.fileName} onChange={handleFileChangeUpdate}/>
+                      shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate}/>
                     </div>
-                    </div>
-                    {/* New element */}
-                    <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="default-checkbox" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tự chọn viên hướng dẫn</label>
-                      <input id="default-checkbox" type="checkbox" checked={isAutoMapCheckedEdit} className="mt-2 w-4 h-4 border border-default-medium rounded-xs 
-                      bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" onChange={handleChangeStatusAutoEditModal}/>
-                    </div>
-                    {/* start content to show and hide by status auto map */}
-                    {isAutoMapCheckedEdit && (
-                      <div className="col-span-6 sm:col-span-3" style={{disabled: true}, {backgroundColor: '#blue'}}>
-                        <label htmlFor="category-instructor" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên giảng viên</label>
-                        <select id="category-instructor" value={formDataEdit.instructorId || ''} onChange={handleInstructorChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                          {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
-                            <>
-                              <option value="">Select instructor</option>
-                              {listAllInstructors.map((instructor, idx) => {
-                                return (
-                                  <option key={idx} value={instructor.id}>
-                                    {instructor.fullName}
-                                  </option>
-                                );
-                              })}
-                            </>
-                          ) : (
-                            <option value="">Không tìm thấy</option>
-                          )}
-                        </select>
-                      </div>
-                    )}
-                    {/* end content to show and hide by status auto map */}
-
                     </div>
                   {/* <!-- Modal footer --> */}
                   <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
