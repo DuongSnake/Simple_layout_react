@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListApi, createApi, updateApi, deleteApi } from "./MajorManagementAPI";
+import { selectListApiMajors, createApi, updateApi, deleteApi } from "./MajorManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -11,9 +11,9 @@ function MajorManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const listDataMajor = useSelector(state => state.majorManagement.selectList.data);
-  const totalRecord = useSelector(state => state.majorManagement.selectList.totalRecord);
-  const listDataMajorLoading = useSelector(state => state.majorManagement.selectList.loading);
+  const listDataMajor = useSelector(state => state.majorManagement.selectListApiMajors.data);
+  const totalRecord = useSelector(state => state.majorManagement.selectListApiMajors.totalRecord);
+  const listDataMajorLoading = useSelector(state => state.majorManagement.selectListApiMajors.loading);
 
   // State for form data (Add Major modal)
   const [formData, setFormData] = useState({
@@ -249,7 +249,7 @@ function MajorManagement() {
   //Handle for select list major API call 
   const handleSelectListMajors = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListApi({ 
+      const response = await dispatch(selectListApiMajors({ 
         majorId: null, 
         majorName: null,
         status: null,
@@ -268,7 +268,7 @@ function MajorManagement() {
   //Handle for select list major API call with search
   const handleSelectListMajorsSearch = async () => {
     try {
-      const response = await dispatch(selectListApi({ 
+      const response = await dispatch(selectListApiMajors({ 
         majorId: formDataSearch.majorId, 
         majorName: formDataSearch.majorName,
         status: null,

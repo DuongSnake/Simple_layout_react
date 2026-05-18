@@ -6,7 +6,9 @@ import {
   API_UPDATE_USER,
   API_DELETE_USER,
   API_SELECT_LIST_USER,
-  API_SELECT_ALL_ROLES
+  API_SELECT_ALL_ROLES,
+  API_SELECT_ALL_STUDENTS,
+  API_SELECT_ALL_INSTRUCTORS
 } from '../../config/constant/Api';
 
 export const createApi = createAsyncThunk(
@@ -83,6 +85,34 @@ export const selectAllRolesApi = createAsyncThunk(
     try {
       let urlSelectAllRoles = SERVER_API_URL + API_SELECT_ALL_ROLES;
       const response = await apiClient.post(urlSelectAllRoles);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const selectAllStudentApi = createAsyncThunk(
+  'user/selectAllStudent',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      let urlSelectAllStudent = SERVER_API_URL + API_SELECT_ALL_STUDENTS;
+      const response = await apiClient.post(urlSelectAllStudent);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const selectAllInstructorApi = createAsyncThunk(
+  'user/selectAllInstructor',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      let urlSelectAllInstructor = SERVER_API_URL + API_SELECT_ALL_INSTRUCTORS;
+      const response = await apiClient.post(urlSelectAllInstructor);
       return response.data;
     } catch (error) {
       console.error('API Error:', error.message);

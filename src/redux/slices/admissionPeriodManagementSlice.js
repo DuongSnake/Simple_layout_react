@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApi } from '../../layout_admin/admission_period_management/AdmissionPeriodManagementAPI';
+import { createApi, updateApi, deleteApi, selectListApiAdmissionPeriodsApi } from '../../layout_admin/admission_period_management/AdmissionPeriodManagementAPI';
 
 const initialState = {
   create: {
@@ -17,7 +17,7 @@ const initialState = {
     loading: false,
     error: null,
   },
-  selectList: {
+  selectListApiAdmissionPeriods: {
     data: null,
     loading: false,
     error: null,
@@ -31,19 +31,19 @@ const admissionPeriodManagementSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Select List handlers
-      .addCase(selectListApi.pending, (state) => {
-        state.selectList.loading = true;
-        state.selectList.error = null;
+      .addCase(selectListApiAdmissionPeriodsApi.pending, (state) => {
+        state.selectListApiAdmissionPeriods.loading = true;
+        state.selectListApiAdmissionPeriods.error = null;
       })
-      .addCase(selectListApi.fulfilled, (state, action) => {
-        state.selectList.loading = false;
-        state.selectList.error = null;
-        state.selectList.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
-        state.selectList.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      .addCase(selectListApiAdmissionPeriodsApi.fulfilled, (state, action) => {
+        state.selectListApiAdmissionPeriods.loading = false;
+        state.selectListApiAdmissionPeriods.error = null;
+        state.selectListApiAdmissionPeriods.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListApiAdmissionPeriods.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
       })
-      .addCase(selectListApi.rejected, (state, action) => {
-        state.selectList.loading = false;
-        state.selectList.error = action.payload || action.error.message;
+      .addCase(selectListApiAdmissionPeriodsApi.rejected, (state, action) => {
+        state.selectListApiAdmissionPeriods.loading = false;
+        state.selectListApiAdmissionPeriods.error = action.payload || action.error.message;
       })
       // Create Admission Period handlers
       .addCase(createApi.pending, (state) => {

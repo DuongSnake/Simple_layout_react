@@ -20,6 +20,8 @@ export const API_UPDATE_USER = PRE_FIX_API + 'user/update';
 export const API_DELETE_USER = PRE_FIX_API + 'user/delete';
 export const API_SELECT_LIST_USER = PRE_FIX_API + 'user/selectList';
 export const API_SELECT_ALL_ROLES = PRE_FIX_API + 'user/selectAllRole';
+export const API_SELECT_ALL_STUDENTS = PRE_FIX_API + 'user/selectAllStudent';
+export const API_SELECT_ALL_INSTRUCTORS = PRE_FIX_API + 'user/selectAllInstructor';
 
 
 

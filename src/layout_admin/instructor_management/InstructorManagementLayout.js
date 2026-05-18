@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListApi, createApi, updateApi, deleteApi } from './InstructorManagementAPI';
+import { selectListInstructorApi, createApi, updateApi, deleteApi } from './InstructorManagementAPI';
 import { useDispatch, useSelector } from 'react-redux';
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -10,9 +10,9 @@ function InstructorManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const listDataInstructor = useSelector(state => state.instructorManagement.selectList.data);
-  const totalRecord = useSelector(state => state.instructorManagement.selectList.totalRecord);
-  const listDataInstructorLoading = useSelector(state => state.instructorManagement.selectList.loading);
+  const listDataInstructor = useSelector(state => state.instructorManagement.selectListInstructor.data);
+  const totalRecord = useSelector(state => state.instructorManagement.selectListInstructor.totalRecord);
+  const listDataInstructorLoading = useSelector(state => state.instructorManagement.selectListInstructor.loading);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -208,7 +208,7 @@ function InstructorManagement() {
 
   const handleSelectListInstructors = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListApi({
+      const response = await dispatch(selectListInstructorApi({
         instructorId: null,
         email: '',
         phone: null,
@@ -229,7 +229,7 @@ function InstructorManagement() {
 
   const handleSelectListInstructorsSearch = async () => {
     try {
-      const response = await dispatch(selectListApi({
+      const response = await dispatch(selectListInstructorApi({
         instructorId: formDataSearch.instructorId,
         email: formDataSearch.email,
         phone: formDataSearch.phone,

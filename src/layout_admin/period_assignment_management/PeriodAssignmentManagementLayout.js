@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import { selectListApiAdmissionPeriodsApi, createApi, updateApi, deleteApi } from "./AdmissionPeriodManagementAPI";
+import { selectListPeriodAssignmentApi, createApi, updateApi, deleteApi } from "./PeriodAssignmentManagementAPI";
+import { selectListApiMajors } from "../major_management/MajorManagementAPI";
+import { selectListApiAdmissionPeriodsApi } from "../admission_period_management/AdmissionPeriodManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import dayjs from "dayjs";
@@ -8,39 +10,46 @@ import 'antd/dist/reset.css';
 import '../.././App.css';
 import moment from 'moment';
 import { APP_DATE_FORMAT}  from '../../config/constant/Constants';
-function AdmissionPeriodManagement() {
+function PeriodAssignmentManagement() {
 const { RangePicker } = DatePicker;
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const listDataAdmissionPeriod = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.data);
-  const totalRecord = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.totalRecord);
-  const listDataAdmissionPeriodLoading = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.loading);
+  const listDataPeriodAssignment = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.data);
+  const totalRecord = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.totalRecord);
+  const listDataPeriodAssignmentLoading = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.loading);
+  const listAllMajors = useSelector(state => state.majorManagement.selectListApiMajors.data);
+  const listAllAdmissionPeriods = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.data);
   const [rangeDateUpdate, setRangeDateUpdate] = useState([null, null]);
 
-  // State for form data (Add AdmissionPeriod modal)
+  // State for form data (Add PeriodAssignment modal)
   const [formData, setFormData] = useState({
-    admissionPeriodName: '',
     startPeriod: '',
-    endPeriod: ''
+    endPeriod: '',
+    admissionPeriodId: '',
+    majorId: '',
+    note: ''
   });
 
-  // State for form data (Edit AdmissionPeriod modal)
+  // State for form data (Edit PeriodAssignment modal)
   const [formDataEdit, setFormDataEdit] = useState({
+    periodAssignmentId: '',
     admissionPeriodId: '',
     startPeriod: '',
     endPeriod: '',
-    admissionPeriodName: ''
+    admissionPeriodId: '',
+    majorId: '',
+    note: ''
   });
 
-  // State for form data (Search AdmissionPeriod modal)
+  // State for form data (Search PeriodAssignment modal)
   const [formDataSearch, setFormDataSearch] = useState({
-    admissionPeriodId: '',
-    admissionPeriodName: '',
-    fromDate: '',
-    toDate: ''
+    periodAssignmentId: '',
+    note: '',
+    startPeriod: '',
+    endPeriod: ''
   });
 
   // State for pagination
@@ -50,50 +59,50 @@ const { RangePicker } = DatePicker;
   });
 
   // State for checkbox selection
-  const [selectedAdmissionPeriod, setSelectedAdmissionPeriod] = useState(new Set());
+  const [selectedPeriodAssignment, setSelectedPeriodAssignment] = useState(new Set());
   
   const _onChangePagination = (page, pageSize) => {
     setPager({ ...pager, pageNum: page });
-    handleSelectListAdmissionPeriods(page, pageSize);
+    handleSelectListPeriodAssignments(page, pageSize);
   };
 
   // Handler for select all checkbox
   const handleSelectAllChange = (e) => {
     if (e.target.checked) {
-      // Select all admissionPeriods in current page
-      const alladmissionPeriodIds = new Set(
-        listDataAdmissionPeriod?.map((admissionPeriod, idx) => admissionPeriod?.admissionPeriodId ?? idx) || []
+      // Select all periodAssignments in current page
+      const allPeriodAssignmentIds = new Set(
+        listDataPeriodAssignment?.map((periodAssignment, idx) => periodAssignment?.periodAssignmentId ?? idx) || []
       );
-      setSelectedAdmissionPeriod(alladmissionPeriodIds);
+      setSelectedPeriodAssignment(allPeriodAssignmentIds);
     } else {
       // Deselect all
-      setSelectedAdmissionPeriod(new Set());
+      setSelectedPeriodAssignment(new Set());
     }
   };
 
-  //Handle case when change size list selected dmissionPeriod
+  //Handle case when change size list selected periodAssignment
   useEffect(() => {
     handleEnableButtonActions();
-  }, [selectedAdmissionPeriod]);
+  }, [selectedPeriodAssignment, listAllAdmissionPeriods, listAllMajors]);
 
-  //Handle case when click button edit or delete but no dmissionPeriod selected
+  //Handle case when click button edit or delete but no periodAssignment selected
   const handleEnableButtonActions = () => {
-    if(selectedAdmissionPeriod != null && selectedAdmissionPeriod.size === 0){
-      //Disable edit and delete button when no dmissionPeriod selected
+    if(selectedPeriodAssignment != null && selectedPeriodAssignment.size === 0){
+      //Disable edit and delete button when no periodAssignment selected
       disableButtonEditDelete(true, true);
-    } else if(selectedAdmissionPeriod != null && selectedAdmissionPeriod.size === 1){
-      //Enable edit button and disable delete button when only 1 dmissionPeriod selected
+    } else if(selectedPeriodAssignment != null && selectedPeriodAssignment.size === 1){
+      //Enable edit button and disable delete button when only 1 periodAssignment selected
       disableButtonEditDelete(false, false);
     }else{
-      //Disable edit and enable delete button when multiple dmissionPeriod selected
+      //Disable edit and enable delete button when multiple periodAssignments selected
       disableButtonEditDelete(true, false);
     }
   };
 
   const disableButtonEditDelete = (statusEdit, statusDelete) => {
     //Set disabled attribute for edit and delete button
-    const editBtn = document.getElementById("edit-admission-period-button");
-    const deleteBtn = document.getElementById("delete-admission-period-button");
+    const editBtn = document.getElementById("edit-period-assignment-button");
+    const deleteBtn = document.getElementById("delete-period-assignment-button");
     
     if(editBtn) {
       editBtn.disabled = statusEdit;
@@ -113,58 +122,101 @@ const { RangePicker } = DatePicker;
       }
     }
   };
+  
+    //Handle for select list all majors API call 
+  const handleSelectListAllMajors = async () => {
+    try {
+        const response = await dispatch(selectListApiMajors({ 
+        admissionPeriodId: null, 
+        admissionPeriodName: null,
+        status: null,
+        pageRequestDto : { pageNum: 0, pageSize: 100 }
+       }));
+        if (response.type.endsWith('/fulfilled')) {
+          // console.log("select all majors successful payload:", response.payload);
+        } else {
+          console.error("select all majors failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("select all majors error:", error);
+      }
+    };
+  
+    //Handle for select list all admission periods API call 
+  const handleSelectListAllAdmissionPeriods = async () => {
+    try {
+        const response = await dispatch(selectListApiAdmissionPeriodsApi({ 
+        admissionPeriodId: null, 
+        admissionPeriodName: null,
+        status: null,
+        pageRequestDto : { pageNum: 0, pageSize: 100 }
+       }));
+        if (response.type.endsWith('/fulfilled')) {
+          // console.log("select all majors successful payload:", response.payload);
+        } else {
+          console.error("select all majors failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("select all majors error:", error);
+      }
+    };
 
   // Handler for individual row checkbox
-  const handleAdmissionPeriodCheckboxChange = (admissionPeriodId) => {
-    setSelectedAdmissionPeriod((prevSelected) => {
+  const handlePeriodAssignmentCheckboxChange = (periodAssignmentId) => {
+    setSelectedPeriodAssignment((prevSelected) => {
       const newSelected = new Set(prevSelected);
-      if (newSelected.has(admissionPeriodId)) {
-        newSelected.delete(admissionPeriodId);
+      if (newSelected.has(periodAssignmentId)) {
+        newSelected.delete(periodAssignmentId);
       } else {
-        newSelected.add(admissionPeriodId);
+        newSelected.add(periodAssignmentId);
       }
-      //Set value for edit form when click checkbox of admissionPeriodId
-      listDataAdmissionPeriod.forEach(admissionPeriod => {
-        if (admissionPeriod.admissionPeriodId === admissionPeriodId) {
+      //Set value for edit form when click checkbox of periodAssignmentId
+      listDataPeriodAssignment.forEach(periodAssignment => {
+        if (periodAssignment.periodAssignmentId === periodAssignmentId) {
           setFormDataEdit({
-            admissionPeriodId: admissionPeriod?.admissionPeriodId || '',
-            startPeriod: admissionPeriod?.startPeriod || '',
-            endPeriod: admissionPeriod?.endPeriod || '',
-            admissionPeriodName: admissionPeriod?.admissionPeriodName || ''
+            periodAssignmentId: periodAssignment?.periodAssignmentId || '',
+            admissionPeriodId: periodAssignment?.admissionPeriodId || '',
+            startPeriod: periodAssignment?.startPeriod || '',
+            endPeriod: periodAssignment?.endPeriod || '',
+            majorId: periodAssignment?.majorId || '',
+            note: periodAssignment?.note || ''
           });
           //set value default for range picker in edit form when click checkbox of admissionPeriodId
-          setRangeDateUpdate([dayjs(admissionPeriod?.startPeriod, APP_DATE_FORMAT), dayjs(admissionPeriod?.endPeriod, APP_DATE_FORMAT)]);
+          setRangeDateUpdate([dayjs(periodAssignment?.startPeriod, APP_DATE_FORMAT), dayjs(periodAssignment?.endPeriod, APP_DATE_FORMAT)]);
         }
       });
       return newSelected;
     });
   };
 
-  // Check if all dmissionPeriod are selected
+  // Check if all periodAssignments are selected
   const areAllSelected = 
-    Array.isArray(listDataAdmissionPeriod) && 
-    listDataAdmissionPeriod.length > 0 && 
-    listDataAdmissionPeriod.every((admissionPeriod, idx) => selectedAdmissionPeriod.has(admissionPeriod?.admissionPeriodId ?? idx));
+    Array.isArray(listDataPeriodAssignment) && 
+    listDataPeriodAssignment.length > 0 && 
+    listDataPeriodAssignment.every((periodAssignment, idx) => selectedPeriodAssignment.has(periodAssignment?.periodAssignmentId ?? idx));
   
   // Check if some (but not all) are selected
   const areSomeSelected = 
-    Array.isArray(listDataAdmissionPeriod) && 
-    listDataAdmissionPeriod.length > 0 && 
-    selectedAdmissionPeriod.size > 0 && 
+    Array.isArray(listDataPeriodAssignment) && 
+    listDataPeriodAssignment.length > 0 && 
+    selectedPeriodAssignment.size > 0 && 
     !areAllSelected;
 
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
-    //Select list admission period when component mounts
-    handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize);
+    //Select list period assignment when component mounts
+    handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize);
+    //Select list all majors when component mounts
+    handleSelectListAllMajors();
+    handleSelectListAllAdmissionPeriods();
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    // console.log('Redux listDataAdmissionPeriod changed:', listDataAdmissionPeriod);
-    // Reset checkbox selection when admission period list changes
-    setSelectedAdmissionPeriod(new Set());
-  }, [listDataAdmissionPeriod]);
+    // console.log('Redux listDataPeriodAssignment changed:', listDataPeriodAssignment);
+    // Reset checkbox selection when period assignment list changes
+    setSelectedPeriodAssignment(new Set());
+  }, [listDataPeriodAssignment]);
 
   // Handlers for modal toggles
   const openAddModal = () => setIsAddModalOpen(true);
@@ -174,20 +226,20 @@ const { RangePicker } = DatePicker;
   const openDeleteModal = () => setIsDeleteModalOpen(true);
   const closeDeleteModal = () => setIsDeleteModalOpen(false);
 
-  // Handler for opening edit modal with admission period data
-  const handleOpenEditAdmissionPeriod = () => {
+  // Handler for opening edit modal with period assignment data
+  const handleOpenEditPeriodAssignment = () => {
     setIsEditModalOpen(true);
   };
 
-  // Handler for form submit in add admission period modal
+  // Handler for form submit in add period assignment modal
   const handleFormSubmit = (event) => {
     event.preventDefault();
     handleCreate(); // Call the create API function
     closeAddModal(); // Close modal after submit
     //set timeout to ensure the create API call completes before refreshing the list
     setTimeout(() => {
-      handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize); // Refresh admission period list after creation
-    }, 1500);
+      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+    }, 2500);
   };
 
   // Handler for form submit in edit admission period modal
@@ -197,7 +249,7 @@ const { RangePicker } = DatePicker;
     closeEditModal(); // Close modal after submit
     // set timeout to ensure the update API call completes before refreshing the list
     setTimeout(() => {
-      handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize); // Refresh admission period list after update
+      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
     }, 500);
   };
 
@@ -205,18 +257,22 @@ const { RangePicker } = DatePicker;
   const handleCreate = async () => {
     try {
       const response = await dispatch(createApi({ 
-        admissionPeriodName: formData.admissionPeriodName,
+        admissionPeriodId: formData.admissionPeriodId,
+        majorId: formData.majorId,
         startPeriod: formData.startPeriod,
-        endPeriod: formData.endPeriod
+        endPeriod: formData.endPeriod,
+        note: formData.note
        }));
       // Check if create was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("insert successful:", response.payload);
         // Reset form
         setFormData({
-          admissionPeriodName: '',
+          admissionPeriodId: '',
+          majorId: '',
           startPeriod: '',
-          endPeriod: ''
+          endPeriod: '',
+          note: ''
         });
       } else {
         // console.error("insert failed:", response.payload);
@@ -229,11 +285,13 @@ const { RangePicker } = DatePicker;
   //Handle for update admission period API call 
   const handleUpdate = async () => {
     try {
-      const response = await dispatch(updateApi({ 
-        admissionPeriodId: formDataEdit.admissionPeriodId,
+      const response = await dispatch(updateApi({  
+        periodAssignmentId: formDataEdit.periodAssignmentId,
         startPeriod: formDataEdit.startPeriod, 
-        endPeriod: formDataEdit.endPeriod, 
-        admissionPeriodName: formDataEdit.admissionPeriodName
+        endPeriod: formDataEdit.endPeriod,
+        admissionPeriodId: formDataEdit.admissionPeriodId,
+        majorId: formDataEdit.majorId,
+        note: formDataEdit.note
        }));
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
@@ -246,16 +304,50 @@ const { RangePicker } = DatePicker;
     }
   };
 
+  // Handler for role change in add user modal
+  const handleMajorChange = (event) => {
+      // Directly set the new role value
+    const selectedValue = event.target.value;
+    console.log('Selected major ID:', selectedValue);
+      setFormData((prev) => ({ ...prev, majorId: selectedValue }));
+  };
+
+  // Handler for admission period change in add user modal
+  const handleAdmissionPeriodChange = (event) => {
+      // Directly set the new admission period value
+    const selectedValue = event.target.value;
+    console.log('Selected admission period ID:', selectedValue);
+      setFormData((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
+  };
+
+  
+
+  // Handler for role change in edit user modal
+  const handleMajorChangeEditModal = (event) => {
+      // Directly set the new role value
+    const selectedValue = event.target.value;
+    console.log('Selected major ID:', selectedValue);
+      setFormData((prev) => ({ ...prev, majorId: selectedValue }));
+  };
+
+  // Handler for admission period change in edit user modal
+  const handleAdmissionPeriodChangeEditModal = (event) => {
+      // Directly set the new admission period value
+    const selectedValue = event.target.value;
+    console.log('Selected admission period ID:', selectedValue);
+      setFormDataEdit((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
+  };
+
   //Handle for delete admission period API call 
   const handleDeleteAdmissionPeriod = async () => {
     try {
-      const response = await dispatch(deleteApi({ listData: Array.from(selectedAdmissionPeriod) }));
+      const response = await dispatch(deleteApi({ listData: Array.from(selectedPeriodAssignment) }));
       // Check if delete was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("delete successful:", response.payload);
         // set timeout to ensure the delete API call completes before refreshing the list
         setTimeout(() => {
-          handleSelectListAdmissionPeriods(pager.pageNum, pager.pageSize); // Refresh admission period list after deletion
+          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after deletion
         }, 500);
       } else {
         // console.error("delete failed:", response.payload);
@@ -266,17 +358,21 @@ const { RangePicker } = DatePicker;
     closeDeleteModal();
   };
 
-  //Handle for select list admission period API call 
-  const handleSelectListAdmissionPeriods = async (pageNum, pageSize) => {
+  //Handle for select list period assignment API call 
+  const handleSelectListPeriodAssignments = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListApiAdmissionPeriodsApi({ 
-        admissionPeriodId: null, 
-        admissionPeriodName: null,
+      const response = await dispatch(selectListPeriodAssignmentApi({ 
+        periodAssignmentId: null, 
+        startPeriod: null,
+        endPeriod: null,
+        admissionPeriodId: null,
+        majorId: null,
+        note: null,
         status: null,
         pageRequestDto : { pageNum, pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
-        // Redux selector listDataAdmissionPeriod will reflect the updated value on next render
+        // Redux selector listDataPeriodAssignment will reflect the updated value on next render
       } else {
         // console.error("select list failed:", response.payload);
       }
@@ -285,17 +381,21 @@ const { RangePicker } = DatePicker;
     }
   };
 
-  //Handle for select list admission period API call with search
-  const handleSelectListAdmissionPeriodsSearch = async () => {
+  //Handle for select list period assignment API call with search
+  const handleSelectListPeriodAssignmentsSearch = async () => {
     try {
-      const response = await dispatch(selectListApiAdmissionPeriodsApi({ 
-        admissionPeriodId: formDataSearch.admissionPeriodId, 
-        admissionPeriodName: formDataSearch.admissionPeriodName,
-        status: null,
+      const response = await dispatch(selectListPeriodAssignmentApi({ 
+        periodAssignmentId: formDataSearch.periodAssignmentId, 
+        startPeriod: formDataSearch.startPeriod,
+        endPeriod: formDataSearch.endPeriod,
+        admissionPeriodId: formDataSearch.admissionPeriodId,
+        majorId: formDataSearch.majorId,
+        note: formDataSearch.note,
+        status: formDataSearch.status,
         pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
-        // Redux selector listDataAdmissionPeriod will reflect the updated value on next render
+        // Redux selector listDataPeriodAssignment will reflect the updated value on next render
       } else {
         // console.error("select list failed:", response.payload);
       }
@@ -341,22 +441,22 @@ const { RangePicker } = DatePicker;
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách kỳ học</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách kỳ hạn đồ án</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="admission-period-id-search">Mã kỳ học</label>
-                  <input type="text" name="admissionPeriodId" id="admission-period-id-search"
+                  <label htmlFor="admission-period-id-search">Mã kỳ hạn đồ án</label>
+                  <input type="text" name="periodAssignmentId" id="admission-period-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã kỳ học" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm mã kỳ hạn đồ án" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="admission-period-name-search">Tên kỳ học</label>
-                  <input type="text" name="admissionPeriodName" id="admission-period-name-search"
+                  <label htmlFor="admission-period-name-search">Ghi chú</label>
+                  <input type="text" name="note" id="admission-period-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm tên kỳ học" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm ghi chú" onChange={handleInputChangeSearch} />
                 </div>
               </form>
             </div>
@@ -365,14 +465,14 @@ const { RangePicker } = DatePicker;
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
               <button
                 type="button"
-                onClick={handleSelectListAdmissionPeriodsSearch}
+                onClick={handleSelectListPeriodAssignmentsSearch}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Tìm kiếm
               </button>   
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                {!listDataAdmissionPeriodLoading && !listDataAdmissionPeriod?.length && <span>Không tìm thấy dữ liệu.</span>}
-                {!listDataAdmissionPeriodLoading && listDataAdmissionPeriod?.length > 0 && (
+                {!listDataPeriodAssignment && !listDataPeriodAssignment?.length && <span>Không tìm thấy dữ liệu.</span>}
+                {!listDataPeriodAssignmentLoading && listDataPeriodAssignment?.length > 0 && (
                   <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
                 )}
               </div>
@@ -388,15 +488,15 @@ const { RangePicker } = DatePicker;
               </button>
               <button
                 type="button"
-                id="edit-admission-period-button"
-                onClick={handleOpenEditAdmissionPeriod}
+                id="edit-period-assignment-button"
+                onClick={handleOpenEditPeriodAssignment}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Sửa
               </button>
               <button
                 type="button"
-                id="delete-admission-period-button"
+                id="delete-period-assignment-button"
                 onClick={openDeleteModal}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
@@ -407,7 +507,7 @@ const { RangePicker } = DatePicker;
         </div>
       </div>
 
-      {/* <!-- Start table admission period --> */}
+      {/* <!-- Start table period assignment --> */}
       <div className="flex flex-col">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
@@ -432,11 +532,19 @@ const { RangePicker } = DatePicker;
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Mã kỳ học
+                      Mã kỳ hạn đồ án
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Tên kỳ học
+                      Chuyên ngành
+                    </th>
+                    <th scope="col"
+                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                      Kỳ học
+                    </th>
+                    <th scope="col"
+                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                      Ghi chú
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -445,31 +553,39 @@ const { RangePicker } = DatePicker;
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                  {Array.isArray(listDataAdmissionPeriod) && listDataAdmissionPeriod.length ? (
-                    listDataAdmissionPeriod.map((admissionPeriod, idx) => {
-                      const admissionPeriodId = admissionPeriod?.admissionPeriodId;
-                      const admissionPeriodName = admissionPeriod?.admissionPeriodName;
-                      const activeStatus = admissionPeriod?.status === '1' || admissionPeriod?.status === 1 || admissionPeriod?.status === true;
+                  {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
+                    listDataPeriodAssignment.map((periodAssignment, idx) => {
+                      const periodAssignmentId = periodAssignment?.periodAssignmentId;
+                      const note = periodAssignment?.note;
+                      const majorName = periodAssignment?.majorName;
+                      const admissionPeriod = periodAssignment?.admissionPeriodIdName;
+                      const activeStatus = periodAssignment?.status === '1' || periodAssignment?.status === 1 || periodAssignment?.status === true;
 
                       return (
-                        <tr key={admissionPeriodId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <tr key={periodAssignmentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="w-4 p-4">
                             <div className="flex items-center">
                               <input 
-                                id={`checkbox-${admissionPeriodId}`} 
+                                id={`checkbox-${periodAssignmentId}`} 
                                 aria-describedby="checkbox-1" 
                                 type="checkbox"
-                                checked={selectedAdmissionPeriod.has(admissionPeriodId)}
-                                onChange={() => handleAdmissionPeriodCheckboxChange(admissionPeriodId)}
+                                checked={selectedPeriodAssignment.has(periodAssignmentId)}
+                                onChange={() => handlePeriodAssignmentCheckboxChange(periodAssignmentId)}
                                 className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label htmlFor={`checkbox-${admissionPeriodId}`} className="sr-only">checkbox</label>
+                              <label htmlFor={`checkbox-${periodAssignmentId}`} className="sr-only">checkbox</label>
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {admissionPeriodId}
+                            {periodAssignmentId}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {admissionPeriodName}
+                            {majorName}
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            {admissionPeriod}
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            {note}
                           </td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
@@ -493,7 +609,7 @@ const { RangePicker } = DatePicker;
           </div>
         </div>
       </div>
-      {/* <!-- End table admission period --> */}
+      {/* <!-- End table period assignment --> */}
 
       {/* <!-- Start pagination --> */}
       <div
@@ -509,7 +625,7 @@ const { RangePicker } = DatePicker;
       </div>
       {/* <!-- End pagination --> */}
 
-      {/* <!-- Edit Admission Period Modal --> */}
+      {/* <!-- Edit Period Assignment Modal --> */}
       {isEditModalOpen && (
         <div
           onClick={closeEditModal}
@@ -521,7 +637,7 @@ const { RangePicker } = DatePicker;
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Cập nhật kỳ học
+                  Cập nhật kỳ hạn đồ án
                 </h3>
                 <button type="button"
                   onClick={closeEditModal}
@@ -538,19 +654,39 @@ const { RangePicker } = DatePicker;
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã kỳ học</label>
+                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã kỳ hạn dồ án</label>
                       <input type="text" name="admissionPeriodId" value={formDataEdit.admissionPeriodId} onChange={handleInputChangeEdit} id="edit-admission-period-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Mã kỳ học" required/>
+                        placeholder="Mã kỳ hạn đồ án" required disabled={true} />
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên kỳ học</label>
-                      <input type="text" name="admissionPeriodName" value={formDataEdit.admissionPeriodName} onChange={handleInputChangeEdit} id="edit-admission-period-name"
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Tên kỳ học" required/>
+                      <label htmlFor="category-major" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chuyên ngành</label>
+                      <select id="category-major" value={formDataEdit.majorId || ''} onChange={handleMajorChangeEditModal}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllMajors) && listAllMajors.length ? (
+                          <>
+                        <option value="">Select category</option>
+                        {listAllMajors.map((major, idx) => {
+                          return (
+                          <option key={idx} value={major.majorId}>
+                            {major.majorName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy</option>)}
+                      </select>
                     </div>
                   </div>
-                    <div className="grid grid-cols-6 gap-6">
+                  <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
+                      <input type="text" name="note" value={formDataEdit.note} onChange={handleInputChangeEdit} id="edit-admission-period-name"
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Ghi chú" required/>
+                    </div>
                         <div className="col-span-6 sm:col-span-3">
                             
                       <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thời gian</label>
@@ -558,6 +694,28 @@ const { RangePicker } = DatePicker;
                       format="YYYY-MM-DD"
                       value={rangeDateUpdate} onChange={onChangeDateUpdate} />
                         </div>
+                    </div>
+                    <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="category-admission-period" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ học</label>
+                      <select id="category-admission-period" value={formDataEdit.admissionPeriodId || ''} onChange={handleAdmissionPeriodChangeEditModal}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllAdmissionPeriods) && listAllAdmissionPeriods.length ? (
+                          <>
+                        <option value="">Select admission period</option>
+                        {listAllAdmissionPeriods.map((admissionPeriod, idx) => {
+                          return (
+                          <option key={idx} value={admissionPeriod.admissionPeriodId}>
+                            {admissionPeriod.admissionPeriodName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy</option>)}
+                      </select>
+                    </div>
                     </div>
                   {/* <!-- Modal footer --> */}
                   <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
@@ -572,12 +730,12 @@ const { RangePicker } = DatePicker;
         </div>
       )}
 
-      {/* <!-- Add Admission Period Modal --> */}
+      {/* <!-- Add Period Assignment Modal --> */}
       {isAddModalOpen && (
         <div
           onClick={closeAddModal}
           className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
-          id="add-admission-period-modal">
+          id="add-period-assignment-modal">
           <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl px-4 md:h-auto">
             {/* <!-- Modal content --> */}
             <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
@@ -601,13 +759,53 @@ const { RangePicker } = DatePicker;
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên kỳ học</label>
-                      <input type="text" name="admissionPeriodName" value={formData.admissionPeriodName} onChange={handleInputChange} id="admission-period-name"
+                      <label htmlFor="admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
+                      <input type="text" name="note" value={formData.note} onChange={handleInputChange} id="admission-period-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Tên kỳ học" required />
+                        placeholder="Ghi chú" required />
+                    </div>
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="category-major" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chuyên ngành</label>
+                      <select id="category-major" value={formData.majorId || ''} onChange={handleMajorChange}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllMajors) && listAllMajors.length ? (
+                          <>
+                        <option value="">Select category</option>
+                        {listAllMajors.map((major, idx) => {
+                          return (
+                          <option key={idx} value={major.majorId}>
+                            {major.majorName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy</option>)}
+                      </select>
                     </div>
                   </div>
                   <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="category-admission-period" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ học</label>
+                      <select id="category-admission-period" value={formData.admissionPeriodId || ''} onChange={handleAdmissionPeriodChange}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllAdmissionPeriods) && listAllAdmissionPeriods.length ? (
+                          <>
+                        <option value="">Select admission period</option>
+                        {listAllAdmissionPeriods.map((admissionPeriod, idx) => {
+                          return (
+                          <option key={idx} value={admissionPeriod.admissionPeriodId}>
+                            {admissionPeriod.admissionPeriodName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy</option>)}
+                      </select>
+                    </div>
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="admission-period-from-date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thời gian</label>
                       <RangePicker className="date" id="date12313" onChange={onChangeDate} />
@@ -674,4 +872,4 @@ const { RangePicker } = DatePicker;
   );
 }
 
-export default AdmissionPeriodManagement;
+export default PeriodAssignmentManagement;

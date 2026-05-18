@@ -1,11 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApi } from '../../layout_admin/instructor_management/InstructorManagementAPI';
+import { createApi, updateApi, deleteApi, selectListInstructorApi } from '../../layout_admin/instructor_management/InstructorManagementAPI';
 
 const initialState = {
   create: { data: null, loading: false, error: null },
   update: { data: null, loading: false, error: null },
   delete: { data: null, loading: false, error: null },
-  selectList: { data: null, loading: false, error: null, totalRecord: 0 }
+  selectListInstructor: { data: null, loading: false, error: null, totalRecord: 0 }
 };
 
 const instructorManagementSlice = createSlice({
@@ -13,19 +13,19 @@ const instructorManagementSlice = createSlice({
   initialState,
   extraReducers: (builder) => {
     builder
-      .addCase(selectListApi.pending, (state) => {
-        state.selectList.loading = true;
-        state.selectList.error = null;
+      .addCase(selectListInstructorApi.pending, (state) => {
+        state.selectListInstructor.loading = true;
+        state.selectListInstructor.error = null;
       })
-      .addCase(selectListApi.fulfilled, (state, action) => {
-        state.selectList.loading = false;
-        state.selectList.error = null;
-        state.selectList.data = action.payload.data?.data ?? null;
-        state.selectList.totalRecord = action.payload.data?.totalRecord ?? 0;
+      .addCase(selectListInstructorApi.fulfilled, (state, action) => {
+        state.selectListInstructor.loading = false;
+        state.selectListInstructor.error = null;
+        state.selectListInstructor.data = action.payload.data?.data ?? null;
+        state.selectListInstructor.totalRecord = action.payload.data?.totalRecord ?? 0;
       })
-      .addCase(selectListApi.rejected, (state, action) => {
-        state.selectList.loading = false;
-        state.selectList.error = action.payload || action.error.message;
+      .addCase(selectListInstructorApi.rejected, (state, action) => {
+        state.selectListInstructor.loading = false;
+        state.selectListInstructor.error = action.payload || action.error.message;
       })
       .addCase(createApi.pending, (state) => {
         state.create.loading = true;

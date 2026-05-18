@@ -47,7 +47,7 @@ export const deleteApi = createAsyncThunk(
   }
 );
 
-export const selectListApi = createAsyncThunk(
+export const selectListInstructorApi = createAsyncThunk(
   'instructor/selectList',
   async (authRequest, { rejectWithValue }) => {
     try {

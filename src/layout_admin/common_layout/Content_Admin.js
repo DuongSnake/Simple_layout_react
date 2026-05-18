@@ -7,6 +7,8 @@ import MajorManagement from "../major_management/MajorManagementLayout";
 import StudentManagement from "../student_management/StudentManagementLayout";
 import InstructorManagement from "../instructor_management/InstructorManagementLayout";
 import AdmissionPeriodManagement from "../admission_period_management/AdmissionPeriodManagementLayout";
+import PeriodAssignmentManagement from "../period_assignment_management/PeriodAssignmentManagementLayout";
+import AssignmentRegisterManagement from "../assignment_student_register_management/AssignmentRegisterManagementLayout";
 import NavbarAdmin from "./Navbar_Admin";
 import AdminLogin from "../../layout_login/admin_layout/AdminLoginTemplate";
 function Content() {
@@ -26,6 +28,8 @@ function Content() {
         <Route path="/admin/student-management" element={<StudentManagement />} />
         <Route path="/admin/instructor-management" element={<InstructorManagement />} />
         <Route path="/admin/admission-period-management" element={<AdmissionPeriodManagement />} />
+        <Route path="/admin/period-assignment-management" element={<PeriodAssignmentManagement />} />
+        <Route path="/admin/assignment-register-management" element={<AssignmentRegisterManagement />} />
       </Routes>
       </main>
       </div>
