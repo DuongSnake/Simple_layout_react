@@ -7,6 +7,7 @@ import instructorManagementReducer from './redux/slices/instructorManagementSlic
 import admissionPeriodManagementReducer from './redux/slices/admissionPeriodManagementSlice';
 import periodAssignmentManagementReducer from './redux/slices/periodAssignmentManagementSlice';
 import assignmentRegisterManagementReducer from './redux/slices/assignmentRegisterManagementSlice';
+import studentMapInstructorManagementReducer from './redux/slices/studentMapInstructorManagementSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     admissionPeriodManagement: admissionPeriodManagementReducer,
     periodAssignmentManagement: periodAssignmentManagementReducer,
     assignmentRegisterManagement: assignmentRegisterManagementReducer,
+    studentMapInstructorManagement: studentMapInstructorManagementReducer,
     // Add more reducers here as you create new features
     // example: todosReducer from './redux/slices/todosSlice'
   },

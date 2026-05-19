@@ -390,6 +390,7 @@ function StudentManagement() {
                     </th>
                     <th scope="col" className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">Mã sinh viên</th>
                     <th scope="col" className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">Tên sinh viên</th>
+                    <th scope="col" className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">Email</th>
                     <th scope="col" className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">Trạng thái</th>
                   </tr>
                 </thead>
@@ -398,6 +399,7 @@ function StudentManagement() {
                     listDataStudent.map((student, idx) => {
                       const studentId = student?.studentId || student?.id || idx;
                       const studentName = student?.fullName || student?.studentName || 'N/A';
+                      const studentEmail = student?.email || 'N/A';
                       const activeStatus = student?.status === '1' || student?.status === 1 || student?.status === true;
                       return (
                         <tr key={studentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -416,6 +418,7 @@ function StudentManagement() {
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">{studentId}</td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">{studentName}</td>
+                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">{studentEmail}</td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
                               <div className={`h-2.5 w-2.5 rounded-full ${activeStatus ? 'bg-green-400' : 'bg-red-500'} mr-2`} />

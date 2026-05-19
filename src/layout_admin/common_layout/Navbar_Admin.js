@@ -30,6 +30,10 @@ function Navbar() {
     navigate("/admin/assignment-register-management", { replace: true });
   };
 
+  const navigatePage8 = () => {
+    navigate("/admin/student-map-instructor-management", { replace: true });
+  };
+
   return (
 <>
     {/* // <!-- Start sidebar --> */}
@@ -100,6 +104,10 @@ function Navbar() {
                   <li onClick={navigatePage7}>
                     <a href="/admin/assignment-register-management"
                       class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Đăng ký đồ án</a>
+                  </li>
+                  <li onClick={navigatePage8}>
+                    <a href="/admin/student-map-instructor-management"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Sinh viên map giảng viên hướng dẫn</a>
                   </li>
                 </ul>
               </li>

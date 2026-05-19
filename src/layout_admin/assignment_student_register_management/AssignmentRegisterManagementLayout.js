@@ -225,6 +225,8 @@ const { RangePicker } = DatePicker;
     selectedPeriodAssignment.size > 0 && 
     !areAllSelected;
 
+  const editFileName = selectedFileUpdate?.name || (typeof formDataEdit.fileUpload === 'string' ? formDataEdit.fileUpload : '');
+
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
     //Select list period assignment when component mounts
@@ -322,6 +324,7 @@ const { RangePicker } = DatePicker;
     formData123.append("instructorId", formDataEdit.instructorId || 0);
     formData123.append("statusAutoMap", formDataEdit.statusAutoMap || "N");
     formData123.append("oldValueId", formDataEdit.oldValueId || 0);
+    // console.log("form data:"+JSON.stringify(formData123));
       const response = await dispatch(updateApi(formData123));
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
@@ -386,14 +389,14 @@ const { RangePicker } = DatePicker;
   const handleChangeStatusAuto = (event) => {
     const checked = event.target.checked;
     setIsAutoMapChecked(checked);
-    setFormData((prev) => ({ ...prev, statusAutoMap: checked ? 'N' : 'Y' }));
+    setFormData((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N" }));
   };
 
   // Handler for auto map checkbox change in update modal
   const handleChangeStatusAutoEditModal = (event) => {
     const checked = event.target.checked;
     setIsAutoMapCheckedEdit(checked);
-    setFormDataEdit((prev) => ({ ...prev, statusAutoMap: checked ? 'N' : 'Y' }));
+    setFormDataEdit((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N"  }));
   };
 
   //Handle for delete admission period API call 
@@ -603,10 +606,6 @@ const { RangePicker } = DatePicker;
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Mã đăng ký đồ án sinh viên
-                    </th>
-                    <th scope="col"
-                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
                       Tên đồ án
                     </th>
                     <th scope="col"
@@ -619,7 +618,11 @@ const { RangePicker } = DatePicker;
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Trạng thái tự động map
+                      Map thủ công
+                    </th>
+                    <th scope="col"
+                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                      Trạng thái phê duyệt
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -635,6 +638,9 @@ const { RangePicker } = DatePicker;
                       const studentName = assignmentRegister?.studentName;
                       const instructorName = assignmentRegister?.instructorName;
                       const statusAutoMap = assignmentRegister?.statusAutoMap;
+                      const isApproved = assignmentRegister?.isApproved;
+                      const isApprovedDisplayName = assignmentRegister?.isApprovedDisplayName;
+                      const statusAutoMapDisplayName = assignmentRegister?.statusAutoMapDisplayName;
                       const activeStatus = assignmentRegister?.status === '1' || assignmentRegister?.status === 1 || assignmentRegister?.status === true;
 
                       return (
@@ -652,9 +658,6 @@ const { RangePicker } = DatePicker;
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {assignmentStudentRegisterId}
-                          </td>
-                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {assignmentStudentRegisterName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
@@ -664,7 +667,10 @@ const { RangePicker } = DatePicker;
                             {instructorName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {statusAutoMap}
+                           {isApprovedDisplayName}
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            {statusAutoMapDisplayName}
                           </td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
@@ -806,12 +812,17 @@ const { RangePicker } = DatePicker;
                     </div>
                     
                     <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="file_input"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
-                      <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
-                      text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
-                      shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate}/>
-                    </div>
+                      <div className="col-span-6 sm:col-span-3">
+                        <label htmlFor="file_input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
+                        <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
+                        text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
+                        shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
+                        {editFileName ? (
+                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Tên tệp hiện tại: {editFileName}</p>
+                        ) : (
+                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được tải lên trước đó.</p>
+                        )}
+                      </div>
                     </div>
                   {/* <!-- Modal footer --> */}
                   <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
