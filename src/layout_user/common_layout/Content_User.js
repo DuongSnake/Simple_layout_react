@@ -4,6 +4,7 @@ import UserProfile from "../../pages/UserProfile";
 import UserLogin from "../../layout_login/user_layout/UserLoginTemplate";
 import NavbarUser from "./Navbar_User";
 import AssignmentRegisterManagement from "../assignment_student_register_management/AssignmentRegisterManagementLayout";
+import AssignmentProcessManagement from "../assignment_process_upload_file_management/AssignmentProcessUploadManagementLayout";
 function ContentUser() {
   return (
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -16,6 +17,8 @@ function ContentUser() {
         <Route path="/user" element={<HomeUser />} />
         <Route path="/user/profile" element={<UserProfile />} />
         <Route path="/user/assignment-register" element={<AssignmentRegisterManagement />} />
+        <Route path="/user/login" element={<UserLogin />} />
+        <Route path="/user/assignment-process" element={<AssignmentProcessManagement />} />
       </Routes>
       </main>
       </div>

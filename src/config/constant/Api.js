@@ -12,6 +12,7 @@ export const API_CHANGE_PASSWORD = PRE_FIX_USER + 'changePassword';
 export const API_CHANGE_LOGIN_PASSWORD = PRE_FIX_USER + 'changeLoginPassword';
 export const API_FORGOT_PASSWORD = PRE_FIX_AUTH + 'forgotPassword';
 export const API_RESET_PASSWORD = PRE_FIX_AUTH + 'resetPassword';
+export const API_FIND_USER_ID_BY_USERNAME = PRE_FIX_AUTH + 'findId';
 /**
  * User management API endpoints
  */
@@ -125,13 +126,13 @@ export const API_RESERVE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignme
 export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/sendRequestAssignment';
 
 /**
- * List Assignment register approve
+ * List Assignment register process (type process was occur when instructor approve the assignment student register)
  */
-export const API_SELECT_LIST_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListAssApprove';
+export const API_SELECT_LIST_ASSIGNMENT_PROCESS = PRE_FIX_API + 'assignmentRegister/selectListAssApprove';
 export const API_SELECT_LIST_All_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListAllAssApprove';
-export const API_SELECT_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListFileAss';
-export const API_CREATE_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/insertListFileAssignment';
-export const API_UPDATE_LIST_FILE_ASSIGNMENT_APPROVE = PRE_FIX_API + 'assignmentRegister/updateListFileAssignment';
+export const API_SELECT_LIST_FILE_ASSIGNMENT_PROCESS = PRE_FIX_API + 'assignmentRegister/selectListFileAss';
+export const API_CREATE_LIST_FILE_ASSIGNMENT_PROCESS = PRE_FIX_API + 'assignmentRegister/insertListFileAssignment';
+export const API_UPDATE_LIST_FILE_ASSIGNMENT_PROCESS = PRE_FIX_API + 'assignmentRegister/updateListFileAssignment';
 
 /**
  * Student management

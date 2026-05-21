@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListAssignmentRegisterUserSiteApi } from '../../layout_user/assignment_student_register_management/AssignmentRegisterManagementAPI.js';
+import { createApi, updateApi, deleteApi, selectListAssignmentRegisterUserSiteApi, sendRequestListAssignmentApi } from '../../layout_user/assignment_student_register_management/AssignmentRegisterManagementAPI.js';
 
 const initialState = {
   create: {
@@ -23,6 +23,11 @@ const initialState = {
     error: null,
     totalRecord: 0
   },
+  sendRequestListAssignment: {
+    data: null,
+    loading: false,
+    error: null
+  }
 };
 
 const assignmentRegisterUserSiteSlice = createSlice({
@@ -86,7 +91,22 @@ const assignmentRegisterUserSiteSlice = createSlice({
       .addCase(deleteApi.rejected, (state, action) => {
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
+      })
+      // Send Request List Assignment handlers
+      .addCase(sendRequestListAssignmentApi.pending, (state) => {
+        state.sendRequestListAssignment.loading = true;
+        state.sendRequestListAssignment.error = null;
+      })
+      .addCase(sendRequestListAssignmentApi.fulfilled, (state, action) => {
+        state.sendRequestListAssignment.loading = false;
+        state.sendRequestListAssignment.data = action.payload;
+        state.sendRequestListAssignment.error = null;
+      })
+      .addCase(sendRequestListAssignmentApi.rejected, (state, action) => {
+        state.sendRequestListAssignment.loading = false;
+        state.sendRequestListAssignment.error = action.payload || action.error.message;
       });
+      
   },
 });
 

@@ -2,19 +2,17 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../config/client/ApiClient.js';
 import {
 SERVER_API_URL,
-API_SELECT_LIST_ASSIGNMENT_STUDENT_USER_SIDE,
-API_CREATE_ASSIGNMENT_STUDENT_USER_SIDE,
-API_UPDATE_ASSIGNMENT_STUDENT_USER_SIDE,
-API_DELETE_ASSIGNMENT_STUDENT_USER_SIDE,
-API_SELECT_ASSIGNMENT_STUDENT_USER_SIDE,
-API_SEND_REQUEST_ASSIGNMENT_STUDENT_USER_SIDE
+API_SELECT_LIST_ASSIGNMENT_PROCESS,
+API_CREATE_LIST_FILE_ASSIGNMENT_PROCESS,
+API_UPDATE_LIST_FILE_ASSIGNMENT_PROCESS,
+API_SELECT_LIST_FILE_ASSIGNMENT_PROCESS
 } from '../../config/constant/Api.js';
 
-export const createApi = createAsyncThunk(
-  'assignmentRegister/create',
+export const insertListFileAssignmentProcessApi = createAsyncThunk(
+  'assignmentRegister/insertListFileAssignment',
   async (authRequest, { rejectWithValue }) => {
     try {
-      let urlCreateAssignmentRegister= SERVER_API_URL + API_CREATE_ASSIGNMENT_STUDENT_USER_SIDE;
+      let urlCreateAssignmentRegister= SERVER_API_URL + API_CREATE_LIST_FILE_ASSIGNMENT_PROCESS;
       console.log('API URL:', urlCreateAssignmentRegister);
       const response = await apiClient.post(urlCreateAssignmentRegister, authRequest);
       console.log('API create assignmentRegister Success Response:', response.data);
@@ -26,8 +24,8 @@ export const createApi = createAsyncThunk(
   }
 );
 
-export const updateApi = createAsyncThunk(
-  'assignmentRegister/update',
+export const updateListFileAssignmentProcessApi = createAsyncThunk(
+  'assignmentRegister/updateListFileAssignment',
   async (authRequest, { rejectWithValue }) => {
     try {
       console.log('authRequest is FormData:', authRequest instanceof FormData);
@@ -37,7 +35,7 @@ export const updateApi = createAsyncThunk(
         }
       }
       // console.log('authRequest:', authRequest);
-      let urlUpdateAssignmentRegister= SERVER_API_URL + API_UPDATE_ASSIGNMENT_STUDENT_USER_SIDE;
+      let urlUpdateAssignmentRegister= SERVER_API_URL + API_UPDATE_LIST_FILE_ASSIGNMENT_PROCESS;
       // console.log('API URL:', urlUpdateAssignmentRegister);
       const response = await apiClient.post(urlUpdateAssignmentRegister, authRequest);
       // console.log('API update assignmentRegister Success Response:', response.data);
@@ -49,29 +47,12 @@ export const updateApi = createAsyncThunk(
   }
 );
 
-export const deleteApi = createAsyncThunk(
-  'assignmentRegister/delete',
+export const selectListAssignmentProcessApi = createAsyncThunk(
+  'assignmentRegister/selectListAssApprove',
   async (authRequest, { rejectWithValue }) => {
     try {
       // console.log('authRequest:', authRequest);
-      let urlDeleteAssignmentRegister= SERVER_API_URL + API_DELETE_ASSIGNMENT_STUDENT_USER_SIDE;
-      // console.log('API URL:', urlDeleteAssignmentRegister);
-      const response = await apiClient.post(urlDeleteAssignmentRegister, authRequest);
-      // console.log('API delete assignmentRegister Success Response:', response.data);
-      return response.data;
-    } catch (error) {
-      // console.error('API Error:', error.message);
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
-
-export const selectListAssignmentRegisterUserSiteApi = createAsyncThunk(
-  'assignmentRegister/selectList',
-  async (authRequest, { rejectWithValue }) => {
-    try {
-      // console.log('authRequest:', authRequest);
-      let urlSelectListAssignmentRegister= SERVER_API_URL + API_SELECT_LIST_ASSIGNMENT_STUDENT_USER_SIDE;
+      let urlSelectListAssignmentRegister= SERVER_API_URL + API_SELECT_LIST_ASSIGNMENT_PROCESS;
       // console.log('API URL:', urlSelectListAssignmentRegister);
       const response = await apiClient.post(urlSelectListAssignmentRegister, authRequest);
       // console.log('API select list assignmentRegister Success Response:', response.data);
@@ -83,15 +64,15 @@ export const selectListAssignmentRegisterUserSiteApi = createAsyncThunk(
   }
 );
 
-export const sendRequestListAssignmentApi = createAsyncThunk(
-  'assignmentRegister/sendRequestListAssignment',
+export const selectListFileAssignmentProcessApi = createAsyncThunk(
+  'assignmentRegister/selectListFileAss',
   async (authRequest, { rejectWithValue }) => {
     try {
       // console.log('authRequest:', authRequest);
-      let urlSendRequestAssignmentRegister= SERVER_API_URL + API_SEND_REQUEST_ASSIGNMENT_STUDENT_USER_SIDE;
-      // console.log('API URL:', urlSendRequestAssignmentRegister);
-      const response = await apiClient.post(urlSendRequestAssignmentRegister, authRequest);
-      // console.log('API send request list assignmentRegister Success Response:', response.data);
+      let urlSelectListFileAssignment= SERVER_API_URL + API_SELECT_LIST_FILE_ASSIGNMENT_PROCESS;
+      // console.log('API URL:', urlSelectListFileAssignment);
+      const response = await apiClient.post(urlSelectListFileAssignment, authRequest);
+      // console.log('API select list file assignment Success Response:', response.data);
       return response.data;
     } catch (error) {
       // console.error('API Error:', error.message);

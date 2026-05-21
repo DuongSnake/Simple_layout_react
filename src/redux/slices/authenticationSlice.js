@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { authenticate, resetPassword, changePassword } from '../../layout_login/admin_layout/AdminLoginAPI';
+import { authenticate, resetPassword, changePassword, findUserIdByUsername } from '../../layout_login/admin_layout/AdminLoginAPI';
 
 const initialState = {
   login: {
@@ -17,6 +17,11 @@ const initialState = {
     loading: false,
     error: null,
   },
+  findUserId: {
+    data: null,
+    loading: false,
+    error: null,
+  }
 };
 
 const authenticationSlice = createSlice({
@@ -65,6 +70,20 @@ const authenticationSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.changePassword.loading = false;
         state.changePassword.error = action.payload || action.error.message;
+      })
+      // Find User ID by Username handlers
+      .addCase(findUserIdByUsername.pending, (state) => {
+        state.findUserId.loading = true;
+        state.findUserId.error = null;
+      })
+      .addCase(findUserIdByUsername.fulfilled, (state, action) => {
+        state.findUserId.loading = false;
+        state.findUserId.data = action.payload;
+        state.findUserId.error = null;
+      })
+      .addCase(findUserIdByUsername.rejected, (state, action) => {
+        state.findUserId.loading = false;
+        state.findUserId.error = action.payload || action.error.message;
       });
   },
 });
