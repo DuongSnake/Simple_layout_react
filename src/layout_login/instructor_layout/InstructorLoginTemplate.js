@@ -3,7 +3,7 @@ import { ACCESS_TOKEN, USER_NAME, PAGE_LOGIN } from '../../config/constant/Const
 import { authenticate } from "../admin_layout/AdminLoginAPI";
 import { useDispatch, useSelector } from "react-redux";
 
-function UserLoginTemplate() {
+function InstructorLoginTemplate() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -11,18 +11,18 @@ function UserLoginTemplate() {
 
   const handleLogin = async () => {
     try {
-      const response = await dispatch(authenticate({ userName: "vuhaiduongit@gmail.com", password: "ktx2024" }));
+      const response = await dispatch(authenticate({ userName: "duong", password: "ktx2024" }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
         console.log("Login successful:", response.payload);
         // Store token and user info
         if (response.payload.data != null && response.payload.data.token) {
           sessionStorage.setItem(ACCESS_TOKEN, response.payload.data.token);
-          sessionStorage.setItem(PAGE_LOGIN, "user");
+          sessionStorage.setItem(PAGE_LOGIN, "instructor");
           sessionStorage.setItem(USER_NAME, response.payload.data.username);
         }
         // Redirect to dashboard
-        const redirectUrl = location.state?.urlAfterLoginSuccess || "/user/profile";
+        const redirectUrl = location.state?.urlAfterLoginSuccess || "/instructor/profile";
         navigate(redirectUrl);
       } else {
         console.error("Login failed:", response.payload);
@@ -34,12 +34,11 @@ function UserLoginTemplate() {
 
   return (
     <div>
-      <h2>User Login</h2>
+      <h2>Instructor Login</h2>
       <button onClick={handleLogin} disabled={login.loading}>
-        {login.loading ? "Logging in..." : "Login as User"}
+        {login.loading ? "Logging in..." : "Login as Instructor"}
       </button>
     </div>
   );
 }
-
-export default UserLoginTemplate;
+export default InstructorLoginTemplate;

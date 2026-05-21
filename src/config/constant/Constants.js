@@ -1,6 +1,7 @@
 export const LOCALE = 'locale';
 export const DEFAULT_LOCALE = 'vi';
 export const ACCESS_TOKEN = 'access-token';
+export const PAGE_LOGIN = 'page-login';
 export const REFRESH_TOKEN = 'refresh-idx';
 export const USER_NAME = 'user-name';
 export const USER_TYPE = 'user-type';

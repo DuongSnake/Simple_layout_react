@@ -7,7 +7,6 @@ function LayoutAdmin({ children }) {
     <>
       <HeaderAdmin />
       <ContentAdmin>{children}</ContentAdmin>
-      <FooterAdmin />
     </>
   );
 }

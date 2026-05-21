@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, USER_NAME, PAGE_LOGIN } from '../../config/constant/Constants';
-function HeaderAdmin() {
+function HeaderInstructor() {
   const navigate = useNavigate();
     const handleLogout = () => {
     sessionStorage.removeItem(ACCESS_TOKEN);
     sessionStorage.removeItem(USER_NAME);
     sessionStorage.removeItem(PAGE_LOGIN);
-    navigate("/admin/login", { replace: true });
+    navigate("/user/login", { replace: true });
   };
   return (
       // <!-- Start nav -->
@@ -30,9 +30,9 @@ function HeaderAdmin() {
                 clip-rule="evenodd"></path>
             </svg>
           </button>
-          <a href="/admin/user-management" class="flex ml-2 md:mr-24">
+          <a href="/instructor/home" class="flex ml-2 md:mr-24">
             <span
-              class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Trang quản trị</span>
+              class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Trang giảng viên</span>
           </a>
         </div>
         <div class="flex items-center">
@@ -81,4 +81,4 @@ function HeaderAdmin() {
   // <!-- End nav -->
   );
 }
-export default HeaderAdmin;
+export default HeaderInstructor;
