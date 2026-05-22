@@ -1,11 +1,14 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../config/client/ApiClient.js';
+import { getAuthToken } from '../../config/utils/FunctionGlobal.js';
+import axios from "axios";
 import {
 SERVER_API_URL,
 API_SELECT_LIST_ASSIGNMENT_PROCESS,
 API_CREATE_LIST_FILE_ASSIGNMENT_PROCESS,
 API_UPDATE_LIST_FILE_ASSIGNMENT_PROCESS,
-API_SELECT_LIST_FILE_ASSIGNMENT_PROCESS
+API_SELECT_LIST_FILE_ASSIGNMENT_PROCESS,
+API_DOWNLOAD_FILE_STUDENT_UPLOAD_USER_SIDE
 } from '../../config/constant/Api.js';
 
 export const insertListFileAssignmentProcessApi = createAsyncThunk(
@@ -80,3 +83,41 @@ export const selectListFileAssignmentProcessApi = createAsyncThunk(
     }
   }
 );
+
+export const downloadFileStudentUploadApi = createAsyncThunk(
+  'file/downloadFile',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      let urlDownloadFile= SERVER_API_URL + API_DOWNLOAD_FILE_STUDENT_UPLOAD_USER_SIDE;
+      const response = await apiClient.post(urlDownloadFile, authRequest);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const downloadFileAssignmentProcessApi = async (fileId) => {
+
+    const token = getAuthToken();
+
+    return await axios.post(
+        SERVER_API_URL + API_DOWNLOAD_FILE_STUDENT_UPLOAD_USER_SIDE,
+        {
+            fileId: fileId
+        },
+        {
+            responseType: "blob",
+
+            headers: {
+                Authorization: token
+                    ? `Bearer ${token}`
+                    : "",
+
+                token: token || "",
+
+                lang: "vi"
+            }
+        }
+    );
+};

@@ -111,6 +111,7 @@ export const API_DELETE_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignment
 export const API_SELECT_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/select';
 export const API_RESERVE_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/reserveListAssignment';
 export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/sendRequestAssignment';
+export const API_DOWNLOAD_FILE_STUDENT_UPLOAD_USER_SIDE = PRE_FIX_API + 'file/download';
 
 
 /**

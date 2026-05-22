@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { insertListFileAssignmentProcessApi, updateListFileAssignmentProcessApi, selectListAssignmentProcessApi, selectListFileAssignmentProcessApi } from '../../layout_user/assignment_process_upload_file_management/AssignmentProcessUploadManagementAPI.js';
+import { insertListFileAssignmentProcessApi, updateListFileAssignmentProcessApi, selectListAssignmentProcessApi, selectListFileAssignmentProcessApi, downloadFileStudentUploadApi } from '../../layout_user/assignment_process_upload_file_management/AssignmentProcessUploadManagementAPI.js';
 
 const initialState = {
   insertListFileAssignmentProcess: {
@@ -24,6 +24,11 @@ const initialState = {
     error: null,
     totalRecord: 0
   },
+  downloadFileStudentUpload: {
+    data: null,
+    loading: false,
+    error: null
+  }
 };
 
 const assignmentProcessUploadManagementSlice = createSlice({
@@ -82,12 +87,26 @@ const assignmentProcessUploadManagementSlice = createSlice({
       .addCase(selectListFileAssignmentProcessApi.fulfilled, (state, action) => {
         state.selectListFileAssignmentProcess.loading = false;
         state.selectListFileAssignmentProcess.error = null;
-        state.selectListFileAssignmentProcess.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
-        state.selectListFileAssignmentProcess.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+        state.selectListFileAssignmentProcess.data = (undefined === action.payload.data || null === action.payload.data || null === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListFileAssignmentProcess.totalRecord = (undefined === action.payload.data || null === action.payload.data || undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
       })
       .addCase(selectListFileAssignmentProcessApi.rejected, (state, action) => {
         state.selectListFileAssignmentProcess.loading = false;
         state.selectListFileAssignmentProcess.error = action.payload || action.error.message;
+      })
+      // Download File handlers
+      .addCase(downloadFileStudentUploadApi.pending, (state) => {
+        state.downloadFileStudentUpload.loading = true;
+        state.downloadFileStudentUpload.error = null;
+      })
+      .addCase(downloadFileStudentUploadApi.fulfilled, (state, action) => {
+        state.downloadFileStudentUpload.loading = false;
+        state.downloadFileStudentUpload.data = action.payload;
+        state.downloadFileStudentUpload.error = null;
+      })
+      .addCase(downloadFileStudentUploadApi.rejected, (state, action) => {
+        state.downloadFileStudentUpload.loading = false;
+        state.downloadFileStudentUpload.error = action.payload || action.error.message;
       })
   },
 });
