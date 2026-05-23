@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { selectListAssignmentProcessApi, insertListFileAssignmentProcessApi, updateListFileAssignmentProcessApi
-    , selectListFileAssignmentProcessApi } from "./AssignmentProcessUploadManagementAPI";
+    , selectListFileAssignmentProcessApi, downloadFileAssignmentProcessApi} from "./AssignmentProcessUploadManagementAPI";
 import { findUserIdByUsername } from "../../layout_login/admin_layout/AdminLoginAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
@@ -100,25 +100,24 @@ function AssignmentProcessUploadManagementLayout() {
     const handleDownloadFile = async (fileId, fileName) => {
     try {
 
-        // const response = await downloadFileAssignmentProcessApi(fileId);
+        const response = await downloadFileAssignmentProcessApi(fileId);
+        const blob = new Blob([response.data]);
 
-        // const blob = new Blob([response.data]);
+        const url = window.URL.createObjectURL(blob);
 
-        // const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
 
-        // const link = document.createElement("a");
+        link.href = url;
 
-        // link.href = url;
+        link.download = fileName;
 
-        // link.download = fileName;
+        document.body.appendChild(link);
 
-        // document.body.appendChild(link);
+        link.click();
 
-        // link.click();
+        link.remove();
 
-        // link.remove();
-
-        // window.URL.revokeObjectURL(url);
+        window.URL.revokeObjectURL(url);
 
     } catch (error) {
 
@@ -785,7 +784,7 @@ const handleUpdate = async () => {
                                                     </button>
                                                     <button
                                                         type="button"
-                                                        onClick={() => handleDownloadFile(index, item.file.oldFileName)}
+                                                        onClick={() => handleDownloadFile(item.fileId, item.oldFileName)}
                                                         className="px-3 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700"
                                                     >
                                                         Tải xuống
