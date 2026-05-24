@@ -12,6 +12,9 @@ import AssignmentRegisterManagement from "../assignment_student_register_managem
 import StudentMapInstructorManagement from "../student_map_instructor/StudentMapInstructorManagementLayout";
 import NavbarAdmin from "./Navbar_Admin";
 import AdminLogin from "../../layout_login/admin_layout/AdminLoginTemplate";
+import Dashboard from "../dashboard_management/DashboardUI";
+import ScoreAssignmentManagement from "../score_assignment_management/ScoreAssignmentManagementLayout";
+import FileUploadAssignmentManagement from "../file_upload_assignment_management/FileUploadAssignmentManagementLayout";
 function Content() {
   return (
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -21,8 +24,8 @@ function Content() {
       <main>
         {/* Handle routing for different admin pages */}
       <Routes>
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/about" element={<About />} />
         <Route path="/admin/user-management" element={<UserManagement />} />
         <Route path="/admin/major-management" element={<MajorManagement />} />
@@ -32,6 +35,8 @@ function Content() {
         <Route path="/admin/period-assignment-management" element={<PeriodAssignmentManagement />} />
         <Route path="/admin/assignment-register-management" element={<AssignmentRegisterManagement />} />
         <Route path="/admin/student-map-instructor-management" element={<StudentMapInstructorManagement />} />
+        <Route path="/admin/score-assignment-management" element={<ScoreAssignmentManagement />} />
+        <Route path="/admin/file-upload-assignment-management" element={<FileUploadAssignmentManagement />} />
       </Routes>
       </main>
       </div>

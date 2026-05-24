@@ -20,6 +20,8 @@ import AdminLogin from "./layout_login/admin_layout/AdminLoginTemplate";
 import UserLogin from "./layout_login/user_layout/UserLoginTemplate";
 import InstructorLogin from "./layout_login/instructor_layout/InstructorLoginTemplate";
 
+import AdminResetPassword from "./layout_login/admin_layout/AdminResetPasswordTemplate";
+
 
 function LayoutSelector({ children }) {
   const location = useLocation();
@@ -34,6 +36,9 @@ function LayoutSelector({ children }) {
         return <Navigate to="/admin/dashboard" replace />;
       }
       return <AdminLogin />;
+    }
+    if (location.pathname === "/admin/forgot-password") {
+      return <AdminResetPassword />;
     }
 
     // protect all other admin pages

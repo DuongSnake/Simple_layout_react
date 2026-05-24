@@ -5,6 +5,9 @@ function Navbar() {
     const navigatePage = () => {
     navigate("/user/assignment-register", { replace: true });
   };
+    const navigatePage1 = () => {
+    navigate("/user/assignment-process", { replace: true });
+  };
 
 
 
@@ -42,6 +45,10 @@ function Navbar() {
                   <li onClick={navigatePage}>
                     <a href="/user/assignment-register"
                       class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Đăng ký đề tài</a>
+                  </li>
+                  <li onClick={navigatePage1}>
+                    <a href="/user/assignment-process"
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Quản lý tệp tin đề tài</a>
                   </li>
                 </ul>
               </li>

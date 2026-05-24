@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import { selectListPeriodAssignmentApi, createApi, updateApi, deleteApi } from "./PeriodAssignmentManagementAPI";
-import { selectListApiMajors } from "../major_management/MajorManagementAPI";
-import { selectListApiAdmissionPeriodsApi } from "../admission_period_management/AdmissionPeriodManagementAPI";
+import { selectListAssignmentRegisterApi, createApi, updateApi, deleteApi } from "../assignment_student_register_management/AssignmentRegisterManagementAPI";
+import { selectAllInstructorApi , selectAllStudentApi } from "../user_management/UserManagementAPI";
+import { selectListPeriodAssignmentApi } from "../period_assignment_management/PeriodAssignmentManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import dayjs from "dayjs";
@@ -10,46 +10,55 @@ import 'antd/dist/reset.css';
 import '../.././App.css';
 import moment from 'moment';
 import { APP_DATE_FORMAT}  from '../../config/constant/Constants';
-function PeriodAssignmentManagement() {
+function FileUploadAssignmentManagement() {
 const { RangePicker } = DatePicker;
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
+  const listDataAssignmentRegister = useSelector(state => state.assignmentRegisterManagement.selectListAssignmentRegisterApi.data);
+  const totalRecord = useSelector(state => state.assignmentRegisterManagement.selectListAssignmentRegisterApi.totalRecord);
+  const listDataAssignmentStudentRegisterLoading = useSelector(state => state.assignmentRegisterManagement.selectListAssignmentRegisterApi.loading);
+  const listAllInstructors = useSelector(state => state.userManagement.selectAllInstructors.data);
+  const listAllStudents = useSelector(state => state.userManagement.selectAllStudents.data);
   const listDataPeriodAssignment = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.data);
-  const totalRecord = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.totalRecord);
-  const listDataPeriodAssignmentLoading = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.loading);
-  const listAllMajors = useSelector(state => state.majorManagement.selectListApiMajors.data);
-  const listAllAdmissionPeriods = useSelector(state => state.admissionPeriodManagement.selectListApiAdmissionPeriods.data);
-  const [rangeDateUpdate, setRangeDateUpdate] = useState([null, null]);
+  const [selectedFileAdd, setSelectedFileAdd] = useState(null);
+  const [selectedFileUpdate, setSelectedFileUpdate] = useState(null);
+  const [isAutoMapChecked, setIsAutoMapChecked] = useState(false);
+  const [isAutoMapCheckedEdit, setIsAutoMapCheckedEdit] = useState(false);
 
   // State for form data (Add PeriodAssignment modal)
   const [formData, setFormData] = useState({
-    startPeriod: '',
-    endPeriod: '',
-    admissionPeriodId: '',
-    majorId: '',
-    note: ''
+    fileUpload: '',
+    studentId: '',
+    instructorId: '',
+    periodAssignmentId: '',
+    assignmentStudentRegisterName: '',
+    statusAutoMap: 'N'
   });
 
   // State for form data (Edit PeriodAssignment modal)
   const [formDataEdit, setFormDataEdit] = useState({
+    assignmentStudentRegisterId: '',
+    fileUpload: '',
+    studentId: '',
+    studentName: '',
+    instructorName: '',
     periodAssignmentId: '',
-    admissionPeriodId: '',
-    startPeriod: '',
-    endPeriod: '',
-    admissionPeriodId: '',
-    majorId: '',
-    note: ''
+    assignmentStudentRegisterName: '',
+    statusAutoMap: 'N',
+    oldValueId: ''
   });
 
   // State for form data (Search PeriodAssignment modal)
   const [formDataSearch, setFormDataSearch] = useState({
+    assignmentStudentRegisterId: '',
     periodAssignmentId: '',
-    note: '',
-    startPeriod: '',
-    endPeriod: ''
+    assignmentStudentRegisterName: '',
+    fromDate: '',
+    toDate: '',
+    status: ''
   });
 
   // State for pagination
@@ -83,7 +92,7 @@ const { RangePicker } = DatePicker;
   //Handle case when change size list selected periodAssignment
   useEffect(() => {
     handleEnableButtonActions();
-  }, [selectedPeriodAssignment, listAllAdmissionPeriods, listAllMajors]);
+  }, [selectedPeriodAssignment, listDataPeriodAssignment, listAllInstructors, listAllStudents]);
 
   //Handle case when click button edit or delete but no periodAssignment selected
   const handleEnableButtonActions = () => {
@@ -103,7 +112,6 @@ const { RangePicker } = DatePicker;
     //Set disabled attribute for edit and delete button
     const editBtn = document.getElementById("edit-period-assignment-button");
     const deleteBtn = document.getElementById("delete-period-assignment-button");
-    
     if(editBtn) {
       editBtn.disabled = statusEdit;
       if(statusEdit){
@@ -123,15 +131,23 @@ const { RangePicker } = DatePicker;
     }
   };
   
-    //Handle for select list all majors API call 
-  const handleSelectListAllMajors = async () => {
+    //Handle for select list all students API call 
+  const handleSelectListAllStudents = async () => {
     try {
-        const response = await dispatch(selectListApiMajors({ 
-        admissionPeriodId: null, 
-        admissionPeriodName: null,
-        status: null,
-        pageRequestDto : { pageNum: 0, pageSize: 100 }
-       }));
+        const response = await dispatch(selectAllStudentApi());
+        if (response.type.endsWith('/fulfilled')) {
+          // console.log("select all majors successful payload:", response.payload);
+        } else {
+          console.error("select all majors failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("select all majors error:", error);
+      }
+    };
+    //Handle for select list all instructors API call 
+  const handleSelectListAllInstructors = async () => {
+    try {
+        const response = await dispatch(selectAllInstructorApi());
         if (response.type.endsWith('/fulfilled')) {
           // console.log("select all majors successful payload:", response.payload);
         } else {
@@ -142,12 +158,16 @@ const { RangePicker } = DatePicker;
       }
     };
   
-    //Handle for select list all admission periods API call 
-  const handleSelectListAllAdmissionPeriods = async () => {
+    //Handle for select list all period assignments API call 
+  const handleSelectListAllPeriodAssignments = async () => {
     try {
-        const response = await dispatch(selectListApiAdmissionPeriodsApi({ 
-        admissionPeriodId: null, 
-        admissionPeriodName: null,
+        const response = await dispatch(selectListPeriodAssignmentApi({ 
+        periodAssignmentId: null, 
+        startPeriod: null,
+        endPeriod: null,
+        admissionPeriodId: null,
+        majorId: null,
+        note: null,
         status: null,
         pageRequestDto : { pageNum: 0, pageSize: 100 }
        }));
@@ -171,18 +191,20 @@ const { RangePicker } = DatePicker;
         newSelected.add(periodAssignmentId);
       }
       //Set value for edit form when click checkbox of periodAssignmentId
-      listDataPeriodAssignment.forEach(periodAssignment => {
-        if (periodAssignment.periodAssignmentId === periodAssignmentId) {
+      listDataAssignmentRegister.forEach(assignmentRegister => {
+        if (assignmentRegister.assignmentStudentRegisterId === periodAssignmentId) {
+          console.log('Selected assignment register for edit:', assignmentRegister);
           setFormDataEdit({
-            periodAssignmentId: periodAssignment?.periodAssignmentId || '',
-            admissionPeriodId: periodAssignment?.admissionPeriodId || '',
-            startPeriod: periodAssignment?.startPeriod || '',
-            endPeriod: periodAssignment?.endPeriod || '',
-            majorId: periodAssignment?.majorId || '',
-            note: periodAssignment?.note || ''
+            assignmentStudentRegisterId: assignmentRegister?.assignmentStudentRegisterId || '',
+            assignmentStudentRegisterName: assignmentRegister?.assignmentStudentRegisterName || '',
+            periodAssignmentId: assignmentRegister?.periodAssignmentId || '',
+            instructorName: assignmentRegister?.instructorName || '',
+            studentId: assignmentRegister?.studentId || '',
+            studentName: assignmentRegister?.studentName || '',
+            fileUpload: assignmentRegister?.fileName || '',
+            statusAutoMap: assignmentRegister?.statusAutoMap || '',
+            oldValueId: assignmentRegister?.oldValueId || ''
           });
-          //set value default for range picker in edit form when click checkbox of admissionPeriodId
-          setRangeDateUpdate([dayjs(periodAssignment?.startPeriod, APP_DATE_FORMAT), dayjs(periodAssignment?.endPeriod, APP_DATE_FORMAT)]);
         }
       });
       return newSelected;
@@ -202,13 +224,16 @@ const { RangePicker } = DatePicker;
     selectedPeriodAssignment.size > 0 && 
     !areAllSelected;
 
+  const editFileName = selectedFileUpdate?.name || (typeof formDataEdit.fileUpload === 'string' ? formDataEdit.fileUpload : '');
+
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
     //Select list period assignment when component mounts
     handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize);
     //Select list all majors when component mounts
-    handleSelectListAllMajors();
-    handleSelectListAllAdmissionPeriods();
+    handleSelectListAllStudents();
+    handleSelectListAllInstructors();
+    handleSelectListAllPeriodAssignments();
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
@@ -255,25 +280,27 @@ const { RangePicker } = DatePicker;
 
   //Handle for create admission period API call 
   const handleCreate = async () => {
+    const formData123 = new FormData();
+    if (formData.fileUpload instanceof File) {
+      formData123.append("fileUpload", formData.fileUpload);
+    }
+    formData123.append("assignmentStudentRegisterName", formData.assignmentStudentRegisterName || "");
+    formData123.append("periodAssignmentId", formData.periodAssignmentId || "");
+    formData123.append("studentId", formData.studentId || "");
+    formData123.append("instructorId", formData.instructorId || "");
+    formData123.append("statusAutoMap", formData.statusAutoMap || "N");
     try {
-      const response = await dispatch(createApi({ 
-        admissionPeriodId: formData.admissionPeriodId,
-        majorId: formData.majorId,
-        startPeriod: formData.startPeriod,
-        endPeriod: formData.endPeriod,
-        note: formData.note
-       }));
-      // Check if create was successful
+      const response = await dispatch(createApi(formData123));
       if (response.type.endsWith('/fulfilled')) {
-        // console.log("insert successful:", response.payload);
-        // Reset form
         setFormData({
-          admissionPeriodId: '',
-          majorId: '',
-          startPeriod: '',
-          endPeriod: '',
-          note: ''
+          fileUpload: '',
+          studentId: '',
+          instructorId: '',
+          periodAssignmentId: '',
+          assignmentStudentRegisterName: '',
+          statusAutoMap: 'N'
         });
+        setSelectedFileAdd(null);
       } else {
         // console.error("insert failed:", response.payload);
       }
@@ -285,14 +312,19 @@ const { RangePicker } = DatePicker;
   //Handle for update admission period API call 
   const handleUpdate = async () => {
     try {
-      const response = await dispatch(updateApi({  
-        periodAssignmentId: formDataEdit.periodAssignmentId,
-        startPeriod: formDataEdit.startPeriod, 
-        endPeriod: formDataEdit.endPeriod,
-        admissionPeriodId: formDataEdit.admissionPeriodId,
-        majorId: formDataEdit.majorId,
-        note: formDataEdit.note
-       }));
+    const formData123 = new FormData();
+    if (formDataEdit.fileUpload instanceof File) {
+      formData123.append("fileUpload", formDataEdit.fileUpload);
+    }
+    formData123.append("assignmentStudentRegisterId", formDataEdit.assignmentStudentRegisterId || 0);
+    formData123.append("assignmentStudentRegisterName", formDataEdit.assignmentStudentRegisterName || 0);
+    formData123.append("periodAssignmentId", formDataEdit.periodAssignmentId || 0);
+    formData123.append("studentId", formDataEdit.studentId || 0);
+    formData123.append("instructorId", formDataEdit.instructorId || 0);
+    formData123.append("statusAutoMap", formDataEdit.statusAutoMap || "N");
+    formData123.append("oldValueId", formDataEdit.oldValueId || 0);
+    // console.log("form data:"+JSON.stringify(formData123));
+      const response = await dispatch(updateApi(formData123));
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("update successful:", response.payload);
@@ -305,11 +337,11 @@ const { RangePicker } = DatePicker;
   };
 
   // Handler for role change in add user modal
-  const handleMajorChange = (event) => {
+  const handlePeriodAssignmentChange = (event) => {
       // Directly set the new role value
     const selectedValue = event.target.value;
-    console.log('Selected major ID:', selectedValue);
-      setFormData((prev) => ({ ...prev, majorId: selectedValue }));
+    console.log('Selected period assignment ID:', selectedValue);
+      setFormData((prev) => ({ ...prev, periodAssignmentId: selectedValue }));
   };
 
   // Handler for admission period change in add user modal
@@ -319,15 +351,29 @@ const { RangePicker } = DatePicker;
     console.log('Selected admission period ID:', selectedValue);
       setFormData((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
   };
-
-  
-
   // Handler for role change in edit user modal
-  const handleMajorChangeEditModal = (event) => {
+  const handleInstructorChange = (event) => {
       // Directly set the new role value
     const selectedValue = event.target.value;
-    console.log('Selected major ID:', selectedValue);
-      setFormData((prev) => ({ ...prev, majorId: selectedValue }));
+      setFormData((prev) => ({ ...prev, instructorId: selectedValue }));
+  };
+  // Handler for role change in edit user modal
+  const handleStudentChange = (event) => {
+      // Directly set the new role value
+    const selectedValue = event.target.value;
+      setFormData((prev) => ({ ...prev, studentId: selectedValue }));
+  };
+  // Handler for student id change in edit user modal
+  const handleStudentChangeEditModal = (event) => {
+      // Directly set the new student id value
+    const selectedValue = event.target.value;
+      setFormDataEdit((prev) => ({ ...prev, studentId: selectedValue }));
+  };
+  // Handler for instructor id change in edit user modal
+  const handleInstructorChangeEditModal = (event) => {
+      // Directly set the new instructor id value
+    const selectedValue = event.target.value;
+      setFormDataEdit((prev) => ({ ...prev, instructorId: selectedValue }));
   };
 
   // Handler for admission period change in edit user modal
@@ -335,7 +381,21 @@ const { RangePicker } = DatePicker;
       // Directly set the new admission period value
     const selectedValue = event.target.value;
     console.log('Selected admission period ID:', selectedValue);
-      setFormDataEdit((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
+      setFormDataEdit((prev) => ({ ...prev, periodAssignmentId: selectedValue }));
+  };
+
+  // Handler for auto map checkbox change in add modal
+  const handleChangeStatusAuto = (event) => {
+    const checked = event.target.checked;
+    setIsAutoMapChecked(checked);
+    setFormData((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N" }));
+  };
+
+  // Handler for auto map checkbox change in update modal
+  const handleChangeStatusAutoEditModal = (event) => {
+    const checked = event.target.checked;
+    setIsAutoMapCheckedEdit(checked);
+    setFormDataEdit((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N"  }));
   };
 
   //Handle for delete admission period API call 
@@ -361,14 +421,13 @@ const { RangePicker } = DatePicker;
   //Handle for select list period assignment API call 
   const handleSelectListPeriodAssignments = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListPeriodAssignmentApi({ 
-        periodAssignmentId: null, 
-        startPeriod: null,
-        endPeriod: null,
-        admissionPeriodId: null,
-        majorId: null,
-        note: null,
-        status: null,
+      const response = await dispatch(selectListAssignmentRegisterApi({ 
+        assignmentStudentRegisterId: null, 
+        periodAssignmentId: null,
+        assignmentStudentRegisterName: null,
+        admissionPeriodId: null,//Se khong hard code o day
+        fromDate: null,
+        toDate: null,
         pageRequestDto : { pageNum, pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
@@ -384,14 +443,16 @@ const { RangePicker } = DatePicker;
   //Handle for select list period assignment API call with search
   const handleSelectListPeriodAssignmentsSearch = async () => {
     try {
-      const response = await dispatch(selectListPeriodAssignmentApi({ 
+      const response = await dispatch(selectListAssignmentRegisterApi({ 
+        assignmentStudentRegisterId: formDataSearch.assignmentStudentRegisterId,
         periodAssignmentId: formDataSearch.periodAssignmentId, 
-        startPeriod: formDataSearch.startPeriod,
-        endPeriod: formDataSearch.endPeriod,
-        admissionPeriodId: formDataSearch.admissionPeriodId,
-        majorId: formDataSearch.majorId,
+        assignmentStudentRegisterName: formDataSearch.assignmentStudentRegisterName,
+        fromDate: formDataSearch.fromDate,
+        toDate: formDataSearch.toDate,
+        admissionPeriodId: null,//Se khong hard code o day
+        majorId: null,
         note: formDataSearch.note,
-        status: formDataSearch.status,
+        status: null,
         pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
@@ -403,6 +464,30 @@ const { RangePicker } = DatePicker;
     //   console.error("select list error:", error);
     }
   };
+    // Handle file selection
+  const handleFileChangeAdd = (event) => {
+    const file = event.target.files?.[0]; // Get the first file
+
+    if (!file) {
+      setSelectedFileAdd(null);
+      setFormData((prev) => ({ ...prev, fileUpload: '' }));
+      return;
+    }
+
+    setSelectedFileAdd(file);
+    setFormData((prev) => ({ ...prev, fileUpload: file }));
+  };
+    // Handle file selection
+  const handleFileChangeUpdate = (event) => {
+    const file = event.target.files?.[0]; // Get the first file
+    console.log('Selected file:', file);
+    if (!file) {
+      setSelectedFileUpdate(null);
+      return;
+    }
+    setSelectedFileUpdate(file);
+    setFormDataEdit((prev) => ({ ...prev, fileUpload: file }));
+  };
 
   // Handler for form input changes
   const handleInputChange = (event) => {
@@ -412,22 +497,10 @@ const { RangePicker } = DatePicker;
 
   // Handler for edit form input changes
   const handleInputChangeEdit = (event) => {
+    console.log('Edit form input change:', event.target.name, event.target.value);
     const { name, value } = event.target;
     setFormDataEdit((prev) => ({ ...prev, [name]: value }));
   };
-  //Handle for change date insert
-  const onChangeDate = value => {
-    const AdmissionPeriodFromDt = value && value.length === 2 ? value[0].format(APP_DATE_FORMAT) : '';
-    const AdmissionPeriodToDt = value && value.length === 2 ? value[1].format(APP_DATE_FORMAT) : '';
-    setFormData((prev) => ({ ...prev, startPeriod: AdmissionPeriodFromDt, endPeriod: AdmissionPeriodToDt }));
-    };  
-  //Handle for change date insert
-  const onChangeDateUpdate = value => {
-    const AdmissionPeriodFromDt = value && value.length === 2 ? value[0].format(APP_DATE_FORMAT) : '';
-    const AdmissionPeriodToDt = value && value.length === 2 ? value[1].format(APP_DATE_FORMAT) : '';
-    setRangeDateUpdate([dayjs(AdmissionPeriodFromDt, APP_DATE_FORMAT), dayjs(AdmissionPeriodToDt, APP_DATE_FORMAT)]);
-    setFormDataEdit((prev) => ({ ...prev, startPeriod: AdmissionPeriodFromDt, endPeriod: AdmissionPeriodToDt }));
-    }; 
 
   // Handler for search form input changes
   const handleInputChangeSearch = (event) => {
@@ -441,22 +514,22 @@ const { RangePicker } = DatePicker;
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách kỳ hạn đồ án</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách tệp tin đồ án sinh viên</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="admission-period-id-search">Mã kỳ hạn đồ án</label>
-                  <input type="text" name="periodAssignmentId" id="admission-period-id-search"
+                  <label htmlFor="admission-period-id-search">Mã tệp tin đồ án sinh viên</label>
+                  <input type="text" name="assignmentRegisterId" id="admission-period-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã kỳ hạn đồ án" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm mã tệp tin đồ án" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="admission-period-name-search">Ghi chú</label>
-                  <input type="text" name="note" id="admission-period-name-search"
+                  <label htmlFor="admission-period-name-search">Tên đồ án</label>
+                  <input type="text" name="assignmentStudentRegisterName" id="admission-period-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm ghi chú" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm tên đồ án" onChange={handleInputChangeSearch} />
                 </div>
               </form>
             </div>
@@ -471,8 +544,8 @@ const { RangePicker } = DatePicker;
                 Tìm kiếm
               </button>   
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                {!listDataPeriodAssignment && !listDataPeriodAssignment?.length && <span>Không tìm thấy dữ liệu.</span>}
-                {!listDataPeriodAssignmentLoading && listDataPeriodAssignment?.length > 0 && (
+                {!listDataAssignmentRegister && !listDataPeriodAssignment?.length && <span>Không tìm thấy dữ liệu.</span>}
+                {!listDataAssignmentStudentRegisterLoading && listDataAssignmentRegister?.length > 0 && (
                   <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
                 )}
               </div>
@@ -501,6 +574,14 @@ const { RangePicker } = DatePicker;
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Xóa
+              </button>
+              <button
+                type="button"
+                id="delete-period-assignment-button"
+                onClick={openDeleteModal}
+                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              >
+                Tải xuống
               </button>
             </div>
           </div>
@@ -532,19 +613,19 @@ const { RangePicker } = DatePicker;
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Mã kỳ hạn đồ án
+                      Tên đồ án
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Chuyên ngành
+                      Tên sinh viên
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Kỳ học
+                      Tên tệp tin
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Ghi chú
+                      Loại tệp tin
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -553,39 +634,46 @@ const { RangePicker } = DatePicker;
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                  {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
-                    listDataPeriodAssignment.map((periodAssignment, idx) => {
-                      const periodAssignmentId = periodAssignment?.periodAssignmentId;
-                      const note = periodAssignment?.note;
-                      const majorName = periodAssignment?.majorName;
-                      const admissionPeriod = periodAssignment?.admissionPeriodIdName;
-                      const activeStatus = periodAssignment?.status === '1' || periodAssignment?.status === 1 || periodAssignment?.status === true;
+                  {/* {Array.isArray(listDataAssignmentRegister) && listDataAssignmentRegister.length ? (
+                    listDataAssignmentRegister.map((assignmentRegister, idx) => {
+                      const assignmentStudentRegisterId = assignmentRegister?.assignmentStudentRegisterId;
+                      const assignmentStudentRegisterName = assignmentRegister?.assignmentStudentRegisterName;
+                      const studentName = assignmentRegister?.studentName;
+                      const instructorName = assignmentRegister?.instructorName;
+                      const statusAutoMap = assignmentRegister?.statusAutoMap;
+                      const isApproved = assignmentRegister?.isApproved;
+                      const isApprovedDisplayName = assignmentRegister?.isApprovedDisplayName;
+                      const statusAutoMapDisplayName = assignmentRegister?.statusAutoMapDisplayName;
+                      const activeStatus = assignmentRegister?.status === '1' || assignmentRegister?.status === 1 || assignmentRegister?.status === true;
 
                       return (
-                        <tr key={periodAssignmentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <tr key={assignmentStudentRegisterId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="w-4 p-4">
                             <div className="flex items-center">
                               <input 
-                                id={`checkbox-${periodAssignmentId}`} 
+                                id={`checkbox-${assignmentStudentRegisterId}`} 
                                 aria-describedby="checkbox-1" 
                                 type="checkbox"
-                                checked={selectedPeriodAssignment.has(periodAssignmentId)}
-                                onChange={() => handlePeriodAssignmentCheckboxChange(periodAssignmentId)}
+                                checked={selectedPeriodAssignment.has(assignmentStudentRegisterId)}
+                                onChange={() => handlePeriodAssignmentCheckboxChange(assignmentStudentRegisterId)}
                                 className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label htmlFor={`checkbox-${periodAssignmentId}`} className="sr-only">checkbox</label>
+                              <label htmlFor={`checkbox-${assignmentStudentRegisterId}`} className="sr-only">checkbox</label>
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {periodAssignmentId}
+                            {assignmentStudentRegisterName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {majorName}
+                            {studentName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {admissionPeriod}
+                            {instructorName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {note}
+                           {isApprovedDisplayName}
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            {statusAutoMapDisplayName}
                           </td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
@@ -602,7 +690,96 @@ const { RangePicker } = DatePicker;
                         Không tìm thấy dữ liệu
                       </td>
                     </tr>
-                  )}
+                  )} */}
+
+
+                    <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <td className="w-4 p-4">
+                            <div className="flex items-center">
+                              <input 
+                                aria-describedby="checkbox-1" 
+                                type="checkbox"
+                                className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
+                              <label className="sr-only">checkbox</label>
+                            </div>
+                          </td>
+                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            Quan ly sinh vien
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            Ha Van Huy
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                           bao_cao_DATN
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                           docs
+                          </td>
+                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                            <div className="flex items-center">
+                              <div className={`h-2.5 w-2.5 rounded-full bg-green-400 mr-2`} />
+                              <span>Hoạt động</span>
+                            </div>
+                          </td>
+                        </tr>
+                                        <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <td className="w-4 p-4">
+                            <div className="flex items-center">
+                              <input 
+                                aria-describedby="checkbox-1" 
+                                type="checkbox"
+                                className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
+                              <label className="sr-only">checkbox</label>
+                            </div>
+                          </td>
+                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            Quan ly sinh vien
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            Ha Van Huy
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                           source_DATN
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                           zip
+                          </td>
+                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                            <div className="flex items-center">
+                              <div className={`h-2.5 w-2.5 rounded-full bg-green-400 mr-2`} />
+                              <span>Hoạt động</span>
+                            </div>
+                          </td>
+                        </tr>
+                                        <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                          <td className="w-4 p-4">
+                            <div className="flex items-center">
+                              <input 
+                                aria-describedby="checkbox-1" 
+                                type="checkbox"
+                                className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
+                              <label className="sr-only">checkbox</label>
+                            </div>
+                          </td>
+                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                            Quan ly sinh vien
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            Ha Van Huy
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                           tai_lieu_thuyet_trinh
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                           ppt
+                          </td>
+                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
+                            <div className="flex items-center">
+                              <div className={`h-2.5 w-2.5 rounded-full bg-green-400 mr-2`} />
+                              <span>Hoạt động</span>
+                            </div>
+                          </td>
+                        </tr>
                 </tbody>
               </table>
             </div>
@@ -637,7 +814,7 @@ const { RangePicker } = DatePicker;
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Cập nhật kỳ hạn đồ án
+                  Cập nhật tệp tin đồ án sinh viên
                 </h3>
                 <button type="button"
                   onClick={closeEditModal}
@@ -654,69 +831,46 @@ const { RangePicker } = DatePicker;
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã kỳ hạn dồ án</label>
-                      <input type="text" name="admissionPeriodId" value={formDataEdit.admissionPeriodId} onChange={handleInputChangeEdit} id="edit-admission-period-id"
+                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã tệp tin đồ án sinh viên</label>
+                      <input type="text" name="assignmentStudentRegisterId" value="1" onChange={handleInputChangeEdit} id="edit-admission-period-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Mã kỳ hạn đồ án" required disabled={true} />
+                        placeholder="Mã tệp tin đồ án sinh viên"  style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-major" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chuyên ngành</label>
-                      <select id="category-major" value={formDataEdit.majorId || ''} onChange={handleMajorChangeEditModal}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {Array.isArray(listAllMajors) && listAllMajors.length ? (
-                          <>
-                        <option value="">Select category</option>
-                        {listAllMajors.map((major, idx) => {
-                          return (
-                          <option key={idx} value={major.majorId}>
-                            {major.majorName}
-                          </option>
-                          );
-                        })}
-                          </>
-
-                        ) :(
-                        <option value="">Không tìm thấy</option>)}
-                      </select>
+                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
+                      <input type="text" name="note" value="Quan ly sinh vien" onChange={handleInputChangeEdit} id="edit-admission-period-name"
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder="Ghi chú" required/>
                     </div>
                   </div>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
-                      <input type="text" name="note" value={formDataEdit.note} onChange={handleInputChangeEdit} id="edit-admission-period-name"
+                      <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">tệp tin quá trình</label>
+                      <input type="text" name="note" value="8" onChange={handleInputChangeEdit} id="edit-admission-period-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Ghi chú" required/>
                     </div>
-                        <div className="col-span-6 sm:col-span-3">
-                            
-                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thời gian</label>
-                      <RangePicker className="date" id="date12313"
-                      format="YYYY-MM-DD"
-                      value={rangeDateUpdate} onChange={onChangeDateUpdate} />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-admission-period" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ học</label>
-                      <select id="category-admission-period" value={formDataEdit.admissionPeriodId || ''} onChange={handleAdmissionPeriodChangeEditModal}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {Array.isArray(listAllAdmissionPeriods) && listAllAdmissionPeriods.length ? (
-                          <>
-                        <option value="">Chọn</option>
-                        {listAllAdmissionPeriods.map((admissionPeriod, idx) => {
-                          return (
-                          <option key={idx} value={admissionPeriod.admissionPeriodId}>
-                            {admissionPeriod.admissionPeriodName}
-                          </option>
-                          );
-                        })}
-                          </>
-
-                        ) :(
-                        <option value="">Không tìm thấy</option>)}
-                      </select>
+                      <label htmlFor="default-checkbox" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">tệp tin bảo vệ</label>
+                      <input type="text" name="category-instructor-update" value="8" id="category-instructor-update"
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        placeholder=""   />
                     </div>
                     </div>
+                    
+                    {/* <div className="grid grid-cols-6 gap-6">
+                      <div className="col-span-6 sm:col-span-3">
+                        <label htmlFor="file_input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
+                        <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
+                        text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
+                        shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
+                        {editFileName ? (
+                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Tên tệp hiện tại: {editFileName}</p>
+                        ) : (
+                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được tải lên trước đó.</p>
+                        )}
+                      </div>
+                    </div> */}
                   {/* <!-- Modal footer --> */}
                   <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
                     <button
@@ -742,7 +896,7 @@ const { RangePicker } = DatePicker;
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Thêm mới kỳ hạn đồ án
+                  Thêm mới tệp tin đồ án sinh viên
                 </h3>
                 <button type="button"
                   onClick={closeAddModal}
@@ -759,44 +913,16 @@ const { RangePicker } = DatePicker;
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ghi chú</label>
-                      <input type="text" name="note" value={formData.note} onChange={handleInputChange} id="admission-period-name"
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Ghi chú" required />
-                    </div>
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-major" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chuyên ngành</label>
-                      <select id="category-major" value={formData.majorId || ''} onChange={handleMajorChange}
+                      <label htmlFor="category-periodAssignmentId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
+                      <select id="category-periodAssignmentId" onChange={handlePeriodAssignmentChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {Array.isArray(listAllMajors) && listAllMajors.length ? (
+                        {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
                           <>
-                        <option value="">Chọn</option>
-                        {listAllMajors.map((major, idx) => {
+                        <option value="">Select category</option>
+                        {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
-                          <option key={idx} value={major.majorId}>
-                            {major.majorName}
-                          </option>
-                          );
-                        })}
-                          </>
-
-                        ) :(
-                        <option value="">Không tìm thấy</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-admission-period" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ học</label>
-                      <select id="category-admission-period" value={formData.admissionPeriodId || ''} onChange={handleAdmissionPeriodChange}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {Array.isArray(listAllAdmissionPeriods) && listAllAdmissionPeriods.length ? (
-                          <>
-                        <option value="">Chọn</option>
-                        {listAllAdmissionPeriods.map((admissionPeriod, idx) => {
-                          return (
-                          <option key={idx} value={admissionPeriod.admissionPeriodId}>
-                            {admissionPeriod.admissionPeriodName}
+                          <option key={idx} value={periodAssignment.periodAssignmentId}>
+                            {periodAssignment.admissionPeriodIdName}
                           </option>
                           );
                         })}
@@ -807,8 +933,10 @@ const { RangePicker } = DatePicker;
                       </select>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="admission-period-from-date" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thời gian</label>
-                      <RangePicker className="date" id="date12313" onChange={onChangeDate} />
+                      <label htmlFor="file_input"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
+                      <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
+                      text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
+                      shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeAdd}/>
                     </div>
                   </div>
                   {/* <!-- Modal footer --> */}
@@ -852,7 +980,7 @@ const { RangePicker } = DatePicker;
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn xóa kỳ học này không?</h3>
+                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn xóa tệp tin đồ án này không?</h3>
                 <button
                   onClick={handleDeleteAdmissionPeriod}
                   className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">
@@ -872,4 +1000,4 @@ const { RangePicker } = DatePicker;
   );
 }
 
-export default PeriodAssignmentManagement;
+export default FileUploadAssignmentManagement;

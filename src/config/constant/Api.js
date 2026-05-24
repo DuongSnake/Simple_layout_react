@@ -8,6 +8,7 @@ const PRE_FIX_API = '/api/v1/';
  */
 export const APT_POST_SIGNIN = PRE_FIX_AUTH + 'login';
 export const API_EXTEND_TOKEN = PRE_FIX_AUTH + 'extend';
+export const API_CHANGE_PASSWORD_NO_AUTH = PRE_FIX_AUTH + 'changePass';
 export const API_CHANGE_PASSWORD = PRE_FIX_USER + 'changePassword';
 export const API_CHANGE_LOGIN_PASSWORD = PRE_FIX_USER + 'changeLoginPassword';
 export const API_FORGOT_PASSWORD = PRE_FIX_AUTH + 'forgotPassword';
@@ -96,12 +97,25 @@ export const API_DELETE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/delete
 export const API_SELECT_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/select';
 
 /**
+ * List Assignment register(admin site)
+ */
+export const API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE_ADMIN_SITE = PRE_FIX_API + 'assignmentStudentRegister/selectListWaitingSend';
+export const API_SELECT_LIST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/selectList';
+export const API_CREATE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/insert';
+export const API_UPDATE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/update';
+export const API_DELETE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/delete';
+export const API_SELECT_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/select';
+export const API_RESERVE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/reserveListAssignment';
+export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/sendRequestAssignment';
+
+
+/**
  * User site
  */
 
 
 /**
- * List Assignment register
+ * List Assignment register(user site)
  */
 export const API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE = PRE_FIX_API + 'assignmentRegister/selectListWaitingSend';
 export const API_SELECT_LIST_ASSIGNMENT_STUDENT_USER_SIDE = PRE_FIX_API + 'assignmentRegister/selectList';
@@ -115,16 +129,21 @@ export const API_DOWNLOAD_FILE_STUDENT_UPLOAD_USER_SIDE = PRE_FIX_API + 'file/do
 
 
 /**
- * List Assignment register
+ * List Assignment register(instructor site)
  */
-export const API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE_ADMIN_SITE = PRE_FIX_API + 'assignmentStudentRegister/selectListWaitingSend';
-export const API_SELECT_LIST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/selectList';
-export const API_CREATE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/insert';
-export const API_UPDATE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/update';
-export const API_DELETE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/delete';
-export const API_SELECT_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/select';
-export const API_RESERVE_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/reserveListAssignment';
-export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_ADMIN_SIDE = PRE_FIX_API + 'assignmentStudentRegister/sendRequestAssignment';
+export const API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/selectListWaitingSend';
+export const API_SELECT_LIST_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/selectList';
+export const API_CREATE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/insert';
+export const API_UPDATE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/update';
+export const API_DELETE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/delete';
+export const API_SELECT_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/select';
+export const API_RESERVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/reserveListAssignment';
+export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/sendRequestAssignment';
+export const API_DOWNLOAD_FILE_STUDENT_UPLOAD_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/download';
+export const API_APPROVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/approveAssignment';
+export const API_SELECT_LIST_ASSIGNMENT_APPROVE_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/selectListAssApprove';
+export const API_SELECT_LIST_STUDENT_NOT_REGISTER_ASSIGNMENT_BEFORE_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/selectListStudentNotRegisterAssignment';
+export const API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR_BEFORE_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/selectListStudentMapWithInstructorId';
 
 /**
  * List Assignment register process (type process was occur when instructor approve the assignment student register)

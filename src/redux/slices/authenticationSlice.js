@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { authenticate, resetPassword, changePassword, findUserIdByUsername } from '../../layout_login/admin_layout/AdminLoginAPI';
+import { authenticate, resetPassword, changePassword, findUserIdByUsername, changePasswordNoAuthApi } from '../../layout_login/admin_layout/AdminLoginAPI';
 
 const initialState = {
   login: {
@@ -13,6 +13,11 @@ const initialState = {
     error: null,
   },
   changePassword: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  changePasswordNoAuthen: {
     data: null,
     loading: false,
     error: null,
@@ -70,6 +75,21 @@ const authenticationSlice = createSlice({
       .addCase(changePassword.rejected, (state, action) => {
         state.changePassword.loading = false;
         state.changePassword.error = action.payload || action.error.message;
+      })
+
+      // Change Password no authen
+      .addCase(changePasswordNoAuthApi.pending, (state) => {
+        state.changePasswordNoAuthen.loading = true;
+        state.changePasswordNoAuthen.error = null;
+      })
+      .addCase(changePasswordNoAuthApi.fulfilled, (state, action) => {
+        state.changePasswordNoAuthen.loading = false;
+        state.changePasswordNoAuthen.data = action.payload;
+        state.changePasswordNoAuthen.error = null;
+      })
+      .addCase(changePasswordNoAuthApi.rejected, (state, action) => {
+        state.changePasswordNoAuthen.loading = false;
+        state.changePasswordNoAuthen.error = action.payload || action.error.message;
       })
       // Find User ID by Username handlers
       .addCase(findUserIdByUsername.pending, (state) => {

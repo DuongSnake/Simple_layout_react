@@ -2,15 +2,20 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { authenticate, changePassword } from "../admin_layout/AdminLoginAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { ACCESS_TOKEN, USER_NAME, PAGE_LOGIN } from '../../config/constant/Constants';
+import React, { useState, useEffect } from 'react';
 function AdminLoginTemplate() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { login, changePassword: changePasswordState } = useSelector(state => state.authentication);
+  const [loginData, setLoginDate] = useState({
+    userName: '',
+    password: ''
+  });
+  const { login} = useSelector(state => state.authentication);
   
   const handleLogin = async () => {
     try {
-      const response = await dispatch(authenticate({ userName: "duong", password: "ktx2024" }));
+      const response = await dispatch(authenticate({ userName: loginData.userName, password: loginData.password }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
         console.log("Login successful:", response.payload);
@@ -22,36 +27,50 @@ function AdminLoginTemplate() {
         }
         // Redirect to dashboard
         const redirectUrl = location.state?.urlAfterLoginSuccess || "/admin/dashboard";
+        if("/admin/login" == location.state?.urlAfterLoginSuccess ||"/admin/login" == location.state?.urlAfterLoginSuccess){
+        navigate("/admin/dashboard");
+        }else{
         navigate(redirectUrl);
+        }
       } else {
         console.error("Login failed:", response.payload);
       }
     } catch (error) {
       console.error("Login error:", error);
     }
-  };
-  
-  const handleChangePassword = async () => {
-    try {
-      const response = await dispatch(changePassword({ userName: "duong", oldPassword: "ktx2024", newPassword: "newpassword" }));
-      // Check if password change was successful
-      if (response.type.endsWith('/fulfilled')) {
-        console.log("Password changed successfully:", response.payload);
-      } else {
-        console.error("Failed to change password:", response.payload);
-      }
-    } catch (error) {
-      console.error("Error changing password:", error);
-    }
+  }; 
+  // Handler for search form input changes
+  const handleInputChangeSearch = (event) => {
+    const { name, value } = event.target;
+    setLoginDate((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div>
-      <h2>Admin Login</h2>
-      <button onClick={handleLogin} disabled={login.loading}>
-        {login.loading ? "Logging in..." : "Login as Admin"}
-      </button>
+    <div class="flex flex-col items-center justify-center px-6 pt-8 mx-auto md:h-screen pt:mt-0 dark:bg-gray-900">
+
+    <div class="w-full max-w-xl p-6 space-y-8 sm:p-8 bg-white rounded-lg shadow dark:bg-gray-800">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            Đăng nhập sinh viên 
+        </h2>
+        <div class="mt-8 space-y-6" action="#">
+            <div>
+                <label for="userName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đăng nhập</label>
+                <input type="text" name="userName" id="userName" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="name@company.com" required
+                 onChange={handleInputChangeSearch} />
+            </div>
+            <div>
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mật khẩu</label>
+                <input type="password" name="password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" required
+                onChange={handleInputChangeSearch} />
+            </div>
+            <div class="flex items-start">
+                <a href="/admin/forgot-password" class="ml-auto text-sm text-primary-700 hover:underline dark:text-primary-500">Đặt lại mật khẩu?</a>
+            </div>
+            <button class="w-full px-5 py-3 text-base font-medium text-center text-white bg-primary-700 rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+             onClick={handleLogin}>{login.loading ? "Đang điều hướng..." : "Đăng nhập"}</button>
+        </div>
     </div>
+</div>
   );
 }
 

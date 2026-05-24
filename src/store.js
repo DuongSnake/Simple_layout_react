@@ -10,6 +10,7 @@ import assignmentRegisterManagementReducer from './redux/slices/assignmentRegist
 import studentMapInstructorManagementReducer from './redux/slices/studentMapInstructorManagementSlice';
 import assignmentRegisterUserSiteReducer from './redux/slices/assignmentRegisterUserSiteSlice';
 import assignmentProcessUploadManagementReducer from './redux/slices/assignmentProcessUploadManagementSlice';
+import assignmentRegistByInstructorReducer from './redux/slices/assignmentRegistByInstructorSlice';
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     studentMapInstructorManagement: studentMapInstructorManagementReducer,
     assignmentRegisterUserSite: assignmentRegisterUserSiteReducer,
     assignmentProcessUploadManagement: assignmentProcessUploadManagementReducer,
+    assignmentRegistByInstructor :assignmentRegistByInstructorReducer
     // Add more reducers here as you create new features
     // example: todosReducer from './redux/slices/todosSlice'
   },

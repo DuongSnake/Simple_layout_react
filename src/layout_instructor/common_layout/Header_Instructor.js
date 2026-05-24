@@ -6,7 +6,7 @@ function HeaderInstructor() {
     sessionStorage.removeItem(ACCESS_TOKEN);
     sessionStorage.removeItem(USER_NAME);
     sessionStorage.removeItem(PAGE_LOGIN);
-    navigate("/user/login", { replace: true });
+    navigate("/instructor/login", { replace: true });
   };
   return (
       // <!-- Start nav -->

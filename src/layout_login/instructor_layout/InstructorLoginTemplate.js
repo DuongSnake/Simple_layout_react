@@ -14,7 +14,6 @@ function InstructorLoginTemplate() {
       const response = await dispatch(authenticate({ userName: "duong", password: "ktx2024" }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
-        console.log("Login successful:", response.payload);
         // Store token and user info
         if (response.payload.data != null && response.payload.data.token) {
           sessionStorage.setItem(ACCESS_TOKEN, response.payload.data.token);

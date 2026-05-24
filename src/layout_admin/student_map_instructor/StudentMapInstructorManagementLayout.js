@@ -253,9 +253,7 @@ function StudentMapInstructorManagement() {
   //Handle for create student map instructor API call 
   const handleCreate = async () => {
     try {
-      const response = await dispatch(createApi({ username: formData.username, email: formData.email
-        ,phone : formData.phone, fullName: formData.fullName, identityCard: null, address: null
-        , note: null, roles: formData.roles
+      const response = await dispatch(createApi({ instructorId: formData.instructorId, studentId: formData.studentId
        }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
@@ -609,7 +607,7 @@ function StudentMapInstructorManagement() {
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Chỉnh sửa
+                  Cập nhật thông tin sinh viên map giáo viên
                 </h3>
                 <button type="button"
                   onClick={closeEditModal} // Changed to state handler
@@ -645,7 +643,7 @@ function StudentMapInstructorManagement() {
                         dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
                           <>
-                        <option value="">Select instructor</option>
+                        <option value="">Chọn</option>
                         {listAllInstructors.map((instructor, idx) => {
                           return (
                           <option key={idx} value={instructor.id}>
@@ -685,7 +683,7 @@ function StudentMapInstructorManagement() {
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Thêm mới người dùng
+                  Thêm mới sinh viên map giáo viên
                 </h3>
                 <button type="button"
                   onClick={closeAddModal} // Changed to state handler
@@ -707,7 +705,7 @@ function StudentMapInstructorManagement() {
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listAllStudents) && listAllStudents.length ? (
                           <>
-                        <option value="">Select student</option>
+                        <option value="">Chọn</option>
                         {listAllStudents.map((student, idx) => {
                           return (
                           <option key={idx} value={student.id}>
@@ -727,7 +725,7 @@ function StudentMapInstructorManagement() {
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
                           <>
-                        <option value="">Select instructor</option>
+                        <option value="">Chọn</option>
                         {listAllInstructors.map((instructor, idx) => {
                           return (
                           <option key={idx} value={instructor.id}>
