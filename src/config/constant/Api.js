@@ -76,8 +76,19 @@ export const API_UPDATE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstru
 export const API_DELETE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/delete';
 export const API_SELECT_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/select';
 export const API_GET_ALL_STUDENT_MAP_INSTRUCTOR_ACTIVE = PRE_FIX_API + 'studentMapInstructor/selectListAllActive';
-export const API_UPDATE_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapInstructor/mapCritical';
 export const API_GET_STUDENT_READY_MAP_CRITICAL = PRE_FIX_API + 'studentMapInstructor/selectListUserToMapCritical';
+
+
+/**
+ * Student map Critical Management
+ */
+export const API_SELECT_LIST_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/selectList';
+export const API_CREATE_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/insert';
+export const API_UPDATE_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/update';
+export const API_DELETE_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/delete';
+export const API_SELECT_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/select';
+export const API_GET_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/selectListUserToMapCritical';
+export const API_GET_LIST_CRITICAL_BY_STUDENT_ID = PRE_FIX_API + 'studentMapCritical/selectListCriticalByStudentId';
 
 /**
  * Assignment Student Register Management

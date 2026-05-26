@@ -52,6 +52,10 @@ function Navbar() {
     navigate("/admin/file-upload-assignment-management", { replace: true });
   };
 
+  const navigatePage11 = () => {
+    navigate("/admin/student-map-critical-management", { replace: true });
+  };
+
   return (
 <>
     {/* // <!-- Start sidebar --> */}
@@ -128,6 +132,10 @@ function Navbar() {
                   <li onClick={navigatePage8}>
                     <a href="/admin/student-map-instructor-management"
                       className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Sinh viên map giảng viên hướng dẫn</a>
+                  </li>
+                  <li onClick={navigatePage11}>
+                    <a href="/admin/student-map-critical-management"
+                      className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Sinh viên map giảng viên phản biện</a>
                   </li>
                 </ul>
               </li>

@@ -11,7 +11,7 @@ function InstructorLoginTemplate() {
 
   const handleLogin = async () => {
     try {
-      const response = await dispatch(authenticate({ userName: "vietbuaemail@gmail.com", password: "ktx2024" }));
+      const response = await dispatch(authenticate({ userName: "vuhaiduongit@gmail.com", password: "ktx2024" }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
         // Store token and user info

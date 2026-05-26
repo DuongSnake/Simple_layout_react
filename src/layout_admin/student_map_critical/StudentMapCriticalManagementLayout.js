@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListStudentMapInstructorApi} from "../student_map_instructor/StudentMapInstructorManagementAPI";
-import {selectListUserToMapCriticalApi, updateMapCriticalApi } from "./StudentMapCriticalManagementAPI.js";
+import {selectListUserToMapCriticalApi, updateMapCriticalApi, selectListMapCriticalApi, selectListCriticalByStudentIdApi, createMapCriticalApi } from "./StudentMapCriticalManagementAPI.js";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -14,30 +13,33 @@ function StudentMapCriticalManagement() {
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [pendingRoleValue, setPendingRoleValue] = useState('');
   const dispatch = useDispatch();
-  const listDataStudentMapInstructor = useSelector(state => state.studentMapCriticalManagement.selectListApiAdmissionPeriods.data);
-  const totalRecord = useSelector(state => state.studentMapCriticalManagement.selectListApiAdmissionPeriods.totalRecord);
-  const listDataStudentMapInstructorLoading = useSelector(state => state.studentMapCriticalManagement.selectListApiAdmissionPeriods.loading);
-  const listAllInstructors = useSelector(state => state.studentMapCriticalManagement.selectListUserToMapCritical.data);
-  const listAllStudents = useSelector(state => state.studentMapCriticalManagement.selectListApiAdmissionPeriods.data);
+  const listDataStudentMapInstructor = useSelector(state => state.studentMapCriticalManagement.selectListMapCritical.data);
+  const totalRecord = useSelector(state => state.studentMapCriticalManagement.selectListMapCritical.totalRecord);
+  const listDataStudentMapInstructorLoading = useSelector(state => state.studentMapCriticalManagement.selectListMapCritical.loading);
+  const listAllInstructors = useSelector(state => state.studentMapCriticalManagement.selectListCriticalByStudentId.data);
+  const listAllStudents = useSelector(state => state.studentMapCriticalManagement.selectListUserToMapCritical.data);
+  let [oldValueCriticalId, setOldValueCriticalId] = useState(null);
+  let [listCritical, setListCritical] = useState([]);
 
   // State for form data (example for Add student map instructor modal)
   const [formData, setFormData] = useState({
-    instructorId: '',
+    criticalId: '',
     studentId: ''
   });
 
   // State for form data (Edit student map instructor modal)
   const [formDataEdit, setFormDataEdit] = useState({
-    studentMapInstructorId: '',
-    instructorId: '',
+    studentMapCriticalId: '',
+    criticalId: '',
+    criticalName: '',
     studentId: '',
     studentName: ''
   });
 
   // State for form data (Search student map instructor modal)
   const [formDataSearch, setFormDataSearch] = useState({
-    studentMapInstructorId: '',
-    instructorId: '',
+    studentMapCriticalId: '',
+    criticalId: '',
     studentId: '',
     fromDate: '',
     toDate: '',
@@ -94,18 +96,11 @@ function StudentMapCriticalManagement() {
   const disableButtonEditDelete = (statusEdit, statusDelete) => {
     //Set disabled attribute for edit and delete button
     document.getElementById("edit-user-button").disabled = statusEdit;
-    document.getElementById("delete-user-button").disabled = statusDelete;
     //Add css for disabled button edit
     if(statusEdit){
     document.getElementById("edit-user-button").classList.add("button-disabled");
     }else{
     document.getElementById("edit-user-button").classList.remove("button-disabled");
-    }
-    //Add css for disabled button delete
-    if(statusDelete){
-    document.getElementById("delete-user-button").classList.add("button-disabled");
-    } else {
-    document.getElementById("delete-user-button").classList.remove("button-disabled");
     }
   };
 
@@ -120,15 +115,19 @@ function StudentMapCriticalManagement() {
       }
     //Set value for edit form when click checkbox of user
     listDataStudentMapInstructor.forEach(user => {
-      if (user.studentMapInstructorId === userId) {
+      console.log("user id:", user.criticalName);
+      if (user.studentMapCriticalId === userId) {
         setFormDataEdit({
-          studentMapInstructorId: user?.studentMapInstructorId || '',
-          instructorId: user?.instructorId || '',
+          studentMapCriticalId: user?.studentMapCriticalId || '',
+          criticalId: user?.criticalId || '',
+          criticalName: user?.criticalName || '',
           studentId: user?.studentId || '',
           studentName: user?.studentName || ''
         });
+        setOldValueCriticalId(user?.criticalId || '');
+    handleSelectListAllInstructor(user?.studentId); 
       }
-    });
+    });// Fetch all instructors for the selected student
       return newSelected;
     });
   };
@@ -149,37 +148,20 @@ function StudentMapCriticalManagement() {
   useEffect(() => {
     //Select list student map instructor when component mounts
     handleSelectListUsers(pager.pageNum, pager.pageSize);
-    //Select list all students when component mounts
-    handleListUserToMapCritical();
-    handleSelectListAllInstructor();
-    const handleButtonClick = (event) => {
-      console.log('Button clicked:', event.target.textContent);
-      // Add logic here, e.g., API calls or state updates
-    };
-
-    // Attach event listeners to buttons (example for Add student map instructor button)
-    const addButton = document.querySelector('[data-modal-target="add-user-modal"]');
-    if (addButton) {
-      addButton.addEventListener('click', handleButtonClick);
-    }
-
-    // Cleanup
-    return () => {
-      if (addButton) {
-        addButton.removeEventListener('click', handleButtonClick);
-      }
-    };
-    handleSelectListAllInstructor(); // Fetch all instructors when component mounts
     handleListUserToMapCritical(); // Fetch all students when component mounts
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    console.log('Redux listAllStudents changed:', listAllStudents);
     // Reset checkbox selection when student map instructor list changes
     setSelectedStudentMapInstructor(new Set());
-  }, [listDataStudentMapInstructor, listAllInstructors, listAllStudents]);
+  }, [listDataStudentMapInstructor]);
 
+  
+  useEffect(() => {
+    // Reset checkbox selection when student map instructor list changes
+    setListCritical(listAllInstructors);
+  }, [listAllInstructors]);
   // Handlers for modal toggles
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => setIsAddModalOpen(false);
@@ -194,13 +176,19 @@ function StudentMapCriticalManagement() {
   const handleInstructorChange = (event) => {
       // Directly set the new instructor value
     const selectedValue = event.target.value;
-      setFormData((prev) => ({ ...prev, instructorId: selectedValue }));
+      setFormData((prev) => ({ ...prev, criticalId: selectedValue }));
   };
   // Handler for instructor change in edit student map instructor modal
   const handleInstructorEditChange = (event) => {
       // Directly set the new instructor value
     const selectedValue = event.target.value;
-      setFormDataEdit((prev) => ({ ...prev, instructorId: selectedValue }));
+    if(null != selectedValue && "" != selectedValue){
+      console.log("selected value if:", selectedValue);
+      setFormDataEdit((prev) => ({ ...prev, criticalId: selectedValue }));
+    }else{
+      console.log("selected value else:", selectedValue);
+      setFormDataEdit((prev) => ({ ...prev, criticalId: oldValueCriticalId }));
+    }
   };
 
   // Handler for student change in add student map instructor modal
@@ -208,6 +196,16 @@ function StudentMapCriticalManagement() {
       // Directly set the new student value
     const selectedValue = event.target.value;
       setFormData((prev) => ({ ...prev, studentId: selectedValue }));
+          try {
+      const response =  dispatch(selectListCriticalByStudentIdApi({ studentId : selectedValue }));
+      if (response.type.endsWith('/fulfilled')) {
+        // console.log("select all instructors successful payload:", response.payload);
+      } else {
+        console.error("select all instructors failed:", response.payload);
+      }
+    } catch (error) {
+      console.error("select all instructors error:", error);
+    }
   };
 
   // Handler for student change in edit student map instructor modal
@@ -221,7 +219,35 @@ function StudentMapCriticalManagement() {
   const handleOpenEditModal = () => {
     setIsEditModalOpen(true);
   };
-
+  // Handler for form submit in add period assignment modal
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+    handleCreate(); // Call the create API function
+    closeAddModal(); // Close modal after submit
+    // set timeout to ensure the create API call completes before refreshing the list
+    setTimeout(() => {
+      handleSelectListUsers(pager.pageNum, pager.pageSize); // Refresh student map instructor list after creation
+    }, 500);
+  };
+  //Handle for create admission period API call 
+  const handleCreate = async () => {
+    try {
+      const response = await dispatch(createMapCriticalApi({ 
+        criticalId: formData.criticalId || "",
+        studentId: formData.studentId || ""
+       }));
+      if (response.type.endsWith('/fulfilled')) {
+        setFormData({
+        criticalId: '',
+        studentId: ''
+        });
+      } else {
+        // console.error("insert failed:", response.payload);
+      }
+    } catch (error) {
+      // console.error("insert error:", error);
+    }
+  };
   // Handler for form submit in edit student map instructor modal
   const handleFormSubmitEditUser = (event) => {
     event.preventDefault();
@@ -237,13 +263,12 @@ function StudentMapCriticalManagement() {
   const handleUpdate = async () => {
     try {
       const response = await dispatch(updateMapCriticalApi({ 
-        studentMapInstructorId: formDataEdit.studentMapInstructorId, 
-        criticalId: formDataEdit.instructorId,
+        studentMapCriticalId: formDataEdit.studentMapCriticalId, 
+        criticalId: formDataEdit.criticalId,
         studentId : formDataEdit.studentId
        }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
-        console.log("update successful:", response.payload);
         // Store token and student map instructor info
       } else {
         console.error("update failed:", response.payload);
@@ -256,9 +281,9 @@ function StudentMapCriticalManagement() {
   //Handle for select list student map instructor API call 
   const handleSelectListUsers = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListStudentMapInstructorApi({ 
-        studentMapInstructorId: null, 
-        instructorId: null,
+      const response = await dispatch(selectListMapCriticalApi({ 
+        studentMapCriticalId: null, 
+        criticalId: null,
         studentId : null, 
         fromDate: null, 
         toDate: null, 
@@ -277,9 +302,9 @@ function StudentMapCriticalManagement() {
   //Handle for select list student map instructor API call 
   const handleSelectListUsersSearch = async () => {
     try {
-      const response = await dispatch(selectListStudentMapInstructorApi({ 
-        studentMapInstructorId: formDataSearch.studentMapInstructorId,
-         instructorId: formDataSearch.instructorId,
+      const response = await dispatch(selectListMapCriticalApi({ 
+        studentMapCriticalId: formDataSearch.studentMapCriticalId,
+         criticalId: formDataSearch.criticalId,
          studentId : formDataSearch.studentId,
          fromDate: formDataSearch.fromDate,
          toDate: null, 
@@ -299,9 +324,8 @@ function StudentMapCriticalManagement() {
   //Handle for select list all student API call 
   const handleListUserToMapCritical = async () => {
     try {
-      const response = await dispatch(selectListUserToMapCriticalApi());
+      const response = await dispatch(selectListUserToMapCriticalApi({}));
       if (response.type.endsWith('/fulfilled')) {
-        // console.log("select all students successful payload:", response.payload);
       } else {
         console.error("select all students failed:", response.payload);
       }
@@ -311,9 +335,9 @@ function StudentMapCriticalManagement() {
   };
 
   //Handle for select list all instructor API call 
-  const handleSelectListAllInstructor = async () => {
+  const handleSelectListAllInstructor = async (valueStudentId) => {
     try {
-      const response = await dispatch(selectListUserToMapCriticalApi());
+      const response = await dispatch(selectListCriticalByStudentIdApi({ studentId : valueStudentId }));
       if (response.type.endsWith('/fulfilled')) {
         // console.log("select all instructors successful payload:", response.payload);
       } else {
@@ -356,23 +380,10 @@ function StudentMapCriticalManagement() {
               <form className="lg:pr-3">
               <div className="relative mt-1 lg:w-64 xl:w-96">
                 <label htmlFor="users-name-search">Mã sinh viên map giảng viên hướng dẫn</label>
-                  <input type="text" name="studentMapInstructorId" id="users-name-search"
+                  <input type="text" name="studentMapCriticalId" id="users-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Tìm kiếm mã sinh viên và giảng viên hướng dẫn" onChange={handleInputChangeSearch} />
                 </div>
-                {/* <div className="relative mt-1 lg:w-64 xl:w-96">
-                <label htmlFor="users-email-search">Email</label>
-                  <input type="text" name="email" id="users-email-search"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm email" onChange={handleInputChangeSearch} />
-                </div>
-
-                <div className="relative mt-1 lg:w-64 xl:w-96">
-                <label htmlFor="users-full-name-search">Họ và tên</label>
-                  <input type="text" name="fullName" id="users-full-name-search"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm họ và tên" onChange={handleInputChangeSearch} />
-                </div> */}
               </form>
             </div>
           </div>
@@ -402,17 +413,6 @@ function StudentMapCriticalManagement() {
               >
                 Thêm mới
               </button>
-              {/* <a href="#"
-                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-                data-modal-hide="delete-user-modal">
-                <svg className="w-5 h-5 mr-2 -ml-1" fill="currentColor" viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd"
-                    d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z"
-                    clipRule="evenodd"></path>
-                </svg>
-                Xuất exel
-              </a> */}
               <button
                 type="button"
                 id="edit-user-button"
@@ -455,7 +455,7 @@ function StudentMapCriticalManagement() {
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Tên giảng viên hướng dẫn
+                      Tên giảng viên phản biện
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -466,33 +466,33 @@ function StudentMapCriticalManagement() {
                 <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
                   {Array.isArray(listDataStudentMapInstructor) && listDataStudentMapInstructor.length ? (
                     listDataStudentMapInstructor.map((studentMapInstructor, idx) => {
-                      const studentMapInstructorId = studentMapInstructor?.studentMapInstructorId;
-                      const instructorId = studentMapInstructor.instructorId;
+                      const studentMapCriticalId = studentMapInstructor?.studentMapCriticalId;
+                      const criticalId = studentMapInstructor.criticalId;
                       const studentId = studentMapInstructor?.studentId;
-                      const instructorName = studentMapInstructor?.instructorName;
                       const studentName = studentMapInstructor?.studentName;
+                      const criticalName = studentMapInstructor?.criticalName;
                       const activeStatus = studentMapInstructor?.status === '1' || studentMapInstructor?.status === 1 || studentMapInstructor?.status === true;
                       const fullName = studentMapInstructor?.fullName;
 
                       return (
-                        <tr key={studentMapInstructorId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <tr key={studentMapCriticalId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="w-4 p-4">
                             <div className="flex items-center">
                               <input 
-                                id={`checkbox-${studentMapInstructorId}`} 
+                                id={`checkbox-${studentMapCriticalId}`} 
                                 aria-describedby="checkbox-1" 
                                 type="checkbox"
-                                checked={selectedStudentMapInstructor.has(studentMapInstructorId)}
-                                onChange={() => handleUserCheckboxChange(studentMapInstructorId)}
+                                checked={selectedStudentMapInstructor.has(studentMapCriticalId)}
+                                onChange={() => handleUserCheckboxChange(studentMapCriticalId)}
                                 className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label htmlFor={`checkbox-${studentMapInstructorId}`} className="sr-only">checkbox</label>
+                              <label htmlFor={`checkbox-${studentMapCriticalId}`} className="sr-only">checkbox</label>
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
                             {studentName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {instructorName}
+                            {criticalName}
                           </td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
@@ -545,7 +545,7 @@ function StudentMapCriticalManagement() {
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Cập nhật thông tin sinh viên map giáo viên
+                  Cập nhật thông tin sinh viên map giảng viên
                 </h3>
                 <button type="button"
                   onClick={closeEditModal} // Changed to state handler
@@ -562,12 +562,6 @@ function StudentMapCriticalManagement() {
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-student-map-instructor-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã sinh viên map giảng viên hướng dẫn</label>
-                      <input type="text" name="studentMapInstructorId" value={formDataEdit.studentMapInstructorId} onChange={handleInputChangeEdit} id="edit-student-map-instructor-id"
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Mã sinh viên map giảng viên hướng dẫn"   style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
-                    </div>
-                    <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="edit-student-map-instructor-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên sinh viên</label>
                       <input type="text" name="studentName" value={formDataEdit.studentName} onChange={handleInputChangeEdit} id="edit-student-map-instructor-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
@@ -575,13 +569,13 @@ function StudentMapCriticalManagement() {
                     </div>
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="category-instructor-id-create" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Giảng viên hướng dẫn</label>
-                      <select id="category-instructor-id-create" value={formDataEdit.instructorId || ''} onChange={handleInstructorEditChange}
+                      <select id="category-instructor-id-create" value={formDataEdit.criticalId || ''} onChange={handleInstructorEditChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 
                         focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
                         dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
                           <>
-                        <option value="">Chọn</option>
+                        <option value="">{formDataEdit.criticalName}</option>
                         {listAllInstructors.map((instructor, idx) => {
                           return (
                           <option key={idx} value={instructor.id}>
@@ -592,7 +586,7 @@ function StudentMapCriticalManagement() {
                           </>
 
                         ) :(
-                        <option value="">Không tìm thấy</option>)}
+                        <option value="">{formDataEdit.criticalName}</option>)}
                       </select>
                     </div>
                   </div>
@@ -609,6 +603,92 @@ function StudentMapCriticalManagement() {
         </div>
       )}
 
+
+      {/* <!-- Add Admission Period Modal --> */}
+      {isAddModalOpen && (
+        <div
+          onClick={closeAddModal}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+          id="add-admission-period-modal">
+          <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl px-4 md:h-auto">
+            {/* <!-- Modal content --> */}
+            <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
+              {/* <!-- Modal header --> */}
+              <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
+                <h3 className="text-xl font-semibold dark:text-white">
+                  Thêm mới sinh viên map giảng viên phản biện
+                </h3>
+                <button type="button"
+                  onClick={closeAddModal}
+                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"></path>
+                  </svg>
+                </button>
+              </div>
+              {/* <!-- Modal body --> */}
+              <div className="p-6 space-y-6">
+                <form>
+                  <div className="grid grid-cols-6 gap-6">
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="edit-student-map-instructor-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên sinh viên</label>
+                      <select id="category-instructor-id-create" onChange={handleStudentChange}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 
+                        focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                        dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllStudents) && listAllStudents.length ? (
+                          <>
+                        <option value="">Chọn</option>
+                        {listAllStudents.map((student, idx) => {
+                          return (
+                          <option key={idx} value={student.id}>
+                            {student.fullName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy thông tin</option>)}
+                      </select>
+                    </div>
+                    <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="category-instructor-id-create" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Giảng viên hướng dẫn</label>
+                      <select id="category-instructor-id-create"  onChange={handleInstructorChange}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 
+                        focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
+                        dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listCritical) && listCritical.length ? (
+                          <>
+                        <option value="">Chọn</option>
+                        {listCritical.map((instructor, idx) => {
+                          return (
+                          <option key={idx} value={instructor.id}>
+                            {instructor.fullName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy thông tin</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  {/* <!-- Modal footer --> */}
+                  <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
+                    <button
+                      className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                       onClick={handleFormSubmit}>Thêm mới</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* <!-- Warning notification modal for Role Change --> */}
       {isWarningModalOpen && (
