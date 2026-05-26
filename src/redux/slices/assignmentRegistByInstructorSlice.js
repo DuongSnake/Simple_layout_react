@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createApi, updateApi, deleteApi, selectListAssignmentRegisterUserSiteApi, listStudentMapInstructorNotRegisterAssignmentBeforeApi
 , sendRequestListAssignmentApi, selectListAssignmentWaitingApproveApi, approveAssignmentWaitingApi, selectListAssignmentApproveApi
-,listStudentMapInstructorInstructorSiteApi } from '../../layout_instructor/assignment_register_by_instructor/AssignmentRegisterByInstructorAPI.js';
+,listStudentMapInstructorInstructorSiteApi, sendRequestFinalApproveAssignmentApi } from '../../layout_instructor/assignment_register_by_instructor/AssignmentRegisterByInstructorAPI.js';
 
 const initialState = {
   create: {
@@ -42,6 +42,11 @@ const initialState = {
     error: null,
   },
   sendRequestListAssignment: {
+    data: null,
+    loading: false,
+    error: null
+  },
+  sendRequestFinalApproveAssignment: {
     data: null,
     loading: false,
     error: null
@@ -133,6 +138,22 @@ const assignmentRegistByInstructorSlice = createSlice({
         state.sendRequestListAssignment.error = null;
       })
       .addCase(sendRequestListAssignmentApi.rejected, (state, action) => {
+        state.sendRequestListAssignment.loading = false;
+        state.sendRequestListAssignment.error = action.payload || action.error.message;
+      })
+
+      
+      // Send Request final approve Assignment handlers
+      .addCase(sendRequestFinalApproveAssignmentApi.pending, (state) => {
+        state.sendRequestListAssignment.loading = true;
+        state.sendRequestListAssignment.error = null;
+      })
+      .addCase(sendRequestFinalApproveAssignmentApi.fulfilled, (state, action) => {
+        state.sendRequestListAssignment.loading = false;
+        state.sendRequestListAssignment.data = action.payload;
+        state.sendRequestListAssignment.error = null;
+      })
+      .addCase(sendRequestFinalApproveAssignmentApi.rejected, (state, action) => {
         state.sendRequestListAssignment.loading = false;
         state.sendRequestListAssignment.error = action.payload || action.error.message;
       })

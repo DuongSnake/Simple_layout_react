@@ -6,6 +6,7 @@ import InstructorLogin from "../../layout_login/instructor_layout/InstructorLogi
 import AssignmentRegisterByInstructor from "../assignment_register_by_instructor/AssignmentRegisterByInstructorLayout";
 import AssignmentRequestApprove from "../assignment_request_approve/AssignmentRequestApproveLayout";
 import StudentMapInstructorManagementInstructorSite from "../student_map_instructor/StudentMapInstructorSiteLayout";
+import FileUploadAssignmentProcess from "../file_upload_assignment_process/FileUploadAssignmentProcessLayout";
 function ContentInstructor() {
   return (
       <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -20,6 +21,7 @@ function ContentInstructor() {
         <Route path="/instructor/assignment-register-management" element={<AssignmentRegisterByInstructor />} />
         <Route path="/instructor/assignment-request-approve" element={<AssignmentRequestApprove />} />
         <Route path="/instructor/student-map-instructor" element={<StudentMapInstructorManagementInstructorSite />} />
+        <Route path="/instructor/file-upload-assignment-process" element={<FileUploadAssignmentProcess />} />
       </Routes>
       </main>
       </div>

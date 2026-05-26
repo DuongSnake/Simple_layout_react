@@ -406,6 +406,7 @@ const handleUpdate = async () => {
                 toDate: null,
                 status: null,
                 regUser: null,
+                studentId: null,
                 pageRequestDto: { pageNum, pageSize }
             }));
             if (response.type.endsWith('/fulfilled')) {
@@ -445,6 +446,7 @@ const handleUpdate = async () => {
                 toDate: formDataSearch.toDate,
                 status: formDataSearch.status,
                 regUser: userIdGetFromAccountLogin.id || null,
+                studentId: null,
                 pageRequestDto: { pageNum: pager.pageNum, pageSize: pager.pageSize }
             }));
             if (response.type.endsWith('/fulfilled')) {

@@ -11,7 +11,8 @@ API_SELECT_LIST_ASSIGNMENT_WAITING_APPROVE_INSTRUCTOR_SIDE,
 API_SELECT_LIST_ASSIGNMENT_APPROVE_INSTRUCTOR_SIDE,
 API_APPROVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE,
 API_SELECT_LIST_STUDENT_NOT_REGISTER_ASSIGNMENT_BEFORE_INSTRUCTOR_SIDE,
-API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR_BEFORE_INSTRUCTOR_SIDE
+API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR_BEFORE_INSTRUCTOR_SIDE,
+API_SEND_FINAL_APPROVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE
 } from '../../config/constant/Api.js';
 
 export const createApi = createAsyncThunk(
@@ -87,6 +88,23 @@ export const sendRequestListAssignmentApi = createAsyncThunk(
     try {
       // console.log('authRequest:', authRequest);
       let urlSendRequestAssignmentRegister= SERVER_API_URL + API_SEND_REQUEST_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE;
+      // console.log('API URL:', urlSendRequestAssignmentRegister);
+      const response = await apiClient.post(urlSendRequestAssignmentRegister, authRequest);
+      // console.log('API send request list assignmentRegister Success Response:', response.data);
+      return response.data;
+    } catch (error) {
+      // console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const sendRequestFinalApproveAssignmentApi = createAsyncThunk(
+  'assignmentRegisterByInstructor/sendRequestFinalApproveAssignment',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      // console.log('authRequest:', authRequest);
+      let urlSendRequestAssignmentRegister= SERVER_API_URL + API_SEND_FINAL_APPROVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE;
       // console.log('API URL:', urlSendRequestAssignmentRegister);
       const response = await apiClient.post(urlSendRequestAssignmentRegister, authRequest);
       // console.log('API send request list assignmentRegister Success Response:', response.data);
@@ -174,6 +192,23 @@ export const listStudentMapInstructorInstructorSiteApi = createAsyncThunk(
       let urlUpdateAssignmentRegister= SERVER_API_URL + API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR_BEFORE_INSTRUCTOR_SIDE;
       // console.log('API URL:', urlUpdateAssignmentRegister);
       const response = await apiClient.post(urlUpdateAssignmentRegister, authRequest);
+      return response.data;
+    } catch (error) {
+      // console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const sendFinalApproveAssignmentApi = createAsyncThunk(
+  'assignmentRegisterByInstructor/sendRequestAssignment',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      // console.log('authRequest:', authRequest);
+      let urlSendRequestAssignmentRegister= SERVER_API_URL + API_SEND_REQUEST_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE;
+      // console.log('API URL:', urlSendRequestAssignmentRegister);
+      const response = await apiClient.post(urlSendRequestAssignmentRegister, authRequest);
+      // console.log('API send request list assignmentRegister Success Response:', response.data);
       return response.data;
     } catch (error) {
       // console.error('API Error:', error.message);

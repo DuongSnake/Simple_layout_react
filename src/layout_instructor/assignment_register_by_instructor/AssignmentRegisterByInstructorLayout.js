@@ -417,8 +417,7 @@ function AssignmentRegisterByInstructor() {
   //Handle for reserve list assignment API call 
   const handleReserveListAssignment = async () => {
     try {
-      console.log('Selected period assignment IDs for reservation:', Array.from(selectedPeriodAssignment)[0]);
-      const response = await dispatch(sendRequestListAssignmentApi({ requestId: Array.from(selectedPeriodAssignment)[0] }));
+      const response = await dispatch(sendRequestListAssignmentApi({ listData: Array.from(selectedPeriodAssignment) }));
       // Check if reserve was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("reserve successful:", response.payload);

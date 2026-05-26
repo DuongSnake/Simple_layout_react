@@ -11,7 +11,7 @@ function UserLoginTemplate() {
 
   const handleLogin = async () => {
     try {
-      const response = await dispatch(authenticate({ userName: "vuhaiduongit@gmail.com", password: "ktx2024" }));
+      const response = await dispatch(authenticate({ userName: "008kalcp@gmail.com", password: "ktx2024" }));
       // Check if login was successful
       if (response.type.endsWith('/fulfilled')) {
         console.log("Login successful:", response.payload);

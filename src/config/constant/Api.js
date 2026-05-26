@@ -76,6 +76,8 @@ export const API_UPDATE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstru
 export const API_DELETE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/delete';
 export const API_SELECT_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/select';
 export const API_GET_ALL_STUDENT_MAP_INSTRUCTOR_ACTIVE = PRE_FIX_API + 'studentMapInstructor/selectListAllActive';
+export const API_UPDATE_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapInstructor/mapCritical';
+export const API_GET_STUDENT_READY_MAP_CRITICAL = PRE_FIX_API + 'studentMapInstructor/selectListUserToMapCritical';
 
 /**
  * Assignment Student Register Management
@@ -139,6 +141,7 @@ export const API_DELETE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assi
 export const API_SELECT_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/select';
 export const API_RESERVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/reserveListAssignment';
 export const API_SEND_REQUEST_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/sendRequestAssignment';
+export const API_SEND_FINAL_APPROVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/sendRequestFinalApproveAssignment';
 export const API_DOWNLOAD_FILE_STUDENT_UPLOAD_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/download';
 export const API_APPROVE_ASSIGNMENT_STUDENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/approveAssignment';
 export const API_SELECT_LIST_ASSIGNMENT_APPROVE_INSTRUCTOR_SIDE = PRE_FIX_API + 'assignmentRegisterByInstructor/selectListAssApprove';

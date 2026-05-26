@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { selectListAssignmentRegisterUserSiteApi, createApi, updateApi, deleteApi, sendRequestListAssignmentApi } from "./AssignmentRegisterManagementAPI";
+import { selectListAssignmentApproveApi, sendRequestFinalApproveAssignmentApi, listStudentMapInstructorNotRegisterAssignmentBeforeApi } from "../assignment_register_by_instructor/AssignmentRegisterByInstructorAPI";
+import {selectListFileAssignmentProcessApi, downloadFileAssignmentProcessApi, updateListFileAssignmentProcessApi} from "../../layout_user/assignment_process_upload_file_management/AssignmentProcessUploadManagementAPI"
 import { selectAllInstructorApi } from "../../layout_admin/user_management/UserManagementAPI";
 import {findUserIdByUsername} from "../../layout_login/admin_layout/AdminLoginAPI";
 import { selectListPeriodAssignmentApi } from "../../layout_admin/period_assignment_management/PeriodAssignmentManagementAPI";
@@ -9,24 +10,27 @@ import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
 import { APP_DATE_FORMAT, USER_NAME}  from '../../config/constant/Constants';
-function AssignmentRegisterManagement() {
+function FileUploadAssignmentProcess() {
   // State for modal visibility
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isReserveModalOpen, setIsReserveModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const listDataAssignmentRegister = useSelector(state => state.assignmentRegisterUserSite.selectListAssignmentRegisterUserSite.data);
-  const totalRecord = useSelector(state => state.assignmentRegisterUserSite.selectListAssignmentRegisterUserSite.totalRecord);
-  const listDataAssignmentStudentRegisterLoading = useSelector(state => state.assignmentRegisterUserSite.selectListAssignmentRegisterUserSite.loading);
-  const listAllInstructors = useSelector(state => state.userManagement.selectAllInstructors.data);
+  const listDataAssignmentRegister = useSelector(state => state.assignmentRegistByInstructor.selectListApproveAssignmentInstructorSite.data);
+  const totalRecord = useSelector(state => state.assignmentRegistByInstructor.selectListApproveAssignmentInstructorSite.totalRecord);
+  const listDataAssignmentStudentRegisterLoading = useSelector(state => state.assignmentRegistByInstructor.selectListApproveAssignmentInstructorSite.loading);
+  const listAllInstructors = useSelector(state => state.assignmentRegistByInstructor.listStudentMapInstructorNotRegisterAssignmentBefore.data);
+  
+  const listDataFileAssignmentRegister = useSelector(state => state.assignmentProcessUploadManagement.selectListFileAssignmentProcess.data);
   const userIdGetFromAccountLogin = useSelector(state => state.authentication.findUserId.data);
   const listDataPeriodAssignment = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.data);
   const [selectedFileAdd, setSelectedFileAdd] = useState(null);
   const [selectedFileUpdate, setSelectedFileUpdate] = useState(null);
   const [isAutoMapChecked, setIsAutoMapChecked] = useState(false);
   const [isAutoMapCheckedEdit, setIsAutoMapCheckedEdit] = useState(false);
-
+  //logic upload file
+  const [listFileUpload, setListFileUpload] = useState([]);
+  const [deletedFileIds, setDeletedFileIds] = useState([]);
   // State for form data (Add PeriodAssignment modal)
   const [formData, setFormData] = useState({
     fileUpload: '',
@@ -34,7 +38,7 @@ function AssignmentRegisterManagement() {
     instructorId: '',
     periodAssignmentId: '',
     assignmentStudentRegisterName: '',
-    statusAutoMap: 'N'
+    statusAutoMap: 'Y'
   });
 
   // State for form data (Edit PeriodAssignment modal)
@@ -46,7 +50,7 @@ function AssignmentRegisterManagement() {
     instructorName: '',
     periodAssignmentId: '',
     assignmentStudentRegisterName: '',
-    statusAutoMap: 'N',
+    statusAutoMap: 'Y',
     oldValueId: ''
   });
 
@@ -57,7 +61,8 @@ function AssignmentRegisterManagement() {
     assignmentStudentRegisterName: '',
     fromDate: '',
     toDate: '',
-    status: ''
+    status: '',
+    instructorId: ''
   });
 
   // State for pagination
@@ -71,7 +76,7 @@ function AssignmentRegisterManagement() {
   
   const _onChangePagination = (page, pageSize) => {
     setPager({ ...pager, pageNum: page });
-    handleSelectListPeriodAssignments(page, pageSize);
+    handleSelectListPeriodAssignments(page, pageSize, userIdGetFromAccountLogin.id);
   };
 
   // Handler for select all checkbox
@@ -91,7 +96,22 @@ function AssignmentRegisterManagement() {
   //Handle case when change size list selected periodAssignment
   useEffect(() => {
     handleEnableButtonActions();
-  }, [selectedPeriodAssignment, listDataPeriodAssignment, listAllInstructors, userIdGetFromAccountLogin]);
+  }, [selectedPeriodAssignment]);
+
+      //Handle case when change size list file assignment process(logic upload file)
+      useEffect(() => {
+          if (Array.isArray(listDataFileAssignmentRegister)) {
+              const mappedFiles = listDataFileAssignmentRegister.map(item => ({
+                  fileId: item.fileId,
+                  oldFileName: item.fileName,
+                  file: null,
+                  isNew: false
+              }));
+              setListFileUpload(mappedFiles);
+          }else{
+              setListFileUpload([]);
+          }
+      }, [listDataFileAssignmentRegister]);
 
   //Handle case when click button edit or delete but no periodAssignment selected
   const handleEnableButtonActions = () => {
@@ -147,7 +167,10 @@ function AssignmentRegisterManagement() {
         const valueUserName = sessionStorage.getItem(USER_NAME);
         const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
         if (response.type.endsWith('/fulfilled')) {
-          // console.log("select all userId successful payload:", response.payload);
+          let valueInstructorId = response.payload.id;
+          handleSelectListAllInstructors(valueInstructorId);
+    //Select list period assignment when component mounts
+    handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, valueInstructorId);
         } else {
           console.error("select userId failed:", response.payload);
         }
@@ -156,9 +179,9 @@ function AssignmentRegisterManagement() {
       }
     };
     //Handle for select list all instructors API call 
-  const handleSelectListAllInstructors = async () => {
+  const handleSelectListAllInstructors = async (instructorId) => {
     try {
-        const response = await dispatch(selectAllInstructorApi());
+        const response = await dispatch(listStudentMapInstructorNotRegisterAssignmentBeforeApi({id: instructorId}));
         if (response.type.endsWith('/fulfilled')) {
           // console.log("select all majors successful payload:", response.payload);
         } else {
@@ -204,7 +227,6 @@ function AssignmentRegisterManagement() {
       //Set value for edit form when click checkbox of periodAssignmentId
       listDataAssignmentRegister.forEach(assignmentRegister => {
         if (assignmentRegister.assignmentStudentRegisterId === periodAssignmentId) {
-          console.log('Selected assignment register for edit:', assignmentRegister);
           setFormDataEdit({
             assignmentStudentRegisterId: assignmentRegister?.assignmentStudentRegisterId || '',
             assignmentStudentRegisterName: assignmentRegister?.assignmentStudentRegisterName || '',
@@ -218,6 +240,7 @@ function AssignmentRegisterManagement() {
           });
         }
       });
+      handleSelectListFileAssignmentProcess(userIdGetFromAccountLogin.id);
       return newSelected;
     });
   };
@@ -239,11 +262,8 @@ function AssignmentRegisterManagement() {
 
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
-    //Select list period assignment when component mounts
-    handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize);
     //Select list all majors when component mounts
     handleSelectUserIdGetFromAccountLogin();
-    handleSelectListAllInstructors();
     handleSelectListAllPeriodAssignments();
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
@@ -254,9 +274,60 @@ function AssignmentRegisterManagement() {
     setSelectedPeriodAssignment(new Set());
   }, [listDataPeriodAssignment]);
 
+      //Handle case add new input upload will store new attribute in object(logic upload file)
+      const handleAddNewFileInput = () => {
+          setListFileUpload(prev => [
+              ...prev,
+              {
+                  fileId: null,
+                  oldFileName: '',
+                  file: null,
+                  isNew: true
+              }
+          ]);
+      };
+      //Handle case delete input upload will store new attribute in object(logic upload file)
+      const handleDeleteFile = (index, fileId) => {
+  
+          if (fileId) {
+              setDeletedFileIds(prev => [...prev, fileId]);
+          }
+  
+          setListFileUpload(prev =>
+              prev.filter((_, idx) => idx !== index)
+          );
+      };
+      //Handle case download input upload will store new attribute in object(logic upload file)
+      const handleDownloadFile = async (fileId, fileName) => {
+      try {
+  
+          const response = await downloadFileAssignmentProcessApi(fileId);
+          const blob = new Blob([response.data]);
+  
+          const url = window.URL.createObjectURL(blob);
+  
+          const link = document.createElement("a");
+  
+          link.href = url;
+  
+          link.download = fileName;
+  
+          document.body.appendChild(link);
+  
+          link.click();
+  
+          link.remove();
+  
+          window.URL.revokeObjectURL(url);
+  
+      } catch (error) {
+  
+          console.error("Download file error:", error);
+  
+      }
+  };
+
   // Handlers for modal toggles
-  const openAddModal = () => setIsAddModalOpen(true);
-  const closeAddModal = () => setIsAddModalOpen(false);
   const openEditModal = () => setIsEditModalOpen(true);
   const closeEditModal = () => setIsEditModalOpen(false);
   const openDeleteModal = () => setIsDeleteModalOpen(true);
@@ -269,93 +340,71 @@ function AssignmentRegisterManagement() {
     setIsEditModalOpen(true);
   };
 
-  // Handler for form submit in add period assignment modal
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-    handleCreate(); // Call the create API function
-    closeAddModal(); // Close modal after submit
-    // set timeout to ensure the create API call completes before refreshing the list
-    setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
-    }, 2500);
-  };
-
   // Handler for form submit in edit admission period modal
   const handleFormSubmitEditAdmissionPeriod = (event) => {
     event.preventDefault();
     handleUpdate(); // Call the update API function
-    closeEditModal(); // Close modal after submit
-    // set timeout to ensure the update API call completes before refreshing the list
-    setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
-    }, 500);
   };
 
-  //Handle for create admission period API call 
-  const handleCreate = async () => {
-    const formData123 = new FormData();
-    if (formData.fileUpload instanceof File) {
-      formData123.append("fileUpload", formData.fileUpload);
-    }
-    formData123.append("assignmentStudentRegisterName", formData.assignmentStudentRegisterName || "");
-    formData123.append("periodAssignmentId", formData.periodAssignmentId || "");
-    formData123.append("studentId", userIdGetFromAccountLogin.id || "");
-    formData123.append("instructorId", formData.instructorId || "");
-    formData123.append("statusAutoMap", formData.statusAutoMap || "N");
-    try {
-      const response = await dispatch(createApi(formData123));
-      if (response.type.endsWith('/fulfilled')) {
-        setFormData({
-          fileUpload: '',
-          studentId: '',
-          instructorId: '',
-          periodAssignmentId: '',
-          assignmentStudentRegisterName: '',
-          statusAutoMap: 'N'
-        });
-        setSelectedFileAdd(null);
-      } else {
-        // console.error("insert failed:", response.payload);
-      }
-    } catch (error) {
-      // console.error("insert error:", error);
-    }
-  };
 
   //Handle for update admission period API call 
-  const handleUpdate = async () => {
-    try {
-    const formData123 = new FormData();
-    if (formDataEdit.fileUpload instanceof File) {
-      formData123.append("fileUpload", formDataEdit.fileUpload);
-    }
-    formData123.append("assignmentStudentRegisterId", formDataEdit.assignmentStudentRegisterId || 0);
-    formData123.append("assignmentStudentRegisterName", formDataEdit.assignmentStudentRegisterName || 0);
-    formData123.append("periodAssignmentId", formDataEdit.periodAssignmentId || 0);
-    formData123.append("studentId", formDataEdit.studentId || 0);
-    formData123.append("instructorId", formDataEdit.instructorId || 0);
-    formData123.append("statusAutoMap", formDataEdit.statusAutoMap || "N");
-    formData123.append("oldValueId", formDataEdit.oldValueId || 0);
-    // console.log("form data:"+JSON.stringify(formData123));
-      const response = await dispatch(updateApi(formData123));
-      // Check if update was successful
-      if (response.type.endsWith('/fulfilled')) {
-        // console.log("update successful:", response.payload);
-      } else {
-        // console.error("update failed:", response.payload);
-      }
-    } catch (error) {
-    //   console.error("update error:", error);
-    }
-  };
+    //Handle for update admission period API call(logic upload file)
+const handleUpdate = async () => {
 
-  // Handler for role change in add user modal
-  const handlePeriodAssignmentChange = (event) => {
-      // Directly set the new role value
-    const selectedValue = event.target.value;
-    console.log('Selected period assignment ID:', selectedValue);
-      setFormData((prev) => ({ ...prev, periodAssignmentId: selectedValue }));
-  };
+  try {
+
+    const formData123 = new FormData();
+
+    formData123.append(
+      "assignmentStudentRegisterId",
+      formDataEdit.assignmentStudentRegisterId || 0
+    );
+
+    // danh sách file delete
+    formData123.append(
+      "deletedFileIds",
+      JSON.stringify(deletedFileIds)
+    );
+
+    // append toàn bộ file
+    listFileUpload.forEach((item, index) => {
+
+      // file mới upload
+      if (item.file instanceof File) {
+
+        formData123.append(
+          "listFile",
+          item.file
+        );
+
+        formData123.append(
+          `fileIds`,
+          item.fileId || ''
+        );
+      }
+    });
+
+    const response = await dispatch(
+      updateListFileAssignmentProcessApi(formData123)
+    );
+
+    if (response.type.endsWith('/fulfilled')) {
+
+      closeEditModal();
+
+      handleSelectListAllInstructors(
+        pager.pageNum,
+        pager.pageSize,
+        userIdGetFromAccountLogin.id
+      );
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+  }
+};
 
   // Handler for admission period change in add user modal
   const handleAdmissionPeriodChange = (event) => {
@@ -368,7 +417,7 @@ function AssignmentRegisterManagement() {
   const handleInstructorChange = (event) => {
       // Directly set the new role value
     const selectedValue = event.target.value;
-      setFormData((prev) => ({ ...prev, instructorId: selectedValue }));
+      setFormData((prev) => ({ ...prev, studentId: selectedValue }));
   };
   // Handler for role change in edit user modal
   const handleStudentChange = (event) => {
@@ -376,72 +425,19 @@ function AssignmentRegisterManagement() {
     const selectedValue = event.target.value;
       setFormData((prev) => ({ ...prev, studentId: selectedValue }));
   };
-  // Handler for student id change in edit user modal
-  const handleStudentChangeEditModal = (event) => {
-      // Directly set the new student id value
-    const selectedValue = event.target.value;
-      setFormDataEdit((prev) => ({ ...prev, studentId: selectedValue }));
-  };
-  // Handler for instructor id change in edit user modal
-  const handleInstructorChangeEditModal = (event) => {
-      // Directly set the new instructor id value
-    const selectedValue = event.target.value;
-      setFormDataEdit((prev) => ({ ...prev, instructorId: selectedValue }));
-  };
 
-  // Handler for admission period change in edit user modal
-  const handleAdmissionPeriodChangeEditModal = (event) => {
-      // Directly set the new admission period value
-    const selectedValue = event.target.value;
-    console.log('Selected admission period ID:', selectedValue);
-      setFormDataEdit((prev) => ({ ...prev, periodAssignmentId: selectedValue }));
-  };
-
-  // Handler for auto map checkbox change in add modal
-  const handleChangeStatusAuto = (event) => {
-    const checked = event.target.checked;
-    setIsAutoMapChecked(checked);
-    setFormData((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N" }));
-  };
-
-  // Handler for auto map checkbox change in update modal
-  const handleChangeStatusAutoEditModal = (event) => {
-    const checked = event.target.checked;
-    setIsAutoMapCheckedEdit(checked);
-    setFormDataEdit((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N"  }));
-  };
-
-  //Handle for delete admission period API call 
-  const handleDeleteAdmissionPeriod = async () => {
-    try {
-      const response = await dispatch(deleteApi({ listData: Array.from(selectedPeriodAssignment) }));
-      // Check if delete was successful
-      if (response.type.endsWith('/fulfilled')) {
-        // console.log("delete successful:", response.payload);
-        // set timeout to ensure the delete API call completes before refreshing the list
-        setTimeout(() => {
-          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after deletion
-        }, 500);
-      } else {
-        // console.error("delete failed:", response.payload);
-      }
-    } catch (error) {
-    //   console.error("delete error:", error);
-    }
-    closeDeleteModal();
-  };
 
   //Handle for reserve list assignment API call 
   const handleReserveListAssignment = async () => {
     try {
-      console.log('Selected period assignment IDs for reservation:', Array.from(selectedPeriodAssignment)[0]);
-      const response = await dispatch(sendRequestListAssignmentApi({ requestId: Array.from(selectedPeriodAssignment)[0] }));
+      const response = await dispatch(sendRequestFinalApproveAssignmentApi({ listData: Array.from(selectedPeriodAssignment) }));
       // Check if reserve was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("reserve successful:", response.payload);
         // set timeout to ensure the reserve API call completes before refreshing the list
+    closeReserveModal();
         setTimeout(() => {
-          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after reservation
+          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, userIdGetFromAccountLogin.id); // Refresh period assignment list after reservation
         }, 500);
       } else {
         // console.error("reserve failed:", response.payload);
@@ -449,24 +445,39 @@ function AssignmentRegisterManagement() {
     } catch (error) {
     //   console.error("reserve error:", error);
     }
-    closeReserveModal();
   };
+    //Handle for select list file assignment process API call 
+    const handleSelectListFileAssignmentProcess = async (assignmentStudentRegisterId) => {
+        try {
+            const response = await dispatch(selectListFileAssignmentProcessApi({
+                assignmentStudentRegisterId: assignmentStudentRegisterId
+            }));
+            if (response.type.endsWith('/fulfilled') && response.payload != null) {
+                // Redux selector selectListAssignmentProcessApi will reflect the updated value on next render
+                
+            } else {
+                // console.error("select list failed:", response.payload);
+            }
+        } catch (error) {
+            //   console.error("select list error:", error);
+        }
+    };
 
   //Handle for select list period assignment API call 
-  const handleSelectListPeriodAssignments = async (pageNum, pageSize) => {
+  const handleSelectListPeriodAssignments = async (pageNum, pageSize, instructorId) => {
     try {
-      const response = await dispatch(selectListAssignmentRegisterUserSiteApi({ 
+      const response = await dispatch(selectListAssignmentApproveApi({ 
         assignmentStudentRegisterId: null, 
         periodAssignmentId: null,
         assignmentStudentRegisterName: null,
         admissionPeriodId: null,//Se khong hard code o day
         fromDate: null,
-        studentId: null,
         toDate: null,
+        intructorId: instructorId,
         pageRequestDto : { pageNum, pageSize }
        }));
+       
       if (response.type.endsWith('/fulfilled')) {
-        // Redux selector listDataPeriodAssignment will reflect the updated value on next render
       } else {
         // console.error("select list failed:", response.payload);
       }
@@ -478,16 +489,13 @@ function AssignmentRegisterManagement() {
   //Handle for select list period assignment API call with search
   const handleSelectListPeriodAssignmentsSearch = async () => {
     try {
-      const response = await dispatch(selectListAssignmentRegisterUserSiteApi({ 
+      const response = await dispatch(selectListAssignmentApproveApi({ 
         assignmentStudentRegisterId: formDataSearch.assignmentStudentRegisterId,
         periodAssignmentId: formDataSearch.periodAssignmentId, 
         assignmentStudentRegisterName: formDataSearch.assignmentStudentRegisterName,
         fromDate: formDataSearch.fromDate,
         toDate: formDataSearch.toDate,
-        admissionPeriodId: null,//Se khong hard code o day
-        majorId: null,
-        note: formDataSearch.note,
-        studentId: null,
+        intructorId: userIdGetFromAccountLogin.id,
         status: null,
         pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
        }));
@@ -533,7 +541,7 @@ function AssignmentRegisterManagement() {
 
   // Handler for edit form input changes
   const handleInputChangeEdit = (event) => {
-    console.log('Edit form input change:', event.target.name, event.target.value);
+    // console.log('Edit form input change:', event.target.name, event.target.value);
     const { name, value } = event.target;
     setFormDataEdit((prev) => ({ ...prev, [name]: value }));
   };
@@ -550,7 +558,7 @@ function AssignmentRegisterManagement() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách đăng ký đồ án sinh viên</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách phê duyệt đồ án sinh viên</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
@@ -590,13 +598,6 @@ function AssignmentRegisterManagement() {
             <div className="flex items-center ml-auto space-x-2 sm:space-x-3">
               <button
                 type="button"
-                onClick={openAddModal}
-                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-              >
-                Thêm mới
-              </button>
-              <button
-                type="button"
                 id="edit-period-assignment-button"
                 onClick={handleOpenEditPeriodAssignment}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
@@ -605,19 +606,11 @@ function AssignmentRegisterManagement() {
               </button>
               <button
                 type="button"
-                id="delete-period-assignment-button"
-                onClick={openDeleteModal}
-                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-              >
-                Xóa
-              </button>
-              <button
-                type="button"
                 id="reserve-assignment-button"
                 onClick={openReserveModal}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                Gửi yêu cầu phê duyệt
+                Gửi phê duyệt phản biện
               </button>
             </div>
           </div>
@@ -797,7 +790,7 @@ function AssignmentRegisterManagement() {
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ hạn đồ án</label>
-                      <select id="category-period-admission-edit" value={formDataEdit.periodAssignmentId || ''} onChange={handleAdmissionPeriodChangeEditModal}
+                      <select id="category-period-admission-edit" value={formDataEdit.periodAssignmentId || ''} aria-readonly="true"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
                           <>
@@ -815,126 +808,15 @@ function AssignmentRegisterManagement() {
                         <option value="">Không tìm thấy</option>)}
                       </select>
                     </div>
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="default-checkbox" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tự chọn viên hướng dẫn</label>
-                      <input id="default-checkbox" type="checkbox" checked={formDataEdit.isAutoMapChecked == 'Y' ? true: false} className="mt-2 w-4 h-4 border border-default-medium rounded-xs 
-                      bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}} readOnly={true}/>
-                    </div>
-                    </div>
-                    {/* New element */}
-                    <div className="grid grid-cols-6 gap-6">
+
                     {/* start content to show and hide by status auto map */}
                       <div className="col-span-6 sm:col-span-3" style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}>
-                        <label htmlFor="category-instructor-update" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên giảng viên</label>
-                      <input type="text" name="category-instructor-update" value={formDataEdit.instructorName} id="category-instructor-update"
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder=""   style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
-                      </div>
-                    {/* end content to show and hide by status auto map */}
-                      <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="file_input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
-                        <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
-                        text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
-                        shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
-                        {editFileName ? (
-                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Tên tệp hiện tại: {editFileName}</p>
-                        ) : (
-                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được tải lên trước đó.</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                  {/* <!-- Modal footer --> */}
-                  <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
-                    <button
-                      className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                       onClick={handleFormSubmitEditAdmissionPeriod}>Cập nhật</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* <!-- Add Period Assignment Modal --> */}
-      {isAddModalOpen && (
-        <div
-          onClick={closeAddModal}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
-          id="add-period-assignment-modal">
-          <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl px-4 md:h-auto">
-            {/* <!-- Modal content --> */}
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
-              {/* <!-- Modal header --> */}
-              <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
-                <h3 className="text-xl font-semibold dark:text-white">
-                  Thêm mới đăng ký đồ án sinh viên
-                </h3>
-                <button type="button"
-                  onClick={closeAddModal}
-                  className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fillRule="evenodd"
-                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                      clipRule="evenodd"></path>
-                  </svg>
-                </button>
-              </div>
-              {/* <!-- Modal body --> */}
-              <div className="p-6 space-y-6">
-                <form>
-                  <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
-                      <input type="text" name="assignmentStudentRegisterName" onChange={handleInputChange} id="admission-period-name"
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Tên đồ án" required />
-                    </div>
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-periodAssignmentId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ hạn đồ án</label>
-                      <select id="category-periodAssignmentId" onChange={handlePeriodAssignmentChange}
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                        {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
-                          <>
-                        <option value="">Chọn</option>
-                        {listDataPeriodAssignment.map((periodAssignment, idx) => {
-                          return (
-                          <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
-                          </option>
-                          );
-                        })}
-                          </>
-
-                        ) :(
-                        <option value="">Không tìm thấy</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="file_input"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
-                      <input class="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
-                      text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
-                      shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeAdd}/>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-6 gap-6">
-                    <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="default-checkbox" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tự động map giảng viên hướng dẫn</label>
-                      <input id="default-checkbox" type="checkbox" checked={isAutoMapChecked} className="mt-2 w-4 h-4 border border-default-medium rounded-xs 
-                      bg-neutral-secondary-medium focus:ring-2 focus:ring-brand-soft" onChange={handleChangeStatusAuto}/>
-                    </div>
-                    {/* start content to show and hide by status auto map */}
-                    {isAutoMapChecked && (
-                      <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="category-instructor" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên giảng viên</label>
-                        <select id="category-instructor" onChange={handleInstructorChange}
+                        <label htmlFor="category-instructor" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên sinh vien</label>
+                        <select id="category-instructor" value={formDataEdit.studentId || ''} aria-readonly ="true"
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                           {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
                             <>
-                              <option value="">Chọn</option>
+                              <option value="">{formDataEdit.studentName}</option>
                               {listAllInstructors.map((instructor, idx) => {
                                 return (
                                   <option key={idx} value={instructor.id}>
@@ -944,19 +826,84 @@ function AssignmentRegisterManagement() {
                               })}
                             </>
                           ) : (
-                            <option value="">Không tìm thấy</option>
+                            <option value="">{formDataEdit.studentName}</option>
                           )}
                         </select>
                       </div>
-                    )}
                     {/* end content to show and hide by status auto map */}
-                  </div>
-                  {/* <!-- Modal footer --> */}
-                  <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
-                    <button
-                      className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-                       onClick={handleFormSubmit}>Thêm mới</button>
-                  </div>
+                    </div>
+                    {/* New element */}
+                                                        {/* show button add file */}
+                                    <div className="col-span-6">
+                                        <button
+                                            type="button"
+                                            onClick={handleAddNewFileInput}
+                                            className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                        >
+                                            + Thêm file
+                                        </button>
+                                    </div>
+                                                                        {/* show the list file upload change */}
+                                    <div className="grid">
+
+                                        {listFileUpload.map((item, index) => (
+
+                                            <div key={`${item.fileId}-${index}`} className="grid grid-cols-12 gap-4 border p-4 rounded-lg">
+                                                {/* upload input */}
+                                                <div className="col-span-3">
+                                                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                        Upload file
+                                                    </label>
+
+                                                    <input
+                                                        type="file"
+                                                        onChange={(e) => handleFileChangeUpdate(e, index)}
+                                                        className="block text-sm border border-gray-300 rounded-lg cursor-pointer bg-gray-50"
+                                                    />
+
+                                                    {/* old file */}
+                                                    {item.oldFileName && (
+                                                        <p className="mt-2 text-sm text-gray-500">
+                                                            File cũ: {item.oldFileName}
+                                                        </p>
+                                                    )}
+
+                                                    {/* new file */}
+                                                    {item.file && (
+                                                        <p className="mt-1 text-sm text-green-600">
+                                                            File mới: {item.file.name}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                {/* delete */}
+                                                <div className="col-span-2 flex items-end">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDeleteFile(index, item.fileId)}
+                                                        className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                                        style={{marginRight: '20px'}}>
+                                                        Xóa
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleDownloadFile(item.fileId, item.oldFileName)}
+                                                        className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                                    >
+                                                        Tải xuống
+                                                    </button>
+                                                </div>
+
+                                            </div>
+                                        ))}
+
+                                    </div>
+                                    {/* <!-- Modal footer --> */}
+                                    <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700" style={{paddingLeft: '0px'}}>
+                                        <button
+                                            className="text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                                             onClick={handleFormSubmitEditAdmissionPeriod}> Cập nhật
+                                        </button>
+                                    </div>
                 </form>
               </div>
             </div>
@@ -992,7 +939,7 @@ function AssignmentRegisterManagement() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn muốn gửi phê duyệt đăng ký đồ án này không?</h3>
+                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn muốn hủy phê duyệt đăng ký đồ án này không?</h3>
                 <button
                   onClick={handleReserveListAssignment}
                   className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">
@@ -1009,7 +956,7 @@ function AssignmentRegisterManagement() {
         </div>
       )}
 
-      {/* <!-- Delete Admission Period Modal --> */}
+      {/* <!-- Send request  Modal --> */}
       {isReserveModalOpen && (
         <div
           onClick={closeReserveModal}
@@ -1037,7 +984,7 @@ function AssignmentRegisterManagement() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn muốn gửi phê duyệt đăng ký đồ án này không?</h3>
+                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn muốn phê duyệt đăng ký đồ án này không?</h3>
                 <button
                   onClick={handleReserveListAssignment}
                   className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">
@@ -1057,4 +1004,4 @@ function AssignmentRegisterManagement() {
   );
 }
 
-export default AssignmentRegisterManagement;
+export default FileUploadAssignmentProcess;

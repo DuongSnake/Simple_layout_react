@@ -15,6 +15,7 @@ import AdminLogin from "../../layout_login/admin_layout/AdminLoginTemplate";
 import Dashboard from "../dashboard_management/DashboardUI";
 import ScoreAssignmentManagement from "../score_assignment_management/ScoreAssignmentManagementLayout";
 import FileUploadAssignmentManagement from "../file_upload_assignment_management/FileUploadAssignmentManagementLayout";
+import StudentMapCriticalManagement from "../student_map_critical/StudentMapCriticalManagementLayout";
 function Content() {
   return (
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -37,6 +38,7 @@ function Content() {
         <Route path="/admin/student-map-instructor-management" element={<StudentMapInstructorManagement />} />
         <Route path="/admin/score-assignment-management" element={<ScoreAssignmentManagement />} />
         <Route path="/admin/file-upload-assignment-management" element={<FileUploadAssignmentManagement />} />
+        <Route path="/admin/student-map-critical-management" element={<StudentMapCriticalManagement />} />
       </Routes>
       </main>
       </div>
