@@ -30,7 +30,7 @@ function HeaderAdmin() {
                 clip-rule="evenodd"></path>
             </svg>
           </button>
-          <a href="/admin/user-management" class="flex ml-2 md:mr-24">
+          <a href="/admin/dashboard" class="flex ml-2 md:mr-24">
             <span
               class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">Trang quản trị</span>
           </a>

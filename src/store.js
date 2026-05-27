@@ -12,6 +12,9 @@ import assignmentRegisterUserSiteReducer from './redux/slices/assignmentRegister
 import assignmentProcessUploadManagementReducer from './redux/slices/assignmentProcessUploadManagementSlice';
 import assignmentRegistByInstructorReducer from './redux/slices/assignmentRegistByInstructorSlice';
 import studentMapCriticalManagementReducer from './redux/slices/studentMapCriticalManagementSlice';
+import assignmentFinalApproveManagementReducer from './redux/slices/assignmentFinalApproveManagementSlice';
+import scoreAssignmentManagementReducer from './redux/slices/scoreAssignmentManagementSlice';
+import fileUploadAssignmentManagementReducer from './redux/slices/fileUploadAssignmentManagementSlice';
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +30,10 @@ export const store = configureStore({
     assignmentRegisterUserSite: assignmentRegisterUserSiteReducer,
     assignmentProcessUploadManagement: assignmentProcessUploadManagementReducer,
     studentMapCriticalManagement: studentMapCriticalManagementReducer,
-    assignmentRegistByInstructor :assignmentRegistByInstructorReducer
+    assignmentRegistByInstructor :assignmentRegistByInstructorReducer,
+    assignmentFinalApproveManagement: assignmentFinalApproveManagementReducer,
+    scoreAssignmentManagement: scoreAssignmentManagementReducer,
+    fileUploadAssignmentManagement: fileUploadAssignmentManagementReducer,
     // Add more reducers here as you create new features
     // example: todosReducer from './redux/slices/todosSlice'
   },

@@ -1,64 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import { selectListAssignmentRegisterApi, createApi, updateApi, deleteApi } from "../assignment_student_register_management/AssignmentRegisterManagementAPI";
-import { selectAllInstructorApi , selectAllStudentApi } from "../user_management/UserManagementAPI";
+import { selectListAssignmentByPeriodTimeApi, createApi, updateApi, deleteApi, selectListApiScoresApi } from "./ScoreAssignmentManagementAPI";
+
 import { selectListPeriodAssignmentApi } from "../period_assignment_management/PeriodAssignmentManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
-import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
-import moment from 'moment';
-import { APP_DATE_FORMAT}  from '../../config/constant/Constants';
 function ScoreAssignmentManagement() {
-const { RangePicker } = DatePicker;
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const dispatch = useDispatch();
-  const listDataAssignmentRegister = useSelector(state => state.assignmentRegisterManagement.selectListAssignmentRegisterApi.data);
-  const totalRecord = useSelector(state => state.assignmentRegisterManagement.selectListAssignmentRegisterApi.totalRecord);
-  const listDataAssignmentStudentRegisterLoading = useSelector(state => state.assignmentRegisterManagement.selectListAssignmentRegisterApi.loading);
-  const listAllInstructors = useSelector(state => state.userManagement.selectAllInstructors.data);
-  const listAllStudents = useSelector(state => state.userManagement.selectAllStudents.data);
+  const listDataAssignmentRegister = useSelector(state => state.scoreAssignmentManagement.selectListApiScores.data);
+  const totalRecord = useSelector(state => state.scoreAssignmentManagement.selectListApiScores.totalRecord);
+  const listDataAssignmentStudentRegisterLoading = useSelector(state => state.scoreAssignmentManagement.selectListApiScores.loading);
   const listDataPeriodAssignment = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.data);
-  const [selectedFileAdd, setSelectedFileAdd] = useState(null);
-  const [selectedFileUpdate, setSelectedFileUpdate] = useState(null);
-  const [isAutoMapChecked, setIsAutoMapChecked] = useState(false);
-  const [isAutoMapCheckedEdit, setIsAutoMapCheckedEdit] = useState(false);
+  const [listAllAssignmentFinalApprove, setListAllAssignmentFinalApprove] = useState([]);
 
-  // State for form data (Add PeriodAssignment modal)
+  // State for form data (Add ScoreAssignment modal)
   const [formData, setFormData] = useState({
-    fileUpload: '',
-    studentId: '',
-    instructorId: '',
-    periodAssignmentId: '',
-    assignmentStudentRegisterName: '',
-    statusAutoMap: 'N'
+    assignmentRegisterId: '',
+    scoreInstructor: 0.0,
+    scoreExaminer: 0.0,
+    scoreCritical: 0.0,
+    admissionPeriodId: '',
+    assignmentRegisterName: '',
   });
 
-  // State for form data (Edit PeriodAssignment modal)
+  // State for form data (Edit ScoreAssignment modal)
   const [formDataEdit, setFormDataEdit] = useState({
-    assignmentStudentRegisterId: '',
-    fileUpload: '',
-    studentId: '',
-    studentName: '',
-    instructorName: '',
-    periodAssignmentId: '',
-    assignmentStudentRegisterName: '',
-    statusAutoMap: 'N',
-    oldValueId: ''
+    scoreAssignmentId: '',
+    assignmentRegisterId: '',
+    scoreAverage: 0.0,
+    scoreInstructor: 0.0,
+    scoreExaminer: 0.0,
+    scoreCritical: 0.0,
+    admissionPeriodId: '',
+    assignmentRegisterName: '',
+    admissionPeriodName: '',
+    status: ''
   });
 
-  // State for form data (Search PeriodAssignment modal)
+  // State for form data (Search ScoreAssignment modal)
   const [formDataSearch, setFormDataSearch] = useState({
-    assignmentStudentRegisterId: '',
-    periodAssignmentId: '',
-    assignmentStudentRegisterName: '',
-    fromDate: '',
-    toDate: '',
-    status: ''
+        scoreAssignmentId: null, 
+        assignmentRegisterId: null,
+        fromDate: null,
+        toDate: null,
   });
 
   // State for pagination
@@ -72,17 +62,17 @@ const { RangePicker } = DatePicker;
   
   const _onChangePagination = (page, pageSize) => {
     setPager({ ...pager, pageNum: page });
-    handleSelectListPeriodAssignments(page, pageSize);
+    handleSelectListScoreAssignments(page, pageSize);
   };
 
   // Handler for select all checkbox
   const handleSelectAllChange = (e) => {
     if (e.target.checked) {
-      // Select all periodAssignments in current page
-      const allPeriodAssignmentIds = new Set(
-        listDataPeriodAssignment?.map((periodAssignment, idx) => periodAssignment?.periodAssignmentId ?? idx) || []
+      // Select all score assignments in current page
+      const allScoreAssignmentIds = new Set(
+        listDataAssignmentRegister?.map((assignmentRegister, idx) => assignmentRegister?.assignmentRegisterId ?? idx) || []
       );
-      setSelectedPeriodAssignment(allPeriodAssignmentIds);
+      setSelectedPeriodAssignment(allScoreAssignmentIds);
     } else {
       // Deselect all
       setSelectedPeriodAssignment(new Set());
@@ -92,7 +82,7 @@ const { RangePicker } = DatePicker;
   //Handle case when change size list selected periodAssignment
   useEffect(() => {
     handleEnableButtonActions();
-  }, [selectedPeriodAssignment, listDataPeriodAssignment, listAllInstructors, listAllStudents]);
+  }, [selectedPeriodAssignment, listDataPeriodAssignment]);
 
   //Handle case when click button edit or delete but no periodAssignment selected
   const handleEnableButtonActions = () => {
@@ -112,15 +102,14 @@ const { RangePicker } = DatePicker;
     //Set disabled attribute for edit and delete button
     const editBtn = document.getElementById("edit-period-assignment-button");
     const deleteBtn = document.getElementById("delete-period-assignment-button");
-    // editBtn.classList.add("button-disabled");
-    // if(editBtn) {
-    //   editBtn.disabled = statusEdit;
-    //   if(statusEdit){
-    //     editBtn.classList.add("button-disabled");
-    //   }else{
-    //     editBtn.classList.remove("button-disabled");
-    //   }
-    // }
+    if(editBtn) {
+      editBtn.disabled = statusEdit;
+      if(statusEdit){
+        editBtn.classList.add("button-disabled");
+      }else{
+        editBtn.classList.remove("button-disabled");
+      }
+    }
     
     if(deleteBtn) {
       deleteBtn.disabled = statusDelete;
@@ -131,33 +120,7 @@ const { RangePicker } = DatePicker;
       }
     }
   };
-  
-    //Handle for select list all students API call 
-  const handleSelectListAllStudents = async () => {
-    try {
-        const response = await dispatch(selectAllStudentApi());
-        if (response.type.endsWith('/fulfilled')) {
-          // console.log("select all majors successful payload:", response.payload);
-        } else {
-          console.error("select all majors failed:", response.payload);
-        }
-      } catch (error) {
-        console.error("select all majors error:", error);
-      }
-    };
-    //Handle for select list all instructors API call 
-  const handleSelectListAllInstructors = async () => {
-    try {
-        const response = await dispatch(selectAllInstructorApi());
-        if (response.type.endsWith('/fulfilled')) {
-          // console.log("select all majors successful payload:", response.payload);
-        } else {
-          console.error("select all majors failed:", response.payload);
-        }
-      } catch (error) {
-        console.error("select all majors error:", error);
-      }
-    };
+
   
     //Handle for select list all period assignments API call 
   const handleSelectListAllPeriodAssignments = async () => {
@@ -183,29 +146,33 @@ const { RangePicker } = DatePicker;
     };
 
   // Handler for individual row checkbox
-  const handlePeriodAssignmentCheckboxChange = (periodAssignmentId) => {
+  const handlePeriodAssignmentCheckboxChange = (scoreId) => {
     setSelectedPeriodAssignment((prevSelected) => {
       const newSelected = new Set(prevSelected);
-      if (newSelected.has(periodAssignmentId)) {
-        newSelected.delete(periodAssignmentId);
+      if (newSelected.has(scoreId)) {
+        newSelected.delete(scoreId);
       } else {
-        newSelected.add(periodAssignmentId);
+        newSelected.add(scoreId);
       }
-      //Set value for edit form when click checkbox of periodAssignmentId
+      //Set value for edit form when click checkbox of scoreId
       listDataAssignmentRegister.forEach(assignmentRegister => {
-        if (assignmentRegister.assignmentStudentRegisterId === periodAssignmentId) {
-          console.log('Selected assignment register for edit:', assignmentRegister);
+        if (assignmentRegister.scoreAssignmentId === scoreId) {
           setFormDataEdit({
-            assignmentStudentRegisterId: assignmentRegister?.assignmentStudentRegisterId || '',
-            assignmentStudentRegisterName: assignmentRegister?.assignmentStudentRegisterName || '',
-            periodAssignmentId: assignmentRegister?.periodAssignmentId || '',
-            instructorName: assignmentRegister?.instructorName || '',
-            studentId: assignmentRegister?.studentId || '',
-            studentName: assignmentRegister?.studentName || '',
-            fileUpload: assignmentRegister?.fileName || '',
-            statusAutoMap: assignmentRegister?.statusAutoMap || '',
-            oldValueId: assignmentRegister?.oldValueId || ''
+            scoreAssignmentId: assignmentRegister?.scoreAssignmentId || '',
+            assignmentRegisterId: assignmentRegister?.assignmentRegisterId || '',
+            assignmentRegisterName: assignmentRegister?.assignmentRegisterName || '',
+            scoreAverage: assignmentRegister?.scoreAverage || 0.0,
+            scoreInstructor: assignmentRegister?.scoreInstructor || 0.0,
+            scoreExaminer: assignmentRegister?.scoreExaminer || 0.0,
+            scoreCritical: assignmentRegister?.scoreCritical || 0.0,
+            admissionPeriodId: assignmentRegister?.admissionPeriodId || '',
+            admissionPeriodName: assignmentRegister?.admissionPeriodName || '',
+            status: assignmentRegister?.status || ''
           });
+    //Find list assignment with final approve status and have time register in range time period
+    if(null != assignmentRegister?.admissionPeriodId && assignmentRegister?.admissionPeriodId !== ''){
+      handleSelectListAssignmentByPeriodTime(assignmentRegister?.admissionPeriodId);
+    }
         }
       });
       return newSelected;
@@ -214,35 +181,29 @@ const { RangePicker } = DatePicker;
 
   // Check if all periodAssignments are selected
   const areAllSelected = 
-    Array.isArray(listDataPeriodAssignment) && 
-    listDataPeriodAssignment.length > 0 && 
-    listDataPeriodAssignment.every((periodAssignment, idx) => selectedPeriodAssignment.has(periodAssignment?.periodAssignmentId ?? idx));
+    Array.isArray(listDataAssignmentRegister) && 
+    listDataAssignmentRegister.length > 0 && 
+    listDataAssignmentRegister.every((scoreAssignment, idx) => selectedPeriodAssignment.has(scoreAssignment?.scoreAssignmentId ?? idx));
   
   // Check if some (but not all) are selected
   const areSomeSelected = 
-    Array.isArray(listDataPeriodAssignment) && 
-    listDataPeriodAssignment.length > 0 && 
+    Array.isArray(listDataAssignmentRegister) && 
+    listDataAssignmentRegister.length > 0 && 
     selectedPeriodAssignment.size > 0 && 
     !areAllSelected;
-
-  const editFileName = selectedFileUpdate?.name || (typeof formDataEdit.fileUpload === 'string' ? formDataEdit.fileUpload : '');
 
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
     //Select list period assignment when component mounts
-    handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize);
-    //Select list all majors when component mounts
-    handleSelectListAllStudents();
-    handleSelectListAllInstructors();
+    handleSelectListScoreAssignments(pager.pageNum, pager.pageSize);
     handleSelectListAllPeriodAssignments();
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    // console.log('Redux listDataPeriodAssignment changed:', listDataPeriodAssignment);
     // Reset checkbox selection when period assignment list changes
     setSelectedPeriodAssignment(new Set());
-  }, [listDataPeriodAssignment]);
+  }, [listDataAssignmentRegister]);
 
   // Handlers for modal toggles
   const openAddModal = () => setIsAddModalOpen(true);
@@ -261,37 +222,23 @@ const { RangePicker } = DatePicker;
   const handleFormSubmit = (event) => {
     event.preventDefault();
     handleCreate(); // Call the create API function
-    closeAddModal(); // Close modal after submit
-    //set timeout to ensure the create API call completes before refreshing the list
-    setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
-    }, 2500);
   };
 
   // Handler for form submit in edit admission period modal
   const handleFormSubmitEditAdmissionPeriod = (event) => {
     event.preventDefault();
     handleUpdate(); // Call the update API function
-    closeEditModal(); // Close modal after submit
-    // set timeout to ensure the update API call completes before refreshing the list
-    setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
-    }, 500);
   };
 
   //Handle for create admission period API call 
   const handleCreate = async () => {
-    const formData123 = new FormData();
-    if (formData.fileUpload instanceof File) {
-      formData123.append("fileUpload", formData.fileUpload);
-    }
-    formData123.append("assignmentStudentRegisterName", formData.assignmentStudentRegisterName || "");
-    formData123.append("periodAssignmentId", formData.periodAssignmentId || "");
-    formData123.append("studentId", formData.studentId || "");
-    formData123.append("instructorId", formData.instructorId || "");
-    formData123.append("statusAutoMap", formData.statusAutoMap || "N");
     try {
-      const response = await dispatch(createApi(formData123));
+      const response = await dispatch(createApi({
+        assignmentRegisterId: formData.assignmentRegisterId,
+        scoreInstructor: formData.scoreInstructor,
+        scoreExaminer: formData.scoreExaminer,
+        scoreCritical: formData.scoreCritical
+      }));
       if (response.type.endsWith('/fulfilled')) {
         setFormData({
           fileUpload: '',
@@ -301,7 +248,11 @@ const { RangePicker } = DatePicker;
           assignmentStudentRegisterName: '',
           statusAutoMap: 'N'
         });
-        setSelectedFileAdd(null);
+        closeAddModal(); // Close modal after submit
+        //set timeout to ensure the create API call completes before refreshing the list
+        setTimeout(() => {
+          handleSelectListScoreAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+        }, 500);
       } else {
         // console.error("insert failed:", response.payload);
       }
@@ -313,22 +264,21 @@ const { RangePicker } = DatePicker;
   //Handle for update admission period API call 
   const handleUpdate = async () => {
     try {
-    const formData123 = new FormData();
-    if (formDataEdit.fileUpload instanceof File) {
-      formData123.append("fileUpload", formDataEdit.fileUpload);
-    }
-    formData123.append("assignmentStudentRegisterId", formDataEdit.assignmentStudentRegisterId || 0);
-    formData123.append("assignmentStudentRegisterName", formDataEdit.assignmentStudentRegisterName || 0);
-    formData123.append("periodAssignmentId", formDataEdit.periodAssignmentId || 0);
-    formData123.append("studentId", formDataEdit.studentId || 0);
-    formData123.append("instructorId", formDataEdit.instructorId || 0);
-    formData123.append("statusAutoMap", formDataEdit.statusAutoMap || "N");
-    formData123.append("oldValueId", formDataEdit.oldValueId || 0);
-    // console.log("form data:"+JSON.stringify(formData123));
-      const response = await dispatch(updateApi(formData123));
+      const response = await dispatch(updateApi({
+        scoreAssignmentId: formDataEdit.scoreAssignmentId,
+        assignmentRegisterId: formDataEdit.assignmentRegisterId,
+        scoreInstructor: formDataEdit.scoreInstructor,
+        scoreExaminer: formDataEdit.scoreExaminer,
+        scoreCritical: formDataEdit.scoreCritical
+      }));
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("update successful:", response.payload);
+        closeEditModal(); // Close modal after submit
+        // set timeout to ensure the update API call completes before refreshing the list
+        setTimeout(() => {
+          handleSelectListScoreAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
+        }, 500);
       } else {
         // console.error("update failed:", response.payload);
       }
@@ -341,62 +291,54 @@ const { RangePicker } = DatePicker;
   const handlePeriodAssignmentChange = (event) => {
       // Directly set the new role value
     const selectedValue = event.target.value;
-    console.log('Selected period assignment ID:', selectedValue);
-      setFormData((prev) => ({ ...prev, periodAssignmentId: selectedValue }));
+    setFormData((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
+    //Find list assignment with final approve status and have time register in range time period
+    if(null != selectedValue && selectedValue !== ''){
+      handleSelectListAssignmentByPeriodTime(selectedValue); // Call API to get list assignment register with final approve status and have time register in range time period
+    }
+    
   };
-
-  // Handler for admission period change in add user modal
-  const handleAdmissionPeriodChange = (event) => {
-      // Directly set the new admission period value
-    const selectedValue = event.target.value;
-    console.log('Selected admission period ID:', selectedValue);
-      setFormData((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
-  };
-  // Handler for role change in edit user modal
-  const handleInstructorChange = (event) => {
+  // Handler for role change in add user modal
+  const handleAssignmentChange = (event) => {
       // Directly set the new role value
     const selectedValue = event.target.value;
-      setFormData((prev) => ({ ...prev, instructorId: selectedValue }));
+    setFormData((prev) => ({ ...prev, assignmentRegisterId: selectedValue }));
+    
   };
   // Handler for role change in edit user modal
-  const handleStudentChange = (event) => {
+  const handleAssignmentEditChange = (event) => {
       // Directly set the new role value
     const selectedValue = event.target.value;
-      setFormData((prev) => ({ ...prev, studentId: selectedValue }));
+    setFormDataEdit((prev) => ({ ...prev, assignmentRegisterId: selectedValue }));
+    
   };
-  // Handler for student id change in edit user modal
-  const handleStudentChangeEditModal = (event) => {
-      // Directly set the new student id value
+  // Handler for role change in edit user modal
+  const handlePeriodAssignmentEditChange = (event) => {
+      // Directly set the new role value
     const selectedValue = event.target.value;
-      setFormDataEdit((prev) => ({ ...prev, studentId: selectedValue }));
+    setFormDataEdit((prev) => ({ ...prev, admissionPeriodId: selectedValue }));
+    //Find list assignment with final approve status and have time register in range time period
+    if(null != selectedValue && selectedValue !== ''){
+      handleSelectListAssignmentByPeriodTime(selectedValue); // Call API to get list assignment register with final approve status and have time register in range time period
+    }
+    
   };
-  // Handler for instructor id change in edit user modal
-  const handleInstructorChangeEditModal = (event) => {
-      // Directly set the new instructor id value
-    const selectedValue = event.target.value;
-      setFormDataEdit((prev) => ({ ...prev, instructorId: selectedValue }));
-  };
-
-  // Handler for admission period change in edit user modal
-  const handleAdmissionPeriodChangeEditModal = (event) => {
-      // Directly set the new admission period value
-    const selectedValue = event.target.value;
-    console.log('Selected admission period ID:', selectedValue);
-      setFormDataEdit((prev) => ({ ...prev, periodAssignmentId: selectedValue }));
-  };
-
-  // Handler for auto map checkbox change in add modal
-  const handleChangeStatusAuto = (event) => {
-    const checked = event.target.checked;
-    setIsAutoMapChecked(checked);
-    setFormData((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N" }));
-  };
-
-  // Handler for auto map checkbox change in update modal
-  const handleChangeStatusAutoEditModal = (event) => {
-    const checked = event.target.checked;
-    setIsAutoMapCheckedEdit(checked);
-    setFormDataEdit((prev) => ({ ...prev, statusAutoMap: checked ? "Y" : "N"  }));
+  //Handle for select list assignment by period time API call 
+  const handleSelectListAssignmentByPeriodTime = async (admissionPeriodId) => {
+    try {
+      const response = await dispatch(selectListAssignmentByPeriodTimeApi({ 
+        admissionPeriodId: admissionPeriodId,
+        typeApprove : 1
+      }));
+      // Check if the API call was successful
+      if (response.type.endsWith('/fulfilled')) {
+        setListAllAssignmentFinalApprove(response.payload.data.data || []); // Update state with the list of assignments with final approve status
+      } else {
+        // console.error("select list failed:", response.payload);
+      }
+    } catch (error) {
+    //   console.error("select list error:", error);
+    }
   };
 
   //Handle for delete admission period API call 
@@ -408,25 +350,23 @@ const { RangePicker } = DatePicker;
         // console.log("delete successful:", response.payload);
         // set timeout to ensure the delete API call completes before refreshing the list
         setTimeout(() => {
-          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after deletion
+          handleSelectListScoreAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after deletion
         }, 500);
+      closeDeleteModal();
       } else {
         // console.error("delete failed:", response.payload);
       }
     } catch (error) {
     //   console.error("delete error:", error);
     }
-    closeDeleteModal();
   };
 
-  //Handle for select list period assignment API call 
-  const handleSelectListPeriodAssignments = async (pageNum, pageSize) => {
+  //Handle for select list score assignment API call 
+  const handleSelectListScoreAssignments = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListAssignmentRegisterApi({ 
-        assignmentStudentRegisterId: null, 
-        periodAssignmentId: null,
-        assignmentStudentRegisterName: null,
-        admissionPeriodId: null,//Se khong hard code o day
+      const response = await dispatch(selectListApiScoresApi({ 
+        scoreAssignmentId: null, 
+        assignmentRegisterId: null,
         fromDate: null,
         toDate: null,
         pageRequestDto : { pageNum, pageSize }
@@ -441,19 +381,15 @@ const { RangePicker } = DatePicker;
     }
   };
 
-  //Handle for select list period assignment API call with search
-  const handleSelectListPeriodAssignmentsSearch = async () => {
+  //Handle for select list score assignment API call with search
+  const handleSelectListScoreAssignmentsSearch = async () => {
     try {
-      const response = await dispatch(selectListAssignmentRegisterApi({ 
-        assignmentStudentRegisterId: formDataSearch.assignmentStudentRegisterId,
-        periodAssignmentId: formDataSearch.periodAssignmentId, 
-        assignmentStudentRegisterName: formDataSearch.assignmentStudentRegisterName,
+      const response = await dispatch(selectListApiScoresApi({ 
+        scoreAssignmentId: formDataSearch.scoreAssignmentId,
+        assignmentRegisterId: formDataSearch.assignmentRegisterId, 
+        status: formDataSearch.status,
         fromDate: formDataSearch.fromDate,
         toDate: formDataSearch.toDate,
-        admissionPeriodId: null,//Se khong hard code o day
-        majorId: null,
-        note: formDataSearch.note,
-        status: null,
         pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
        }));
       if (response.type.endsWith('/fulfilled')) {
@@ -465,30 +401,6 @@ const { RangePicker } = DatePicker;
     //   console.error("select list error:", error);
     }
   };
-    // Handle file selection
-  const handleFileChangeAdd = (event) => {
-    const file = event.target.files?.[0]; // Get the first file
-
-    if (!file) {
-      setSelectedFileAdd(null);
-      setFormData((prev) => ({ ...prev, fileUpload: '' }));
-      return;
-    }
-
-    setSelectedFileAdd(file);
-    setFormData((prev) => ({ ...prev, fileUpload: file }));
-  };
-    // Handle file selection
-  const handleFileChangeUpdate = (event) => {
-    const file = event.target.files?.[0]; // Get the first file
-    console.log('Selected file:', file);
-    if (!file) {
-      setSelectedFileUpdate(null);
-      return;
-    }
-    setSelectedFileUpdate(file);
-    setFormDataEdit((prev) => ({ ...prev, fileUpload: file }));
-  };
 
   // Handler for form input changes
   const handleInputChange = (event) => {
@@ -498,8 +410,8 @@ const { RangePicker } = DatePicker;
 
   // Handler for edit form input changes
   const handleInputChangeEdit = (event) => {
-    console.log('Edit form input change:', event.target.name, event.target.value);
     const { name, value } = event.target;
+    console.log('Edit form input change:', name, value);
     setFormDataEdit((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -539,15 +451,15 @@ const { RangePicker } = DatePicker;
             <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
               <button
                 type="button"
-                onClick={handleSelectListPeriodAssignmentsSearch}
+                onClick={handleSelectListScoreAssignmentsSearch}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Tìm kiếm
               </button>   
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                {!listDataAssignmentRegister && !listDataPeriodAssignment?.length && <span>Không tìm thấy dữ liệu.</span>}
+                {!listDataAssignmentRegister && !listDataAssignmentRegister?.length && <span>Không tìm thấy dữ liệu.</span>}
                 {!listDataAssignmentStudentRegisterLoading && listDataAssignmentRegister?.length > 0 && (
-                  <span>{`Tổng số bản ghi: 3`}</span>
+                  <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
                 )}
               </div>
             </div>
@@ -610,6 +522,10 @@ const { RangePicker } = DatePicker;
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                      Kỳ học
+                    </th>
+                    <th scope="col"
+                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
                       Tên sinh viên
                     </th>
                     <th scope="col"
@@ -631,46 +547,51 @@ const { RangePicker } = DatePicker;
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                  {/* {Array.isArray(listDataAssignmentRegister) && listDataAssignmentRegister.length ? (
+                  {Array.isArray(listDataAssignmentRegister) && listDataAssignmentRegister.length ? (
                     listDataAssignmentRegister.map((assignmentRegister, idx) => {
-                      const assignmentStudentRegisterId = assignmentRegister?.assignmentStudentRegisterId;
-                      const assignmentStudentRegisterName = assignmentRegister?.assignmentStudentRegisterName;
+                      const scoreAssignmentId = assignmentRegister?.scoreAssignmentId;
+                      const assignmentRegisterId = assignmentRegister?.assignmentRegisterId;
+                      const assignmentRegisterName = assignmentRegister?.assignmentRegisterName;
                       const studentName = assignmentRegister?.studentName;
-                      const instructorName = assignmentRegister?.instructorName;
-                      const statusAutoMap = assignmentRegister?.statusAutoMap;
-                      const isApproved = assignmentRegister?.isApproved;
-                      const isApprovedDisplayName = assignmentRegister?.isApprovedDisplayName;
-                      const statusAutoMapDisplayName = assignmentRegister?.statusAutoMapDisplayName;
+                      const admissionPeriodId = assignmentRegister?.admissionPeriodId;
+                      const admissionPeriodName = assignmentRegister?.admissionPeriodName;
+                      const scoreAverage = assignmentRegister?.scoreAverage;
+                      const scoreInstructor = assignmentRegister?.scoreInstructor;
+                      const scoreExaminer = assignmentRegister?.scoreExaminer;
+                      const scoreCritical = assignmentRegister?.scoreCritical;
                       const activeStatus = assignmentRegister?.status === '1' || assignmentRegister?.status === 1 || assignmentRegister?.status === true;
 
                       return (
-                        <tr key={assignmentStudentRegisterId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <tr key={scoreAssignmentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="w-4 p-4">
                             <div className="flex items-center">
                               <input 
-                                id={`checkbox-${assignmentStudentRegisterId}`} 
+                                id={`checkbox-${scoreAssignmentId}`} 
                                 aria-describedby="checkbox-1" 
                                 type="checkbox"
-                                checked={selectedPeriodAssignment.has(assignmentStudentRegisterId)}
-                                onChange={() => handlePeriodAssignmentCheckboxChange(assignmentStudentRegisterId)}
+                                checked={selectedPeriodAssignment.has(scoreAssignmentId)}
+                                onChange={() => handlePeriodAssignmentCheckboxChange(scoreAssignmentId)}
                                 className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label htmlFor={`checkbox-${assignmentStudentRegisterId}`} className="sr-only">checkbox</label>
+                              <label htmlFor={`checkbox-${scoreAssignmentId}`} className="sr-only">checkbox</label>
                             </div>
                           </td>
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {assignmentStudentRegisterName}
+                            {assignmentRegisterName}
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            {admissionPeriodName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
                             {studentName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {instructorName}
+                            {scoreInstructor}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           {isApprovedDisplayName}
+                           {scoreExaminer}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {statusAutoMapDisplayName}
+                            {scoreAverage}
                           </td>
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
@@ -687,105 +608,8 @@ const { RangePicker } = DatePicker;
                         Không tìm thấy dữ liệu
                       </td>
                     </tr>
-                  )} */}
+                  )}
 
-
-                    <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
-                          <td className="w-4 p-4">
-                            <div className="flex items-center">
-                              <input 
-                                aria-describedby="checkbox-1" 
-                                type="checkbox"
-                                className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label className="sr-only">checkbox</label>
-                            </div>
-                          </td>
-                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Quan ly sinh vien
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            Ha Van Huy
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           8
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           8
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            8
-                          </td>
-                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                            <div className="flex items-center">
-                              <div className={`h-2.5 w-2.5 rounded-full bg-green-400 mr-2`} />
-                              <span>Hoạt động</span>
-                            </div>
-                          </td>
-                        </tr>
-                                        <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
-                          <td className="w-4 p-4">
-                            <div className="flex items-center">
-                              <input 
-                                aria-describedby="checkbox-1" 
-                                type="checkbox"
-                                className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label className="sr-only">checkbox</label>
-                            </div>
-                          </td>
-                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Quan ly y ta
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            Tran Trung Quan
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           6
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           6
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            6
-                          </td>
-                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                            <div className="flex items-center">
-                              <div className={`h-2.5 w-2.5 rounded-full bg-green-400 mr-2`} />
-                              <span>Hoạt động</span>
-                            </div>
-                          </td>
-                        </tr>
-                                        <tr className="hover:bg-gray-100 dark:hover:bg-gray-700">
-                          <td className="w-4 p-4">
-                            <div className="flex items-center">
-                              <input 
-                                aria-describedby="checkbox-1" 
-                                type="checkbox"
-                                className="w-4 h-4 border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:focus:ring-primary-600 dark:ring-offset-gray-800 dark:bg-gray-700 dark:border-gray-600"/>
-                              <label className="sr-only">checkbox</label>
-                            </div>
-                          </td>
-                          <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Quan ly bac si
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            Nguyen Thanh Tam
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           7
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                           7
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            7
-                          </td>
-                          <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
-                            <div className="flex items-center">
-                              <div className={`h-2.5 w-2.5 rounded-full bg-green-400 mr-2`} />
-                              <span>Hoạt động</span>
-                            </div>
-                          </td>
-                        </tr>
                 </tbody>
               </table>
             </div>
@@ -838,20 +662,20 @@ const { RangePicker } = DatePicker;
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã điểm đồ án sinh viên</label>
-                      <input type="text" name="assignmentStudentRegisterId" value="1" onChange={handleInputChangeEdit} id="edit-admission-period-id"
+                      <input type="text" name="scoreAssignmentId" value={formDataEdit.scoreAssignmentId || ''} onChange={handleInputChangeEdit} id="edit-admission-period-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Mã điểm đồ án sinh viên"  style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
-                      <select id="category-periodAssignmentId" onChange={handlePeriodAssignmentChange}
+                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ học</label>
+                      <select id="category-periodAssignmentId" value={formDataEdit.admissionPeriodId || ''} onChange={handlePeriodAssignmentEditChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
                           <>
                         <option value="">Chọn</option>
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
-                          <option key={idx} value={periodAssignment.periodAssignmentId}>
+                          <option key={idx} value={periodAssignment.admissionPeriodId}>
                             {periodAssignment.admissionPeriodIdName}
                           </option>
                           );
@@ -865,32 +689,40 @@ const { RangePicker } = DatePicker;
                   </div>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
+                      <select id="category-periodAssignmentId" value={formDataEdit.assignmentRegisterId || ''} onChange={handleAssignmentEditChange}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllAssignmentFinalApprove) && listAllAssignmentFinalApprove.length ? (
+                          <>
+                        <option value="">Chọn</option>
+                        {listAllAssignmentFinalApprove.map((assignment, idx) => {
+                          return (
+                          <option key={idx} value={assignment.assignmentStudentRegisterId}>
+                            {assignment.assignmentStudentRegisterName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">{formDataEdit.assignmentRegisterName || ''}</option>)}
+                      </select>
+                    </div>
+                    <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Điểm quá trình</label>
-                      <input type="text" name="note" value="8" onChange={handleInputChangeEdit} id="edit-admission-period-name"
+                      <input type="text" name="scoreInstructor" value={formDataEdit.scoreInstructor || ''} onChange={handleInputChangeEdit} id="edit-admission-period-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder="Ghi chú" required/>
                     </div>
+                    </div>
+                  <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="default-checkbox" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Điểm bảo vệ</label>
-                      <input type="text" name="category-instructor-update" value="8" id="category-instructor-update"
+                      <input type="text" name="scoreExaminer" value={formDataEdit.scoreExaminer || ''} onChange={handleInputChangeEdit} id="category-instructor-update"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         placeholder=""   />
                     </div>
-                    </div>
-                    
-                    {/* <div className="grid grid-cols-6 gap-6">
-                      <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="file_input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tài liệu</label>
-                        <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
-                        text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
-                        shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
-                        {editFileName ? (
-                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Tên tệp hiện tại: {editFileName}</p>
-                        ) : (
-                          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Chưa có tệp nào được tải lên trước đó.</p>
-                        )}
-                      </div>
-                    </div> */}
+                  </div>
                   {/* <!-- Modal footer --> */}
                   <div className="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
                     <button
@@ -933,7 +765,7 @@ const { RangePicker } = DatePicker;
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-periodAssignmentId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
+                      <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Kỳ học</label>
                       <select id="category-periodAssignmentId" onChange={handlePeriodAssignmentChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                         {Array.isArray(listDataPeriodAssignment) && listDataPeriodAssignment.length ? (
@@ -941,7 +773,7 @@ const { RangePicker } = DatePicker;
                         <option value="">Chọn</option>
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
-                          <option key={idx} value={periodAssignment.periodAssignmentId}>
+                          <option key={idx} value={periodAssignment.admissionPeriodId}>
                             {periodAssignment.admissionPeriodIdName}
                           </option>
                           );
@@ -953,16 +785,36 @@ const { RangePicker } = DatePicker;
                       </select>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-student" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Điểm quá trình</label>
-                      <input type="text" name="assignmentStudentRegisterName" value="" onChange={handleInputChange} id="admission-period-name"
-                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        required />
+                      <label htmlFor="category-periodAssignmentId" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
+                      <select id="category-periodAssignmentId" onChange={handleAssignmentChange}
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                        {Array.isArray(listAllAssignmentFinalApprove) && listAllAssignmentFinalApprove.length ? (
+                          <>
+                        <option value="">Chọn</option>
+                        {listAllAssignmentFinalApprove.map((assignment, idx) => {
+                          return (
+                          <option key={idx} value={assignment.assignmentStudentRegisterId}>
+                            {assignment.assignmentStudentRegisterName}
+                          </option>
+                          );
+                        })}
+                          </>
+
+                        ) :(
+                        <option value="">Không tìm thấy</option>)}
+                      </select>
                     </div>
                   </div>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
+                      <label htmlFor="category-student" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Điểm quá trình</label>
+                      <input type="text" name="scoreInstructor" onChange={handleInputChange} id="admission-period-name"
+                        className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                        required />
+                    </div>
+                    <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="file_input"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Điểm bảo vệ</label>
-                      <input type="text" name="assignmentStudentRegisterName" value="" onChange={handleInputChange} id="admission-period-name"
+                      <input type="text" name="scoreExaminer" onChange={handleInputChange} id="admission-period-name"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                         required />
                     </div>

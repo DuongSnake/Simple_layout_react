@@ -89,6 +89,8 @@ export const API_DELETE_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical
 export const API_SELECT_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/select';
 export const API_GET_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/selectListUserToMapCritical';
 export const API_GET_LIST_CRITICAL_BY_STUDENT_ID = PRE_FIX_API + 'studentMapCritical/selectListCriticalByStudentId';
+export const API_GET_LIST_ASSIGNMENT_WAITING_FINAL_APPROVE = PRE_FIX_API + 'studentMapCritical/selectListWaitngFinalApprove';
+export const API_APPROVE_FINAL_ASSIGNMENT_GO_TO_PROTECT = PRE_FIX_API + 'studentMapCritical/approveFinalAssignmentStudentRegister';
 
 /**
  * Assignment Student Register Management
@@ -103,11 +105,12 @@ export const API_SELECT_ASSIGNMENT_STUDENT_REGISTER = PRE_FIX_API + 'assignmentS
 /**
  * Score assignement management
  */
-export const API_SELECT_LIST_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/selectList';
+export const API_SELECT_LIST_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/selectListNewScoreAssignment';
 export const API_CREATE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/insert';
 export const API_UPDATE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/update';
 export const API_DELETE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/delete';
 export const API_SELECT_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/select';
+export const API_SELECT_LIST_ASSIGNMENT_BY_PERIOD_TIME = PRE_FIX_API + 'scoreAssignment/selectListAssignmentReadyToAddScore';
 
 /**
  * List Assignment register(admin site)
@@ -185,4 +188,13 @@ export const API_UPDATE_INSTRUCTOR = PRE_FIX_API + 'instructor/update';
 export const API_DELETE_INSTRUCTOR = PRE_FIX_API + 'instructor/delete';
 export const API_SELECT_INSTRUCTOR = PRE_FIX_API + 'instructor/select';
 
+/**
+ * File upload management
+ */
+export const API_SELECT_LIST_FILE_UPLOAD = PRE_FIX_API + 'file/selectList2';
+export const API_CREATE_FILE_UPLOAD = PRE_FIX_API + 'file/insert';
+export const API_UPDATE_FILE_UPLOAD = PRE_FIX_API + 'file/update';
+export const API_DELETE_FILE_UPLOAD = PRE_FIX_API + 'file/delete';
+export const API_SELECT_FILE_UPLOAD = PRE_FIX_API + 'file/select';
+export const API_SELECT_LIST_ASSIGNMENT_BY_ADMISSION_TIME = PRE_FIX_API + 'file/selectListAssignmentByAdmissionTime';
 

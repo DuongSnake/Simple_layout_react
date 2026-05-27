@@ -29,12 +29,6 @@ export const updateApi = createAsyncThunk(
   'assignmentStudentRegister/update',
   async (authRequest, { rejectWithValue }) => {
     try {
-      console.log('authRequest is FormData:', authRequest instanceof FormData);
-      if (authRequest instanceof FormData) {
-        for (let [key, value] of authRequest.entries()) {
-          console.log(`  ${key}:`, value);
-        }
-      }
       // console.log('authRequest:', authRequest);
       let urlUpdateAssignmentRegister= SERVER_API_URL + API_UPDATE_ASSIGNMENT_STUDENT_ADMIN_SIDE;
       // console.log('API URL:', urlUpdateAssignmentRegister);
