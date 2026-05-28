@@ -1,5 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
-import {createMapCriticalApi, updateMapCriticalApi, deleteMapCriticalApi, selectListMapCriticalApi, selectListCriticalByStudentIdApi, selectListUserToMapCriticalApi} from "../../layout_admin/student_map_critical/StudentMapCriticalManagementAPI.js";
+import {createMapCriticalApi, updateMapCriticalApi, deleteMapCriticalApi, selectListMapCriticalApi, selectListCriticalByStudentIdApi, selectListUserToMapCriticalApi
+,selectListStudentByCriticalIdApi
+} from "../../layout_admin/student_map_critical/StudentMapCriticalManagementAPI.js";
 const initialState = {
   insert: {
     data: null,
@@ -33,6 +35,12 @@ const initialState = {
     error: null,
     totalRecord: 0
   },
+  selectListStudentByCriticalId: {
+    data: null,
+    loading: false,
+    error: null,
+    totalRecord: 0
+  }
 };
 
 const studentMapCriticalManagement = createSlice({
@@ -129,6 +137,21 @@ const studentMapCriticalManagement = createSlice({
       .addCase(selectListCriticalByStudentIdApi.rejected, (state, action) => {
         state.selectListCriticalByStudentId.loading = false;
         state.selectListCriticalByStudentId.error = action.payload || action.error.message;
+      })
+      // Select List student by critical id handlers
+      .addCase(selectListStudentByCriticalIdApi.pending, (state) => {
+        state.selectListStudentByCriticalId.loading = true;
+        state.selectListStudentByCriticalId.error = null;
+      })
+      .addCase(selectListStudentByCriticalIdApi.fulfilled, (state, action) => {
+        state.selectListStudentByCriticalId.loading = false;
+        state.selectListStudentByCriticalId.error = null;
+        state.selectListStudentByCriticalId.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListStudentByCriticalId.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      })
+      .addCase(selectListStudentByCriticalIdApi.rejected, (state, action) => {
+        state.selectListStudentByCriticalId.loading = false;
+        state.selectListStudentByCriticalId.error = action.payload || action.error.message;
       });
   },
 });

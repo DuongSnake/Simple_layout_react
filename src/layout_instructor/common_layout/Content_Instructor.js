@@ -8,6 +8,8 @@ import AssignmentRequestApprove from "../assignment_request_approve/AssignmentRe
 import StudentMapInstructorManagementInstructorSite from "../student_map_instructor/StudentMapInstructorSiteLayout";
 import FileUploadAssignmentProcess from "../file_upload_assignment_process/FileUploadAssignmentProcessLayout";
 import AssignmentWaitingFinalApproveLayout from "../assignment_waiting_final_approve/AssignmentWaitingFinalApproveLayout";
+import StudentMapCriticalLayout from "../student_map_critical/StudentMapCriticalLayout";
+import ScoreAssignmentManagementLayout from "../score_assignment_student/ScoreAssignmentManagementLayout";
 function ContentInstructor() {
   return (
       <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -24,6 +26,8 @@ function ContentInstructor() {
         <Route path="/instructor/student-map-instructor" element={<StudentMapInstructorManagementInstructorSite />} />
         <Route path="/instructor/file-upload-assignment-process" element={<FileUploadAssignmentProcess />} />
         <Route path="/instructor/assignment-waiting-final-approve" element={<AssignmentWaitingFinalApproveLayout />} />
+        <Route path="/instructor/student-map-critical" element={<StudentMapCriticalLayout />} />
+        <Route path="/instructor/score-assignment-management" element={<ScoreAssignmentManagementLayout />} />
       </Routes>
       </main>
       </div>

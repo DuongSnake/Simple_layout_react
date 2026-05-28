@@ -30,6 +30,11 @@ function NavbarInstructor() {
     const navigatePage4 = () => {
     navigate("/instructor/assignment-waiting-final-approve", { replace: true });
   };
+
+    const navigatePage5 = () => {
+    navigate("/instructor/score-assignment-management", { replace: true });
+  };
+
   return (
 <>
     {/* // <!-- Start sidebar --> */}
@@ -74,6 +79,10 @@ function NavbarInstructor() {
                   <li onClick={navigatePage2}>
                     <a href="/instructor/assignment-request-approve"
                       className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Duyệt đồ án sinh viên</a>
+                  </li>
+                  <li onClick={navigatePage5}>
+                    <a href="/instructor/score-assignment-management"
+                      className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Quản lý điểm đồ án</a>
                   </li>
                 </ul>
               </li>

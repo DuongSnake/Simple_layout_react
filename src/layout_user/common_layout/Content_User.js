@@ -5,6 +5,8 @@ import UserLogin from "../../layout_login/user_layout/UserLoginTemplate";
 import NavbarUser from "./Navbar_User";
 import AssignmentRegisterManagement from "../assignment_student_register_management/AssignmentRegisterManagementLayout";
 import AssignmentProcessManagement from "../assignment_process_upload_file_management/AssignmentProcessUploadManagementLayout";
+import StudentMapCriticalManagement from "../student_map_critical_management/StudentMapCriticalManagementLayout";
+import ScoreAssignmentManagement from "../score_assignment_management/ScoreAssignmentManagementLayout";
 function ContentUser() {
   return (
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -19,6 +21,8 @@ function ContentUser() {
         <Route path="/user/assignment-register" element={<AssignmentRegisterManagement />} />
         <Route path="/user/login" element={<UserLogin />} />
         <Route path="/user/assignment-process" element={<AssignmentProcessManagement />} />
+        <Route path="/user/student-map-critical" element={<StudentMapCriticalManagement />} />
+        <Route path="/user/score-assignment" element={<ScoreAssignmentManagement />} />
       </Routes>
       </main>
       </div>

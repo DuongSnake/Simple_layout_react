@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createApi, updateApi, deleteApi, selectListAssignmentByPeriodTimeApi, selectListApiScoresApi } from '../../layout_admin/score_assignment_management/ScoreAssignmentManagementAPI.js';
-
+import {selectListAssignmentRegisterUserSiteApi} from '../../layout_user/score_assignment_management/ScoreAssignmentManagementAPI.js';
+import {selectListAssignmentRegisterInstructorSiteApi, selectListScoreAssignmentInstructorSiteApi} from '../../layout_instructor/score_assignment_student/ScoreAssignmentInstructorSiteAPI.js';
 const initialState = {
   create: {
     data: null,
@@ -28,6 +29,24 @@ const initialState = {
     loading: false,
     error: null,
     totalRecord: 0
+  },
+  selectListAssignmentRegisterUserSite: {
+    data: null,
+    loading: false,
+    error: null,
+    totalRecord: 0
+  },
+  selectListAssignmentRegisterInstructorSite: {
+    data: null,
+    loading: false,
+    error: null,
+    totalRecord: 0
+  },
+  selectListScoreAssignmentInstructorSite: {
+    data: null,
+    loading: false,
+    error: null,
+    totalRecord: 0
   }
 };
 
@@ -50,6 +69,53 @@ const scoreAssignmentManagementSlice = createSlice({
       .addCase(selectListApiScoresApi.rejected, (state, action) => {
         state.selectListApiScores.loading = false;
         state.selectListApiScores.error = action.payload || action.error.message;
+      })
+      // Select List assignment user site handlers
+      .addCase(selectListAssignmentRegisterUserSiteApi.pending, (state) => {
+        state.selectListAssignmentRegisterUserSite.loading = true;
+        state.selectListAssignmentRegisterUserSite.error = null;
+      })
+      .addCase(selectListAssignmentRegisterUserSiteApi.fulfilled, (state, action) => {
+        state.selectListAssignmentRegisterUserSite.loading = false;
+        state.selectListAssignmentRegisterUserSite.error = null;
+        state.selectListAssignmentRegisterUserSite.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListAssignmentRegisterUserSite.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      })
+      .addCase(selectListAssignmentRegisterUserSiteApi.rejected, (state, action) => {
+        state.selectListAssignmentRegisterUserSite.loading = false;
+        state.selectListAssignmentRegisterUserSite.error = action.payload || action.error.message;
+      })
+      // Select List assignment instructor site handlers
+      .addCase(selectListAssignmentRegisterInstructorSiteApi.pending, (state) => {
+        state.selectListAssignmentRegisterInstructorSite.loading = true;
+        state.selectListAssignmentRegisterInstructorSite.error = null;
+      })
+      .addCase(selectListAssignmentRegisterInstructorSiteApi.fulfilled, (state, action) => {
+        state.selectListAssignmentRegisterInstructorSite.loading = false;
+        state.selectListAssignmentRegisterInstructorSite.error = null;
+        state.selectListAssignmentRegisterInstructorSite.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListAssignmentRegisterInstructorSite.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      })
+      .addCase(selectListAssignmentRegisterInstructorSiteApi.rejected, (state, action) => {
+        state.selectListAssignmentRegisterInstructorSite.loading = false;
+        state.selectListAssignmentRegisterInstructorSite.error = action.payload || action.error.message;
+      })
+
+      
+      // Select List score assignment instructor site handlers
+      .addCase(selectListScoreAssignmentInstructorSiteApi.pending, (state) => {
+        state.selectListScoreAssignmentInstructorSite.loading = true;
+        state.selectListScoreAssignmentInstructorSite.error = null;
+      })
+      .addCase(selectListScoreAssignmentInstructorSiteApi.fulfilled, (state, action) => {
+        state.selectListScoreAssignmentInstructorSite.loading = false;
+        state.selectListScoreAssignmentInstructorSite.error = null;
+        state.selectListScoreAssignmentInstructorSite.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListScoreAssignmentInstructorSite.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      })
+      .addCase(selectListScoreAssignmentInstructorSiteApi.rejected, (state, action) => {
+        state.selectListScoreAssignmentInstructorSite.loading = false;
+        state.selectListScoreAssignmentInstructorSite.error = action.payload || action.error.message;
       })
 
       // Select List assignment by period time handlers

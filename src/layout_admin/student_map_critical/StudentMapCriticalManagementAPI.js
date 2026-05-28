@@ -7,7 +7,8 @@ import {
   API_UPDATE_STUDENT_MAP_CRITICAL,
   API_DELETE_STUDENT_MAP_CRITICAL,
   API_GET_STUDENT_MAP_CRITICAL,
-  API_GET_LIST_CRITICAL_BY_STUDENT_ID
+  API_GET_LIST_CRITICAL_BY_STUDENT_ID,
+  API_SELECT_LIST_STUDENT_BY_CRITICAL_ID
 } from '../../config/constant/Api';
 
 export const createMapCriticalApi = createAsyncThunk(
@@ -96,6 +97,23 @@ export const selectListUserToMapCriticalApi = createAsyncThunk(
     try {
       // console.log('authRequest:', authRequest);
       let urlSelectListStudentMapCritical= SERVER_API_URL + API_GET_STUDENT_MAP_CRITICAL;
+      // console.log('API URL:', urlSelectListStudentMapCritical);
+      const response = await apiClient.post(urlSelectListStudentMapCritical, authRequest);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+
+export const selectListStudentByCriticalIdApi = createAsyncThunk(
+  'studentMapCritical/selectListStudentByCriticalId',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      // console.log('authRequest:', authRequest);
+      let urlSelectListStudentMapCritical= SERVER_API_URL + API_SELECT_LIST_STUDENT_BY_CRITICAL_ID;
       // console.log('API URL:', urlSelectListStudentMapCritical);
       const response = await apiClient.post(urlSelectListStudentMapCritical, authRequest);
       return response.data;

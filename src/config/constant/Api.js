@@ -91,6 +91,7 @@ export const API_GET_STUDENT_MAP_CRITICAL = PRE_FIX_API + 'studentMapCritical/se
 export const API_GET_LIST_CRITICAL_BY_STUDENT_ID = PRE_FIX_API + 'studentMapCritical/selectListCriticalByStudentId';
 export const API_GET_LIST_ASSIGNMENT_WAITING_FINAL_APPROVE = PRE_FIX_API + 'studentMapCritical/selectListWaitngFinalApprove';
 export const API_APPROVE_FINAL_ASSIGNMENT_GO_TO_PROTECT = PRE_FIX_API + 'studentMapCritical/approveFinalAssignmentStudentRegister';
+export const API_SELECT_LIST_STUDENT_BY_CRITICAL_ID = PRE_FIX_API + 'studentMapCritical/selectListStudentByCriticalId';
 
 /**
  * Assignment Student Register Management
@@ -198,3 +199,12 @@ export const API_DELETE_FILE_UPLOAD = PRE_FIX_API + 'file/delete';
 export const API_SELECT_FILE_UPLOAD = PRE_FIX_API + 'file/select';
 export const API_SELECT_LIST_ASSIGNMENT_BY_ADMISSION_TIME = PRE_FIX_API + 'file/selectListAssignmentByAdmissionTime';
 
+/**
+ * Score assignment management( user site )
+ */
+export const API_SELECT_LIST_SCORE_ASSIGNMENT_USER_SIDE = PRE_FIX_API + 'scoreStudent/selectList';
+/**
+ * Score assignment management( instructor site )
+ */
+export const API_SELECT_LIST_SCORE_ASSIGNMENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'scoreInstructor/selectList';
+export const API_SELECT_LIST_ASSIGNMENT_BY_ADMISSION_PERIOD_INSTRUCTOR_SIDE = PRE_FIX_API + 'scoreInstructor/selectListAssignmentByAdmissionPeriod';
