@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { ACCESS_TOKEN, USER_NAME, PAGE_LOGIN } from '../../config/constant/Constants';
+import { ACCESS_TOKEN_INSTRUCTOR, USER_NAME_INSTRUCTOR, PAGE_LOGIN } from '../../config/constant/Constants';
 function HeaderInstructor() {
   const navigate = useNavigate();
     const handleLogout = () => {
-    sessionStorage.removeItem(ACCESS_TOKEN);
-    sessionStorage.removeItem(USER_NAME);
-    sessionStorage.removeItem(PAGE_LOGIN);
+    sessionStorage.removeItem(ACCESS_TOKEN_INSTRUCTOR);
+    sessionStorage.removeItem(USER_NAME_INSTRUCTOR);
+    // sessionStorage.removeItem(PAGE_LOGIN);
     navigate("/instructor/login", { replace: true });
   };
   return (

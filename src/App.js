@@ -11,7 +11,7 @@ import HeaderUser from "./layout_user/common_layout/Header_User";
 import NavbarUser from "./layout_user/common_layout/Navbar_User";
 import ContentUser from "./layout_user/common_layout/Content_User";
 import FooterUser from "./layout_user/common_layout/Footer_User";
-import { ACCESS_TOKEN, USER_NAME, PAGE_LOGIN } from './config/constant/Constants';
+import { ACCESS_TOKEN, PAGE_LOGIN ,ACCESS_TOKEN_USER ,ACCESS_TOKEN_INSTRUCTOR} from './config/constant/Constants';
 
 import LayoutAdmin from "./layout_admin/common_layout/LayoutAdmin";
 import LayoutUser from "./layout_user/common_layout/Layout_User";
@@ -25,14 +25,16 @@ import AdminResetPassword from "./layout_login/admin_layout/AdminResetPasswordTe
 
 function LayoutSelector({ children }) {
   const location = useLocation();
-  const attribute1 = sessionStorage.getItem(ACCESS_TOKEN);
+  const accessTokenAdmin = sessionStorage.getItem(ACCESS_TOKEN);
+  const accessTokenUser = sessionStorage.getItem(ACCESS_TOKEN_USER);
+  const accessTokenInstructor = sessionStorage.getItem(ACCESS_TOKEN_INSTRUCTOR);
 
   // Admin routes
   if (location.pathname.startsWith("/admin")) {
     // render standalone login template (without admin wrapper)
     if (location.pathname === "/admin/login") {
       // && "admin" == sessionStorage.getItem(PAGE_LOGIN) them cai nay cho phan loc
-      if (attribute1) {
+      if (accessTokenAdmin) {
         return <Navigate to="/admin/dashboard" replace />;
       }
       return <AdminLogin />;
@@ -42,7 +44,7 @@ function LayoutSelector({ children }) {
     }
 
     // protect all other admin pages
-    if (!attribute1) {
+    if (!accessTokenAdmin) {
       return (
         <Navigate
           to="/admin/login"
@@ -61,14 +63,14 @@ function LayoutSelector({ children }) {
     // render standalone login template (without admin wrapper)
     if (location.pathname === "/user/login") {
       //  && "user" == sessionStorage.getItem(PAGE_LOGIN) them cai nay cho phan loc
-      if (attribute1) {
-        return <Navigate to="/user/home" replace />;
+      if (accessTokenUser) {
+        return <Navigate to="/user/assignment-register" replace />;
       }
       return <UserLogin />;
     }
 
     // protect all other user pages
-    if (!attribute1) {
+    if (!accessTokenUser) {
       return (
         <Navigate
           to="/user/login"
@@ -86,14 +88,14 @@ function LayoutSelector({ children }) {
     // render standalone login template (without admin wrapper)
     if (location.pathname === "/instructor/login") {
       //  && "instructor" == sessionStorage.getItem(PAGE_LOGIN) them cai nay cho phan loc
-      if (attribute1) {
-        return <Navigate to="/instructor/home" replace />;
+      if (accessTokenInstructor) {
+        return <Navigate to="/instructor/assignment-register-management" replace />;
       }
       return <InstructorLogin />;
     }
 
     // protect all other instructor pages
-    if (!attribute1) {
+    if (!accessTokenInstructor) {
       return (
         <Navigate
           to="/instructor/login"

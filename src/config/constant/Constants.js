@@ -1,9 +1,13 @@
 export const LOCALE = 'locale';
 export const DEFAULT_LOCALE = 'vi';
 export const ACCESS_TOKEN = 'access-token';
+export const ACCESS_TOKEN_USER = 'access-token-user';
+export const ACCESS_TOKEN_INSTRUCTOR = 'access-token-instructor';
 export const PAGE_LOGIN = 'page-login';
 export const REFRESH_TOKEN = 'refresh-idx';
 export const USER_NAME = 'user-name';
+export const USER_NAME_USER = 'user-name-user';
+export const USER_NAME_INSTRUCTOR = 'user-name-instructor';
 export const USER_TYPE = 'user-type';
 export const FORMAT_DD_MM_YYYY_HHMMSS = 'DD/MM/YYYY HH:mm:ss SSS';
 export const RESPONSE_DATE_FORMAT = 'YYYYMMDD';
