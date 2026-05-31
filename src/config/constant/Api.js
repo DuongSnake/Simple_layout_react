@@ -180,6 +180,7 @@ export const API_CREATE_STUDENT = PRE_FIX_API + 'student/insert';
 export const API_UPDATE_STUDENT = PRE_FIX_API + 'student/update';
 export const API_DELETE_STUDENT = PRE_FIX_API + 'student/delete';
 export const API_SELECT_STUDENT = PRE_FIX_API + 'student/select';
+export const API_INSERT_LIST_STUDENT_BY_FILE = PRE_FIX_API + 'student/insertListStudent';
 /**
  * Instructor management
  */

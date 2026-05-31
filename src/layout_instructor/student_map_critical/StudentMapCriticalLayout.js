@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { selectListStudentByCriticalIdApi } from "../../layout_admin/student_map_critical/StudentMapCriticalManagementAPI";
 import {findUserIdByUsername} from "../../layout_login/admin_layout/AdminLoginAPI";
 import { useDispatch, useSelector } from "react-redux";
-import { USER_NAME}  from '../../config/constant/Constants';
+import { USER_NAME_INSTRUCTOR}  from '../../config/constant/Constants';
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
 import '../.././App.css';
@@ -35,7 +35,7 @@ function StudentMapCritical() {
     //Handle for select list all students API call 
   const handleSelectUserIdGetFromAccountLogin = async () => {
     try {
-        const valueUserName = sessionStorage.getItem(USER_NAME);
+        const valueUserName = sessionStorage.getItem(USER_NAME_INSTRUCTOR);
         const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
         if (response.type.endsWith('/fulfilled')) {
           let valueInstructorId = response.payload.id;
@@ -164,14 +164,14 @@ function StudentMapCritical() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách sinh viên map giảng viên hướng dẫn</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách sinh viên map giảng viên phản biện</h1>
 
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
               <div className="relative mt-1 lg:w-64 xl:w-96">
-                <label htmlFor="users-name-search">Mã sinh viên map giảng viên hướng dẫn</label>
+                <label htmlFor="users-name-search">Mã sinh viên map giảng viên phản biện</label>
                   <input type="text" name="studentMapInstructorId" id="users-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Tìm kiếm mã sinh viên và giảng viên hướng dẫn" onChange={handleInputChangeSearch} />

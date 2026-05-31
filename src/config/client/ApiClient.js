@@ -5,7 +5,7 @@ import queryString from 'query-string';
 import { APP_DATE_FORMAT, FORMAT_DATE_OUTPUT } from '../constant/Constants';
 // import { NOTIFICATION } from 'app/config/constant/enum';
 // import { openNotification, openNotificationAction } from 'app/shared/util/entity-utils';
-import { checkSuccessDownload, getAuthToken } from '../utils/FunctionGlobal';
+import { checkSuccessDownload, getAuthToken, getAuthTokenUser, getAuthTokeInstructor } from '../utils/FunctionGlobal';
 import { SERVER_API_URL } from '../../config/constant/Api';
 
 export const apiClient = axios.create({
@@ -21,6 +21,68 @@ apiClient.interceptors.request.use(
   config => {
     config.headers = config.headers || {};
     const token = getAuthToken();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['token'] = `${token}`;
+    }
+    config.headers['lang'] = 'vi';
+    
+    // Don't set Content-Type for FormData - let browser handle it
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+//For config user site
+
+export const apiClientUser = axios.create({
+  baseURL: SERVER_API_URL,
+  timeout: 15000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+apiClientUser.interceptors.request.use(
+  config => {
+    config.headers = config.headers || {};
+    const token = getAuthTokenUser();
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers['token'] = `${token}`;
+    }
+    config.headers['lang'] = 'vi';
+    
+    // Don't set Content-Type for FormData - let browser handle it
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    
+    return config;
+  },
+  error => Promise.reject(error)
+);
+
+//For config user site
+
+export const apiClientInstructorSite = axios.create({
+  baseURL: SERVER_API_URL,
+  timeout: 15000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+apiClientInstructorSite.interceptors.request.use(
+  config => {
+    config.headers = config.headers || {};
+    const token = getAuthTokeInstructor();
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
       config.headers['token'] = `${token}`;

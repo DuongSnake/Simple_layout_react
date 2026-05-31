@@ -6,6 +6,7 @@ import {
   API_CREATE_STUDENT,
   API_UPDATE_STUDENT,
   API_DELETE_STUDENT,
+  API_INSERT_LIST_STUDENT_BY_FILE
 } from '../../config/constant/Api';
 
 export const createApi = createAsyncThunk(
@@ -52,6 +53,19 @@ export const selectListApi = createAsyncThunk(
   async (authRequest, { rejectWithValue }) => {
     try {
       const url = SERVER_API_URL + API_SELECT_LIST_STUDENT;
+      const response = await apiClient.post(url, authRequest);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const insertListStudentApi = createAsyncThunk(
+  'student/insertListStudent',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      const url = SERVER_API_URL + API_INSERT_LIST_STUDENT_BY_FILE;
       const response = await apiClient.post(url, authRequest);
       return response.data;
     } catch (error) {

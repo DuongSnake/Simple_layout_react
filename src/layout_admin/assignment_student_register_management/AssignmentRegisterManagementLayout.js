@@ -214,14 +214,14 @@ const { RangePicker } = DatePicker;
 
   // Check if all periodAssignments are selected
   const areAllSelected = 
-    Array.isArray(listDataPeriodAssignment) && 
-    listDataPeriodAssignment.length > 0 && 
-    listDataPeriodAssignment.every((periodAssignment, idx) => selectedPeriodAssignment.has(periodAssignment?.periodAssignmentId ?? idx));
+    Array.isArray(listDataAssignmentRegister) && 
+    listDataAssignmentRegister.length > 0 && 
+    listDataAssignmentRegister.every((periodAssignment, idx) => selectedPeriodAssignment.has(periodAssignment?.periodAssignmentId ?? idx));
   
   // Check if some (but not all) are selected
   const areSomeSelected = 
-    Array.isArray(listDataPeriodAssignment) && 
-    listDataPeriodAssignment.length > 0 && 
+    Array.isArray(listDataAssignmentRegister) && 
+    listDataAssignmentRegister.length > 0 && 
     selectedPeriodAssignment.size > 0 && 
     !areAllSelected;
 
@@ -545,7 +545,7 @@ const { RangePicker } = DatePicker;
                 Tìm kiếm
               </button>   
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                {!listDataAssignmentRegister && !listDataPeriodAssignment?.length && <span>Không tìm thấy dữ liệu.</span>}
+                {!listDataAssignmentRegister && !listDataAssignmentRegister?.length && <span>Không tìm thấy dữ liệu.</span>}
                 {!listDataAssignmentStudentRegisterLoading && listDataAssignmentRegister?.length > 0 && (
                   <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
                 )}
@@ -782,7 +782,7 @@ const { RangePicker } = DatePicker;
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
@@ -881,7 +881,7 @@ const { RangePicker } = DatePicker;
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}

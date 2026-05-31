@@ -7,7 +7,7 @@ import { Pagination } from 'antd';
 import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
-import { APP_DATE_FORMAT, USER_NAME } from '../../config/constant/Constants';
+import { APP_DATE_FORMAT, USER_NAME_USER } from '../../config/constant/Constants';
 function AssignmentProcessUploadManagementLayout() {
     // State for modal visibility
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -57,7 +57,7 @@ function AssignmentProcessUploadManagementLayout() {
 
     const _onChangePagination = (page, pageSize) => {
         setPager({ ...pager, pageNum: page });
-        handleSelectLisAssignmentProcess(page, pageSize);
+        handleSelectLisAssignmentProcess(page, pageSize, userIdGetFromAccountLogin.id);
     };
 
     // Handler for select all checkbox
@@ -197,10 +197,13 @@ function AssignmentProcessUploadManagementLayout() {
     //Handle for select list all students API call 
     const handleSelectUserIdGetFromAccountLogin = async () => {
         try {
-            const valueUserName = sessionStorage.getItem(USER_NAME);
+            const valueUserName = sessionStorage.getItem(USER_NAME_USER);
             const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
             if (response.type.endsWith('/fulfilled')) {
                 //   console.log("select all userId successful payload:", response.payload);
+                let valueStudentId = response.payload.id;
+        //Select list assignment process when component mounts
+        handleSelectLisAssignmentProcess(pager.pageNum, pager.pageSize, valueStudentId);
             } else {
                 console.error("select userId failed:", response.payload);
             }
@@ -254,8 +257,6 @@ function AssignmentProcessUploadManagementLayout() {
 
     // useEffect to handle side effects, e.g., logging button clicks or fetching data
     useEffect(() => {
-        //Select list assignment process when component mounts
-        handleSelectLisAssignmentProcess(pager.pageNum, pager.pageSize);
         //Select list all majors when component mounts
         handleSelectUserIdGetFromAccountLogin();
         disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
@@ -285,7 +286,7 @@ function AssignmentProcessUploadManagementLayout() {
         closeAddModal(); // Close modal after submit
         // set timeout to ensure the create API call completes before refreshing the list
         setTimeout(() => {
-            handleSelectLisAssignmentProcess(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+            handleSelectLisAssignmentProcess(pager.pageNum, pager.pageSize, userIdGetFromAccountLogin.id); // Refresh period assignment list after creation
         }, 2500);
     };
 
@@ -369,7 +370,8 @@ const handleUpdate = async () => {
 
       handleSelectLisAssignmentProcess(
         pager.pageNum,
-        pager.pageSize
+        pager.pageSize,
+        userIdGetFromAccountLogin.id
       );
     }
 
@@ -397,7 +399,7 @@ const handleUpdate = async () => {
     };
 
     //Handle for select list assignment process API call 
-    const handleSelectLisAssignmentProcess = async (pageNum, pageSize) => {
+    const handleSelectLisAssignmentProcess = async (pageNum, pageSize, studentId) => {
         try {
             const response = await dispatch(selectListAssignmentProcessApi({
                 assignmentStudentRegisterId: null,
@@ -406,7 +408,7 @@ const handleUpdate = async () => {
                 toDate: null,
                 status: null,
                 regUser: null,
-                studentId: null,
+                studentId: studentId,
                 pageRequestDto: { pageNum, pageSize }
             }));
             if (response.type.endsWith('/fulfilled')) {
@@ -446,7 +448,7 @@ const handleUpdate = async () => {
                 toDate: formDataSearch.toDate,
                 status: formDataSearch.status,
                 regUser: userIdGetFromAccountLogin.id || null,
-                studentId: null,
+                studentId: userIdGetFromAccountLogin.id,
                 pageRequestDto: { pageNum: pager.pageNum, pageSize: pager.pageSize }
             }));
             if (response.type.endsWith('/fulfilled')) {

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient } from '../../config/client/ApiClient.js';
+import { apiClientUser, apiClientInstructorSite } from '../../config/client/ApiClient.js';
 import {
 SERVER_API_URL,
 API_SELECT_LIST_SCORE_ASSIGNMENT_INSTRUCTOR_SIDE,
@@ -15,7 +15,7 @@ export const selectListAssignmentRegisterInstructorSiteApi = createAsyncThunk(
       // console.log('authRequest:', authRequest);
       let urlSelectListAssignmentRegister= SERVER_API_URL + API_SELECT_LIST_ASSIGNMENT_BY_ADMISSION_PERIOD_INSTRUCTOR_SIDE;
       // console.log('API URL:', urlSelectListAssignmentRegister);
-      const response = await apiClient.post(urlSelectListAssignmentRegister, authRequest);
+      const response = await apiClientInstructorSite.post(urlSelectListAssignmentRegister, authRequest);
       // console.log('API select list assignmentRegister Success Response:', response.data);
       return response.data;
     } catch (error) {
@@ -32,7 +32,7 @@ export const selectListScoreAssignmentInstructorSiteApi = createAsyncThunk(
       // console.log('authRequest:', authRequest);
       let urlSelectListAssignmentRegister= SERVER_API_URL + API_SELECT_LIST_SCORE_ASSIGNMENT_INSTRUCTOR_SIDE;
       // console.log('API URL:', urlSelectListAssignmentRegister);
-      const response = await apiClient.post(urlSelectListAssignmentRegister, authRequest);
+      const response = await apiClientInstructorSite.post(urlSelectListAssignmentRegister, authRequest);
       // console.log('API select list assignmentRegister Success Response:', response.data);
       return response.data;
     } catch (error) {

@@ -372,17 +372,17 @@ function StudentMapCriticalManagement() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách sinh viên map giảng viên hướng dẫn</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách sinh viên map giảng viên phản biện</h1>
 
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
               <div className="relative mt-1 lg:w-64 xl:w-96">
-                <label htmlFor="users-name-search">Mã sinh viên map giảng viên hướng dẫn</label>
+                <label htmlFor="users-name-search">Mã sinh viên map giảng viên phản biện</label>
                   <input type="text" name="studentMapCriticalId" id="users-name-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã sinh viên và giảng viên hướng dẫn" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm mã sinh viên và giảng viên phản biện" onChange={handleInputChangeSearch} />
                 </div>
               </form>
             </div>
@@ -568,7 +568,7 @@ function StudentMapCriticalManagement() {
                         placeholder="Tên sinh viên"   style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-instructor-id-create" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Giảng viên hướng dẫn</label>
+                      <label htmlFor="category-instructor-id-create" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Giảng viên phản biện</label>
                       <select id="category-instructor-id-create" value={formDataEdit.criticalId || ''} onChange={handleInstructorEditChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 
                         focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
@@ -655,7 +655,7 @@ function StudentMapCriticalManagement() {
                       </select>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="category-instructor-id-create" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Giảng viên hướng dẫn</label>
+                      <label htmlFor="category-instructor-id-create" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Giảng viên phản biện</label>
                       <select id="category-instructor-id-create"  onChange={handleInstructorChange}
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 
                         focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 
@@ -718,7 +718,7 @@ function StudentMapCriticalManagement() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Vui lòng chọn giảng viên hướng dẫn trước khi lưu.</h3>
+                <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Vui lòng chọn giảng viên phản biện trước khi lưu.</h3>
                 <button
                   onClick={closeWarningModal}
                   className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">

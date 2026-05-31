@@ -297,7 +297,7 @@ function AssignmentWaitingFinalApproveLayout() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách phê duyệt đồ án sinh viên</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách phê duyệt đồ án chờ duyệt bảo vệ</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
@@ -306,7 +306,7 @@ function AssignmentWaitingFinalApproveLayout() {
                   <label htmlFor="admission-period-id-search">Mã đăng ký đồ án sinh viên</label>
                   <input type="text" name="assignmentRegisterId" id="admission-period-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã đăng ký đồ án" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm mã đăng ký đồ án chờ duyệt bảo vệ" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
                   <label htmlFor="admission-period-name-search">Tên đồ án</label>

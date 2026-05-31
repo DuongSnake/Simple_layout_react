@@ -8,7 +8,7 @@ import { Pagination } from 'antd';
 import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
-import { APP_DATE_FORMAT, USER_NAME}  from '../../config/constant/Constants';
+import { APP_DATE_FORMAT, USER_NAME_INSTRUCTOR}  from '../../config/constant/Constants';
 function AssignmentRegisterByInstructor() {
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -145,7 +145,7 @@ function AssignmentRegisterByInstructor() {
     //Handle for select list all students API call 
   const handleSelectUserIdGetFromAccountLogin = async () => {
     try {
-        const valueUserName = sessionStorage.getItem(USER_NAME);
+        const valueUserName = sessionStorage.getItem(USER_NAME_INSTRUCTOR);
         const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
         if (response.type.endsWith('/fulfilled')) {
           let valueInstructorId = response.payload.id;
@@ -784,7 +784,7 @@ function AssignmentRegisterByInstructor() {
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
@@ -890,7 +890,7 @@ function AssignmentRegisterByInstructor() {
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}

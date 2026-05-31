@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListApi, createApi, updateApi, deleteApi } from './StudentManagementAPI';
+import { selectListApi, createApi, updateApi, deleteApi, insertListStudentApi } from './StudentManagementAPI';
 import { useDispatch, useSelector } from 'react-redux';
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -9,10 +9,12 @@ function StudentManagement() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isInsertListStudentModalOpen, setIsInsertListStudentModalOpen] = useState(false);
   const dispatch = useDispatch();
   const listDataStudent = useSelector(state => state.studentManagement.selectList.data);
   const totalRecord = useSelector(state => state.studentManagement.selectList.totalRecord);
   const listDataStudentLoading = useSelector(state => state.studentManagement.selectList.loading);
+  const [selectedFileUpdate, setSelectedFileUpdate] = useState(null);
 
   const [formData, setFormData] = useState({
     email: '',
@@ -141,6 +143,10 @@ function StudentManagement() {
   const openDeleteModal = () => setIsDeleteModalOpen(true);
   const closeDeleteModal = () => setIsDeleteModalOpen(false);
 
+  
+  const openInsertListStudentModal = () => setIsInsertListStudentModalOpen(true);
+  const closeInsertListStudentModal = () => setIsInsertListStudentModalOpen(false);
+
   const handleOpenEditModal = () => setIsEditModalOpen(true);
 
   const handleFormSubmit = (event) => {
@@ -262,7 +268,42 @@ function StudentManagement() {
     const { name, value } = event.target;
     setFormDataSearch(prev => ({ ...prev, [name]: value }));
   };
+      // Handle file selection
+  const handleFileChangeUpdate = (event) => {
+    const file = event.target.files?.[0]; // Get the first file
+    console.log('Selected file:', file);
+    if (!file) {
+      setSelectedFileUpdate(null);
+      return;
+    }
+    setSelectedFileUpdate(file);
+  };
 
+  //Handle for create admission period API call 
+  const handleInsertListStudentStudent = async () => {
+    try {
+    const formData123 = new FormData();
+    // danh sách file delete
+    formData123.append(
+      "fileUploadContent",
+      selectedFileUpdate
+    );
+
+    const response = await dispatch(insertListStudentApi(formData123));
+      if (response.type.endsWith('/fulfilled')) {
+        closeInsertListStudentModal(); // Close modal after submit
+        setSelectedFileUpdate(null);
+        //set timeout to ensure the create API call completes before refreshing the list
+        setTimeout(() => {
+          handleSelectListStudents(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+        }, 500);
+      } else {
+        console.error("insert failed:", response.payload);
+      }
+    } catch (error) {
+      console.error("insert error:", error);
+    }
+  };
   return (
     <>
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
@@ -359,6 +400,14 @@ function StudentManagement() {
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Xóa
+              </button>
+              <button
+                type="button"
+                id="insert-list-student-button"
+                onClick={openInsertListStudentModal}
+                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              >
+                Them moi danh sach
               </button>
             </div>
           </div>
@@ -541,6 +590,28 @@ function StudentManagement() {
                 <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">Bạn có chắc chắn xóa sinh viên này không?</h3>
                 <button onClick={handleDeleteStudent} className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">Chắc chắn</button>
                 <button onClick={closeDeleteModal} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Không, hủy bỏ</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isInsertListStudentModalOpen && (
+        <div onClick={closeInsertListStudentModal} className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50" id="delete-student-modal">
+          <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md px-4 md:h-auto">
+            <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
+              <div className="flex justify-end p-2">
+                <button type="button" onClick={closeInsertListStudentModal} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                </button>
+              </div>
+              <div className="p-6 pt-0 text-center">
+                      <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tin dang ky danh sach</label>
+                        <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium 
+                        text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full 
+                        shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
+                <button onClick={handleInsertListStudentStudent} className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">Chắc chắn</button>
+                <button onClick={closeInsertListStudentModal} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Không, hủy bỏ</button>
               </div>
             </div>
           </div>

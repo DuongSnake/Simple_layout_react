@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
 import '../.././App.css';
-import { USER_NAME}  from '../../config/constant/Constants';
+import { USER_NAME_INSTRUCTOR}  from '../../config/constant/Constants';
 function ScoreAssignmentManagement() {
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -198,7 +198,7 @@ function ScoreAssignmentManagement() {
     //Handle for select list all students API call 
   const handleSelectUserIdGetFromAccountLogin = async () => {
     try {
-        const valueUserName = sessionStorage.getItem(USER_NAME);
+        const valueUserName = sessionStorage.getItem(USER_NAME_INSTRUCTOR);
         const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
         if (response.type.endsWith('/fulfilled')) {
           let valueInstructorId = response.payload.id;
@@ -700,7 +700,7 @@ function ScoreAssignmentManagement() {
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.admissionPeriodId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
@@ -798,7 +798,7 @@ function ScoreAssignmentManagement() {
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.admissionPeriodId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}

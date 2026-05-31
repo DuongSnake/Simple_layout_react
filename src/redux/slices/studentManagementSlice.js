@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApi } from '../../layout_admin/student_management/StudentManagementAPI';
+import { createApi, updateApi, deleteApi, selectListApi, insertListStudentApi } from '../../layout_admin/student_management/StudentManagementAPI';
 
 const initialState = {
   create: { data: null, loading: false, error: null },
   update: { data: null, loading: false, error: null },
   delete: { data: null, loading: false, error: null },
-  selectList: { data: null, loading: false, error: null, totalRecord: 0 }
+  selectList: { data: null, loading: false, error: null, totalRecord: 0 },
+  insertListStudent: {  data: null, loading: false, error: null  }
 };
 
 const studentManagementSlice = createSlice({
@@ -65,6 +66,20 @@ const studentManagementSlice = createSlice({
       .addCase(deleteApi.rejected, (state, action) => {
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
+      })
+
+      .addCase(insertListStudentApi.pending, (state) => {
+        state.insertListStudent.loading = true;
+        state.insertListStudent.error = null;
+      })
+      .addCase(insertListStudentApi.fulfilled, (state, action) => {
+        state.insertListStudent.loading = false;
+        state.insertListStudent.data = action.payload;
+        state.insertListStudent.error = null;
+      })
+      .addCase(insertListStudentApi.rejected, (state, action) => {
+        state.insertListStudent.loading = false;
+        state.insertListStudent.error = action.payload || action.error.message;
       });
   }
 });
