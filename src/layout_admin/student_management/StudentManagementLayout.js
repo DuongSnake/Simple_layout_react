@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListApi, createApi, updateApi, deleteApi } from './StudentManagementAPI';
+import { selectListApi, createApi, updateApi, deleteApi, downloadTemplate } from './StudentManagementAPI';
 import { useDispatch, useSelector } from 'react-redux';
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -248,6 +248,34 @@ function StudentManagement() {
     }
   };
 
+  const handleDownloadTemplate = async () => {
+  try {
+      const response = await downloadTemplate();
+      const blob = new Blob([response.data]);
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.download = "template_student.xlsx";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+      console.error("Download file error:", error);
+
+    }
+  };
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -328,6 +356,13 @@ function StudentManagement() {
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Tìm kiếm
+              </button>
+              <button
+                type="button"
+                onClick={handleDownloadTemplate}
+                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              >
+                Tải mẫu
               </button>
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
                 {!listDataStudentLoading && !listDataStudent?.length && <span>Không tìm thấy dữ liệu.</span>}
