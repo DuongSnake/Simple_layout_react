@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListApi, createApi, updateApi, deleteApi, insertListStudentApi } from './StudentManagementAPI';
+import { selectListApi, createApi, updateApi, deleteApi, insertListStudentApi, downloadTemplate } from './StudentManagementAPI';
 import { useDispatch, useSelector } from 'react-redux';
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -147,6 +147,34 @@ function StudentManagement() {
   const openInsertListStudentModal = () => setIsInsertListStudentModalOpen(true);
   const closeInsertListStudentModal = () => setIsInsertListStudentModalOpen(false);
 
+  //Donwload example file
+  const handleDownloadTemplate = async () => {
+  try {
+      const response = await downloadTemplate();
+      const blob = new Blob([response.data]);
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.download = "template_student.xlsx";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+      console.error("Download file error:", error);
+
+    }
+  };
   const handleOpenEditModal = () => setIsEditModalOpen(true);
 
   const handleFormSubmit = (event) => {
@@ -407,7 +435,7 @@ function StudentManagement() {
                 onClick={openInsertListStudentModal}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
-                Them moi danh sach
+                Thêm danh sách sinh viên
               </button>
             </div>
           </div>
@@ -610,8 +638,11 @@ function StudentManagement() {
                         <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium
                         text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full
                         shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
-                <button onClick={handleInsertListStudentStudent} className="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-base inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-800">Chắc chắn</button>
+                <div className="flex items-center ml-auto space-x-2 sm:space-x-3" style={{ marginTop: '20px' }}>
+                  <button onClick={handleDownloadTemplate} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Tải xuống tệp mẫu</button>
+                <button onClick={handleInsertListStudentStudent} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Chắc chắn</button>
                 <button onClick={closeInsertListStudentModal} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Không, hủy bỏ</button>
+                </div>
               </div>
             </div>
           </div>
