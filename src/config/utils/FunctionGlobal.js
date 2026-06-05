@@ -1,4 +1,4 @@
-import { ACCESS_TOKEN, USER_NAME } from '../constant/Constants';
+import { ACCESS_TOKEN, ACCESS_TOKEN_INSTRUCTOR, ACCESS_TOKEN_USER, USER_NAME } from '../constant/Constants';
 import  { jwtDecode,JwtPayload } from 'jwt-decode';
 const Storage = {
   session: {
@@ -7,6 +7,8 @@ const Storage = {
   }
 };
 export const getAuthToken = () => Storage.session.get(ACCESS_TOKEN);
+export const getAuthTokenUser = () => Storage.session.get(ACCESS_TOKEN_USER);
+export const getAuthTokeInstructor = () => Storage.session.get(ACCESS_TOKEN_INSTRUCTOR);
 
 export const getUserId = () => {
   const accessToken = getAuthToken();

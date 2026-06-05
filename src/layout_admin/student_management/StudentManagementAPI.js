@@ -1,15 +1,13 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../config/client/ApiClient.js';
-import { getAuthToken } from '../../config/utils/FunctionGlobal.js';
 import {
   SERVER_API_URL,
   API_SELECT_LIST_STUDENT,
   API_CREATE_STUDENT,
   API_UPDATE_STUDENT,
   API_DELETE_STUDENT,
-  API_DOWNLOAD_TEMPLATE_STUDENT
+  API_INSERT_LIST_STUDENT_BY_FILE
 } from '../../config/constant/Api';
-import axios from 'axios';
 
 export const createApi = createAsyncThunk(
   'student/create',
@@ -63,23 +61,15 @@ export const selectListApi = createAsyncThunk(
   }
 );
 
-  export const downloadTemplate = async () => {
-
-    const token = getAuthToken();
-    return await axios.get(
-        SERVER_API_URL + API_DOWNLOAD_TEMPLATE_STUDENT,
-        {
-            responseType: "blob",
-
-            headers: {
-                Authorization: token
-                    ? `Bearer ${token}`
-                    : "",
-
-                token: token || "",
-
-                lang: "vi"
-            }
-        }
-    );
-};
+export const insertListStudentApi = createAsyncThunk(
+  'student/insertListStudent',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      const url = SERVER_API_URL + API_INSERT_LIST_STUDENT_BY_FILE;
+      const response = await apiClient.post(url, authRequest);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);

@@ -52,7 +52,7 @@ function Navbar() {
                   </li>
                   <li onClick={navigatePage1}>
                     <a href="/user/assignment-process"
-                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Quản lý tệp tin đề tài</a>
+                      class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Danh sách đề tài đã duyệt đăng ký</a>
                   </li>
                   <li onClick={navigatePage2}>
                     <a href="/user/student-map-critical"

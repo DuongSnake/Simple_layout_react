@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { listStudentMapInstructorInstructorSiteApi } from "../assignment_register_by_instructor/AssignmentRegisterByInstructorAPI";
 import {findUserIdByUsername} from "../../layout_login/admin_layout/AdminLoginAPI";
 import { useDispatch, useSelector } from "react-redux";
-import { USER_NAME}  from '../../config/constant/Constants';
+import { USER_NAME, USER_NAME_INSTRUCTOR}  from '../../config/constant/Constants';
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
 import '../.././App.css';
@@ -41,7 +41,7 @@ function StudentMapInstructorManagement() {
     //Handle for select list all students API call 
   const handleSelectUserIdGetFromAccountLogin = async () => {
     try {
-        const valueUserName = sessionStorage.getItem(USER_NAME);
+        const valueUserName = sessionStorage.getItem(USER_NAME_INSTRUCTOR);
         const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
         if (response.type.endsWith('/fulfilled')) {
           let valueInstructorId = response.payload.id;

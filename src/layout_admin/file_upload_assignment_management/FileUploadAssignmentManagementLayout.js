@@ -750,7 +750,7 @@ function FileUploadAssignmentManagement() {
                             {listDataPeriodAssignment.map((periodAssignment, idx) => {
                               return (
                                 <option key={idx} value={periodAssignment.admissionPeriodId}>
-                                  {periodAssignment.admissionPeriodIdName}
+                                  {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                                 </option>
                               );
                             })}
@@ -845,7 +845,7 @@ function FileUploadAssignmentManagement() {
                             {listDataPeriodAssignment.map((periodAssignment, idx) => {
                               return (
                                 <option key={idx} value={periodAssignment.admissionPeriodId}>
-                                  {periodAssignment.admissionPeriodIdName}
+                                  {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                                 </option>
                               );
                             })}

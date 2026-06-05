@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { apiClient } from '../../config/client/ApiClient.js';
+import { apiClientUser, apiClientInstructorSite } from '../../config/client/ApiClient.js';
 import {
 SERVER_API_URL,
 API_GET_LIST_ASSIGNMENT_WAITING_FINAL_APPROVE,
@@ -15,7 +15,7 @@ export const approveFinalAssignmentApi = createAsyncThunk(
       // console.log('authRequest:', authRequest);
       let urlSendRequestAssignmentRegister= SERVER_API_URL + API_APPROVE_FINAL_ASSIGNMENT_GO_TO_PROTECT;
       // console.log('API URL:', urlSendRequestAssignmentRegister);
-      const response = await apiClient.post(urlSendRequestAssignmentRegister, authRequest);
+      const response = await apiClientInstructorSite.post(urlSendRequestAssignmentRegister, authRequest);
       // console.log('API send request list assignmentRegister Success Response:', response.data);
       return response.data;
     } catch (error) {
@@ -32,7 +32,7 @@ export const selectListAssignmentFinalApproveApi = createAsyncThunk(
       // console.log('authRequest:', authRequest);
       let urlSendRequestAssignmentRegister= SERVER_API_URL + API_GET_LIST_ASSIGNMENT_WAITING_FINAL_APPROVE;
       // console.log('API URL:', urlSendRequestAssignmentRegister);
-      const response = await apiClient.post(urlSendRequestAssignmentRegister, authRequest);
+      const response = await apiClientInstructorSite.post(urlSendRequestAssignmentRegister, authRequest);
       // console.log('API send request list assignmentRegister Success Response:', response.data);
       return response.data;
     } catch (error) {

@@ -8,7 +8,7 @@ import { Pagination } from 'antd';
 import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
-import { APP_DATE_FORMAT, USER_NAME}  from '../../config/constant/Constants';
+import { APP_DATE_FORMAT, USER_NAME_USER}  from '../../config/constant/Constants';
 function AssignmentRegisterManagement() {
   // State for modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -71,7 +71,7 @@ function AssignmentRegisterManagement() {
   
   const _onChangePagination = (page, pageSize) => {
     setPager({ ...pager, pageNum: page });
-    handleSelectListPeriodAssignments(page, pageSize);
+    handleSelectListPeriodAssignments(page, pageSize, userIdGetFromAccountLogin.id);
   };
 
   // Handler for select all checkbox
@@ -144,10 +144,14 @@ function AssignmentRegisterManagement() {
     //Handle for select list all students API call 
   const handleSelectUserIdGetFromAccountLogin = async () => {
     try {
-        const valueUserName = sessionStorage.getItem(USER_NAME);
+        const valueUserName = sessionStorage.getItem(USER_NAME_USER);
         const response = await dispatch(findUserIdByUsername({ userName: valueUserName }));
         if (response.type.endsWith('/fulfilled')) {
           // console.log("select all userId successful payload:", response.payload);
+          
+          let valueStudentId = response.payload.id;
+    //Select list period assignment when component mounts
+    handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, valueStudentId);
         } else {
           console.error("select userId failed:", response.payload);
         }
@@ -239,12 +243,10 @@ function AssignmentRegisterManagement() {
 
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
-    //Select list period assignment when component mounts
-    handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize);
     //Select list all majors when component mounts
     handleSelectUserIdGetFromAccountLogin();
-    handleSelectListAllInstructors();
     handleSelectListAllPeriodAssignments();
+    handleSelectListAllInstructors();
     disableButtonEditDelete(true, true); // Initially disable edit and delete buttons
   }, []); // Empty dependency array means this runs once on mount
 
@@ -276,7 +278,7 @@ function AssignmentRegisterManagement() {
     closeAddModal(); // Close modal after submit
     // set timeout to ensure the create API call completes before refreshing the list
     setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, userIdGetFromAccountLogin.id); // Refresh period assignment list after creation
     }, 2500);
   };
 
@@ -287,7 +289,7 @@ function AssignmentRegisterManagement() {
     closeEditModal(); // Close modal after submit
     // set timeout to ensure the update API call completes before refreshing the list
     setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
+      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, userIdGetFromAccountLogin.id); // Refresh period assignment list after update
     }, 500);
   };
 
@@ -420,7 +422,7 @@ function AssignmentRegisterManagement() {
         // console.log("delete successful:", response.payload);
         // set timeout to ensure the delete API call completes before refreshing the list
         setTimeout(() => {
-          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after deletion
+          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, userIdGetFromAccountLogin.id); // Refresh period assignment list after deletion
         }, 500);
       } else {
         // console.error("delete failed:", response.payload);
@@ -441,7 +443,7 @@ function AssignmentRegisterManagement() {
         // console.log("reserve successful:", response.payload);
         // set timeout to ensure the reserve API call completes before refreshing the list
         setTimeout(() => {
-          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after reservation
+          handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize, userIdGetFromAccountLogin.id); // Refresh period assignment list after reservation
         }, 500);
       } else {
         // console.error("reserve failed:", response.payload);
@@ -453,7 +455,7 @@ function AssignmentRegisterManagement() {
   };
 
   //Handle for select list period assignment API call 
-  const handleSelectListPeriodAssignments = async (pageNum, pageSize) => {
+  const handleSelectListPeriodAssignments = async (pageNum, pageSize, studentId) => {
     try {
       const response = await dispatch(selectListAssignmentRegisterUserSiteApi({ 
         assignmentStudentRegisterId: null, 
@@ -461,7 +463,7 @@ function AssignmentRegisterManagement() {
         assignmentStudentRegisterName: null,
         admissionPeriodId: null,//Se khong hard code o day
         fromDate: null,
-        studentId: null,
+        studentId: studentId,
         toDate: null,
         pageRequestDto : { pageNum, pageSize }
        }));
@@ -550,13 +552,13 @@ function AssignmentRegisterManagement() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách đăng ký đồ án sinh viên</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách đăng ký đề tài</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="admission-period-id-search">Mã đăng ký đồ án sinh viên</label>
+                  <label htmlFor="admission-period-id-search">Mã đăng ký đề tài</label>
                   <input type="text" name="assignmentRegisterId" id="admission-period-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Tìm kiếm mã đăng ký đồ án" onChange={handleInputChangeSearch} />
@@ -765,7 +767,7 @@ function AssignmentRegisterManagement() {
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Cập nhật đăng ký đồ án sinh viên
+                  Cập nhật đăng ký đề tài
                 </h3>
                 <button type="button"
                   onClick={closeEditModal}
@@ -782,10 +784,10 @@ function AssignmentRegisterManagement() {
                 <form>
                   <div className="grid grid-cols-6 gap-6">
                     <div className="col-span-6 sm:col-span-3">
-                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã đăng ký đồ án sinh viên</label>
+                      <label htmlFor="edit-admission-period-id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Mã đăng ký đề tài</label>
                       <input type="text" name="assignmentStudentRegisterId" value={formDataEdit.assignmentStudentRegisterId} onChange={handleInputChangeEdit} id="edit-admission-period-id"
                         className="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                        placeholder="Mã đăng ký đồ án sinh viên"  style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
+                        placeholder="Mã đăng ký đề tài"  style={{disabled: true}, {backgroundColor: '#adabab'}, {cursor: 'not-allowed'}}/>
                     </div>
                     <div className="col-span-6 sm:col-span-3">
                       <label htmlFor="edit-admission-period-name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên đồ án</label>
@@ -805,7 +807,7 @@ function AssignmentRegisterManagement() {
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
@@ -869,7 +871,7 @@ function AssignmentRegisterManagement() {
               {/* <!-- Modal header --> */}
               <div className="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700 border-gray-200">
                 <h3 className="text-xl font-semibold dark:text-white">
-                  Thêm mới đăng ký đồ án sinh viên
+                  Thêm mới đăng ký đề tài
                 </h3>
                 <button type="button"
                   onClick={closeAddModal}
@@ -901,7 +903,7 @@ function AssignmentRegisterManagement() {
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}
+                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
