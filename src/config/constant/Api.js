@@ -209,3 +209,10 @@ export const API_SELECT_LIST_SCORE_ASSIGNMENT_USER_SIDE = PRE_FIX_API + 'scoreSt
  */
 export const API_SELECT_LIST_SCORE_ASSIGNMENT_INSTRUCTOR_SIDE = PRE_FIX_API + 'scoreInstructor/selectList';
 export const API_SELECT_LIST_ASSIGNMENT_BY_ADMISSION_PERIOD_INSTRUCTOR_SIDE = PRE_FIX_API + 'scoreInstructor/selectListAssignmentByAdmissionPeriod';
+
+/**
+ * Dashboard report year
+ */
+export const API_SELECT_ALL_TOTAL_RECORD_BY_YEAR = PRE_FIX_API + 'reportYear/selectAllTotalRecrod';
+export const API_SELECT_TOP_5_PERIOD_BY_YEAR = PRE_FIX_API + 'reportYear/selectTop5Period';
+export const API_SELECT_TOP_5_INSTRUCTOR_BY_YEAR = PRE_FIX_API + 'reportYear/selectTop5Instructor';

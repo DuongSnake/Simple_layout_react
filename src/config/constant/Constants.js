@@ -11,6 +11,7 @@ export const USER_NAME_INSTRUCTOR = 'user-name-instructor';
 export const USER_TYPE = 'user-type';
 export const FORMAT_DD_MM_YYYY_HHMMSS = 'DD/MM/YYYY HH:mm:ss SSS';
 export const RESPONSE_DATE_FORMAT = 'YYYYMMDD';
+export const RESPONSE_YEAR_FORMAT = 'YYYY';
 export const RESPONSE_FULL_TIME_FORMAT = 'HHmmss';
 export const RESPONSE_FULL_DATE_TIME_FORMAT = 'DD/MM/YYYY HH:mm:ss';
 export const APP_FULL_TIME_FORMAT = 'HH:mm:ss';
