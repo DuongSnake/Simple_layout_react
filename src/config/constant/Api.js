@@ -217,3 +217,19 @@ export const API_SELECT_LIST_ASSIGNMENT_BY_ADMISSION_PERIOD_INSTRUCTOR_SIDE = PR
 export const API_SELECT_ALL_TOTAL_RECORD_BY_YEAR = PRE_FIX_API + 'reportYear/selectAllTotalRecrod';
 export const API_SELECT_TOP_5_PERIOD_BY_YEAR = PRE_FIX_API + 'reportYear/selectTop5Period';
 export const API_SELECT_TOP_5_INSTRUCTOR_BY_YEAR = PRE_FIX_API + 'reportYear/selectTop5Instructor';
+
+
+/**
+ * Student register analyst report
+ */
+export const API_SELECT_ALL_STUDENT_REGISTER_ANALYST = PRE_FIX_API + 'reportStudentByMajor/selectAllTotalRecrod';
+
+/**
+ * Assignment register analyst report
+ */
+export const API_SELECT_ALL_ASSIGNMENT_REGISTER_ANALYST = PRE_FIX_API + 'reportAssignmentByMajor/selectAllTotalRecrod';
+
+/**
+ * Score assignment register analyst report
+ */
+export const API_SELECT_ALL_SCORE_ASSIGNMENT_REGISTER_ANALYST = PRE_FIX_API + 'reportScoreAssignmentByMajor/selectAllTotalRecrod';

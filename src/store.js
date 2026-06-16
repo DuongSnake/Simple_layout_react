@@ -16,6 +16,7 @@ import assignmentFinalApproveManagementReducer from './redux/slices/assignmentFi
 import scoreAssignmentManagementReducer from './redux/slices/scoreAssignmentManagementSlice';
 import fileUploadAssignmentManagementReducer from './redux/slices/fileUploadAssignmentManagementSlice';
 import reportYearReducer from './redux/slices/reportYearSlice';
+import reportAnalystReducer from './redux/slices/reportAnalystSlice';
 
 export const store = configureStore({
   reducer: {
@@ -36,6 +37,7 @@ export const store = configureStore({
     scoreAssignmentManagement: scoreAssignmentManagementReducer,
     fileUploadAssignmentManagement: fileUploadAssignmentManagementReducer,
     reportYear: reportYearReducer,
+    reportAnalyst: reportAnalystReducer
     // Add more reducers here as you create new features
     // example: todosReducer from './redux/slices/todosSlice'
   },
