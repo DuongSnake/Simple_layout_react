@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { selectListStudentRegisterAnalystApi } from "./StudentRegisterAnalystAPI";
+import { selectListStudentRegisterAnalystApi, downloadFileAssignmentProcessApi } from "./StudentRegisterAnalystAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
@@ -35,6 +35,42 @@ function StudentRegisterAnalyst() {
   };
 
 
+    //Handle case download input upload will store new attribute in object(logic upload file)
+    const handleDownloadFile = async () => {
+    try {
+
+        const response = await downloadFileAssignmentProcessApi({
+    studentId: formDataSearch.studentId,
+    instructorId: formDataSearch.instructorId,
+    admissionPeriod: formDataSearch.admissionPeriod,
+    statusMapping: formDataSearch.statusMapping,
+    fromDate: formDataSearch.fromDate,
+    toDate: formDataSearch.toDate
+        });
+        const blob = new Blob([response.data]);
+
+        const url = window.URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        link.download = "danh_sach_sinh_vien_.xlsx";
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        link.remove();
+
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+        console.error("Download file error:", error);
+
+    }
+};
 
   // useEffect to handle side effects, e.g., logging button clicks or fetching data
   useEffect(() => {
@@ -140,7 +176,7 @@ function StudentRegisterAnalyst() {
             <div className="flex items-center ml-auto space-x-2 sm:space-x-3">
               <button
                 type="button"
-                // onClick={openAddModal}
+                onClick={handleDownloadFile}
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Xuất excel

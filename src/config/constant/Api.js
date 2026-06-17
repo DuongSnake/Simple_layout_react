@@ -223,7 +223,7 @@ export const API_SELECT_TOP_5_INSTRUCTOR_BY_YEAR = PRE_FIX_API + 'reportYear/sel
  * Student register analyst report
  */
 export const API_SELECT_ALL_STUDENT_REGISTER_ANALYST = PRE_FIX_API + 'reportStudentByMajor/selectAllTotalRecrod';
-
+export const API_EXPORT_EXCEL_BY_YEAR_LIST_STUDENT = PRE_FIX_API + 'reportStudentByMajor/exportExcel2';
 /**
  * Assignment register analyst report
  */
