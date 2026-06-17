@@ -3,7 +3,10 @@ import { apiClient } from '../../../config/client/ApiClient.js';
 import {
   SERVER_API_URL,
   API_SELECT_ALL_SCORE_ASSIGNMENT_REGISTER_ANALYST,
+  API_EXPORT_EXCEL_BY_YEAR_LIST_SCORE_ASSIGNMENT
 } from '../../../config/constant/Api.js';
+import axios from "axios";
+import { getAuthToken } from '../../../config/utils/FunctionGlobal.js';
 
 
 export const selectListScoreAssignmentRegisterAnalystApi = createAsyncThunk(
@@ -22,3 +25,28 @@ export const selectListScoreAssignmentRegisterAnalystApi = createAsyncThunk(
     }
   }
 );
+
+export const downloadFileScoreAssignmentProcessApi = async (authRequest) => {
+
+    const token = getAuthToken();
+
+    return await axios.post(
+      //De thu url cu de test thu
+        SERVER_API_URL + API_EXPORT_EXCEL_BY_YEAR_LIST_SCORE_ASSIGNMENT,
+        authRequest,
+        {
+            responseType: "blob",
+
+            headers: {
+                Authorization: token
+                    ? `Bearer ${token}`
+                    : "",
+
+                token: token || "",
+
+                lang: "vi"
+            }
+        }
+    );
+};
+

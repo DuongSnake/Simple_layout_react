@@ -228,8 +228,9 @@ export const API_EXPORT_EXCEL_BY_YEAR_LIST_STUDENT = PRE_FIX_API + 'reportStuden
  * Assignment register analyst report
  */
 export const API_SELECT_ALL_ASSIGNMENT_REGISTER_ANALYST = PRE_FIX_API + 'reportAssignmentByMajor/selectAllTotalRecrod';
-
+export const API_EXPORT_EXCEL_BY_YEAR_LIST_ASSIGNMENT = PRE_FIX_API + 'reportAssignmentByMajor/exportExcel2';
 /**
  * Score assignment register analyst report
  */
 export const API_SELECT_ALL_SCORE_ASSIGNMENT_REGISTER_ANALYST = PRE_FIX_API + 'reportScoreAssignmentByMajor/selectAllTotalRecrod';
+export const API_EXPORT_EXCEL_BY_YEAR_LIST_SCORE_ASSIGNMENT = PRE_FIX_API + 'reportScoreAssignmentByMajor/exportExcel2';

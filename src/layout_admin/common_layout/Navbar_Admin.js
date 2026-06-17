@@ -56,6 +56,18 @@ function Navbar() {
     navigate("/admin/student-map-critical-management", { replace: true });
   };
 
+  const navigatePage12 = () => {
+    navigate("/admin/student-register-analyst", { replace: true });
+  };
+
+  const navigatePage13 = () => {
+    navigate("/admin/assignment-register-analyst", { replace: true });
+  };
+
+  const navigatePage14 = () => {
+    navigate("/admin/score-assignment-analyst", { replace: true });
+  };
+
   return (
 <>
     {/* // <!-- Start sidebar --> */}
@@ -165,6 +177,37 @@ function Navbar() {
                   <li onClick={navigatePage10}>
                     <a href="/admin/file-upload-assignment-management"
                       className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Quản lý tệp tin đồ án</a>
+                  </li>
+                </ul>
+              </li>
+
+              <li>
+              <button type="button"
+                  onClick={() => toggleDropdown("dropdown-analyst-data")}
+                  className="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 rounded-lg group hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+                  aria-controls="dropdown-analyst-data" 
+                  aria-expanded={expandedMenus["dropdown-analyst-data"] ? "true" : "false"}>
+<svg class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm2 10a1 1 0 10-2 0v3a1 1 0 102 0v-3zm2-3a1 1 0 011 1v5a1 1 0 11-2 0v-5a1 1 0 011-1zm4-1a1 1 0 10-2 0v7a1 1 0 102 0V8z" clip-rule="evenodd"></path></svg>
+                  <span className="flex-1 ml-3 text-left whitespace-nowrap">Danh sách thông tin</span>
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"></path>
+                  </svg>
+                </button>
+                <ul id="dropdown-analyst-data" className={`space-y-2 py-2 ${!expandedMenus["dropdown-analyst-data"] ? "hidden" : ""}`}>
+                  <li onClick={navigatePage12}>
+                    <a href="/admin/student-register-analyst"
+                      className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Danh sách sinh viên</a>
+                  </li>
+                  <li onClick={navigatePage13}>
+                    <a href="/admin/assignment-register-analyst"
+                      className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Danh sách đồ án</a>
+                  </li>
+                  <li onClick={navigatePage14}>
+                    <a href="/admin/score-assignment-analyst"
+                      className="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-100 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700">Danh sách điểm đồ án</a>
                   </li>
                 </ul>
               </li>

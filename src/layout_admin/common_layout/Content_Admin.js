@@ -17,6 +17,8 @@ import ScoreAssignmentManagement from "../score_assignment_management/ScoreAssig
 import FileUploadAssignmentManagement from "../file_upload_assignment_management/FileUploadAssignmentManagementLayout";
 import StudentMapCriticalManagement from "../student_map_critical/StudentMapCriticalManagementLayout";
 import StudentRegisterAnalyst from "../report_analyst/student_register_analyst/StudentRegisterAnalystLayout";
+import AssignmentRegisterAnalyst from "../report_analyst/assignment_register_analyst/AssignmentRegisterAnalystLayout";
+import ScoreAssignmentRegisterAnalyst from "../report_analyst/score_assignment_analyst/ScoreAssignmentAnalystLayout";
 function Content() {
   return (
     <div class="flex pt-16 overflow-hidden bg-gray-50 dark:bg-gray-900">
@@ -41,6 +43,8 @@ function Content() {
         <Route path="/admin/file-upload-assignment-management" element={<FileUploadAssignmentManagement />} />
         <Route path="/admin/student-map-critical-management" element={<StudentMapCriticalManagement />} />
         <Route path="/admin/student-register-analyst" element={<StudentRegisterAnalyst />} />
+        <Route path="/admin/assignment-register-analyst" element={<AssignmentRegisterAnalyst />} />
+        <Route path="/admin/score-assignment-analyst" element={<ScoreAssignmentRegisterAnalyst />} />
       </Routes>
       </main>
       </div>

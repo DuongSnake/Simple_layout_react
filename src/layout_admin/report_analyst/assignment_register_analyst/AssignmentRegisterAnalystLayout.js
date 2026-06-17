@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { selectListStudentRegisterAnalystApi, downloadFileAssignmentProcessApi } from "./StudentRegisterAnalystAPI";
+import { selectListAssignmentRegisterAnalystApi, downloadFileAssignmentProcessApi } from "./AssignmentRegisterAnalystAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
 import '../../../../src/App.css';
 
-function StudentRegisterAnalyst() {
+function AssignmentRegisterAnalyst() {
   const dispatch = useDispatch();
-  const listDataStudentRegisterAnalyst = useSelector(state => state.reportAnalyst.selectListStudentRegisterAnalyst.data);
-  const totalRecord = useSelector(state => state.reportAnalyst.selectListStudentRegisterAnalyst.totalRecord);
-  const listDataStudentRegisterAnalystLoading = useSelector(state => state.reportAnalyst.selectListStudentRegisterAnalyst.loading);
+  const listDataAssignmentRegisterAnalyst = useSelector(state => state.reportAnalyst.selectListAssignmentRegisterAnalyst.data);
+  const totalRecord = useSelector(state => state.reportAnalyst.selectListAssignmentRegisterAnalyst.totalRecord);
+  const listDataAssignmentRegisterAnalystLoading = useSelector(state => state.reportAnalyst.selectListAssignmentRegisterAnalyst.loading);
 
 
   // State for form data (Search Major modal)
   const [formDataSearch, setFormDataSearch] = useState({
+    assignmentId: null,
     studentId: null,
     instructorId: null,
     admissionPeriod: null,
-    statusMapping: null,
+    statusAssignment: null,
+    majorId: null,
     fromDate: null,
     toDate: null
   });
@@ -40,10 +42,12 @@ function StudentRegisterAnalyst() {
     try {
 
         const response = await downloadFileAssignmentProcessApi({
+    assignmentId: formDataSearch.assignmentId,
     studentId: formDataSearch.studentId,
     instructorId: formDataSearch.instructorId,
     admissionPeriod: formDataSearch.admissionPeriod,
-    statusMapping: formDataSearch.statusMapping,
+    statusAssignment: formDataSearch.statusAssignment,
+    majorId: formDataSearch.majorId,
     fromDate: formDataSearch.fromDate,
     toDate: formDataSearch.toDate
         });
@@ -55,7 +59,7 @@ function StudentRegisterAnalyst() {
 
         link.href = url;
 
-        link.download = "danh_sach_sinh_vien_.xlsx";
+        link.download = "danh_sach_do_an.xlsx";
 
         document.body.appendChild(link);
 
@@ -82,11 +86,13 @@ function StudentRegisterAnalyst() {
   //Handle for select list major API call 
   const handleSelectListStudentRegisterAnalyst = async (pageNum, pageSize) => {
     try {
-      const response = await dispatch(selectListStudentRegisterAnalystApi({ 
+      const response = await dispatch(selectListAssignmentRegisterAnalystApi({ 
+    assignmentId: null,
     studentId: null,
     instructorId: null,
     admissionPeriod: null,
-    statusMapping: null,
+    statusAssignment: null,
+    majorId: null,
     fromDate: null,
     toDate: null,
         pageRequestDto : { pageNum, pageSize }
@@ -104,11 +110,13 @@ function StudentRegisterAnalyst() {
   //Handle for select list major API call with search
   const handleSelectListStudentRegisterAnalystSearch = async () => {
     try {
-      const response = await dispatch(selectListStudentRegisterAnalystApi({ 
+      const response = await dispatch(selectListAssignmentRegisterAnalystApi({ 
+    assignmentId: formDataSearch.assignmentId,
     studentId: formDataSearch.studentId,
     instructorId: formDataSearch.instructorId,
     admissionPeriod: formDataSearch.admissionPeriod,
-    statusMapping: formDataSearch.statusMapping,
+    statusAssignment: formDataSearch.statusAssignment,
+    majorId: formDataSearch.majorId,
     fromDate: formDataSearch.fromDate,
     toDate: formDataSearch.toDate,
         pageRequestDto : { pageNum: pager.pageNum, pageSize: pager.pageSize }
@@ -136,22 +144,22 @@ function StudentRegisterAnalyst() {
       <div className="p-4 bg-white block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
         <div className="w-full mb-1">
           <div className="mb-4">
-            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách sinh viên</h1>
+            <h1 className="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white">Danh sách đồ án</h1>
           </div>
           <div className="sm:flex">
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="student-id-search">Mã sinh viên</label>
-                  <input type="text" name="studentId" id="student-id-search"
+                  <label htmlFor="student-id-search">Mã đồ án</label>
+                  <input type="text" name="assignmentId" id="student-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã sinh viên" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm mã đồ án" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="instructor-id-search">Mã giảng viên</label>
+                  <label htmlFor="instructor-id-search">Tên đồ án</label>
                   <input type="text" name="instructorId" id="instructor-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã giảng viên" onChange={handleInputChangeSearch} />
+                    placeholder="Tìm kiếm tên đồ án" onChange={handleInputChangeSearch} />
                 </div>
               </form>
             </div>
@@ -166,8 +174,8 @@ function StudentRegisterAnalyst() {
                 Tìm kiếm
               </button>   
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
-                {!listDataStudentRegisterAnalystLoading && !listDataStudentRegisterAnalyst?.length && <span>Không tìm thấy dữ liệu.</span>}
-                {!listDataStudentRegisterAnalystLoading && listDataStudentRegisterAnalyst?.length > 0 && (
+                {!listDataAssignmentRegisterAnalystLoading && !listDataAssignmentRegisterAnalyst?.length && <span>Không tìm thấy dữ liệu.</span>}
+                {!listDataAssignmentRegisterAnalystLoading && listDataAssignmentRegisterAnalyst?.length > 0 && (
                   <span>{`Tổng số bản ghi: ${totalRecord}`}</span>
                 )}
               </div>
@@ -196,7 +204,7 @@ function StudentRegisterAnalyst() {
                   <tr>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Mã sinh viên
+                      Mã đồ án
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -204,11 +212,7 @@ function StudentRegisterAnalyst() {
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Email sinh viên
-                    </th>
-                    <th scope="col"
-                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Mã giảng viên hướng dẫn
+                      Tên đồ án
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
@@ -218,39 +222,44 @@ function StudentRegisterAnalyst() {
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
                       Tên giảng viên phản biện
                     </th>
+                    <th scope="col"
+                      className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
+                      Trạng thái đồ án
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                  {Array.isArray(listDataStudentRegisterAnalyst) && listDataStudentRegisterAnalyst.length ? (
-                    listDataStudentRegisterAnalyst.map((student, idx) => {
-                      const studentId = student?.studentId;
+                  {Array.isArray(listDataAssignmentRegisterAnalyst) && listDataAssignmentRegisterAnalyst.length ? (
+                    listDataAssignmentRegisterAnalyst.map((student, idx) => {
+                      const assignmentId = student?.assignmentId;
                       const studentName = student?.studentName;
-                      const studentEmail = student?.studentEmail;
+                      const assignmentName = student?.assignmentName;
                       const instructorId = student?.instructorId;
                       const instructorName = student?.instructorName;
                       const instructorEmail = student?.instructorEmail;
                       const criticalName = student?.criticalName;
                       const criticalId = student?.criticalId;
+                      const valueStatusAssignmentDisplayName = student?.valueStatusAssignmentDisplayName;
 
                       return (
-                        <tr key={studentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <tr key={assignmentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            {studentId}
+                            {assignmentId}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
                             {studentName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {studentEmail}
-                          </td>
-                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {instructorId !== null ? instructorId : null}
+                            {assignmentName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
                             {instructorId !== null ? instructorName : 'Chưa phân công'}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
                             {criticalId !== null ? criticalName : 'Chưa phân công'}
+                          </td>
+                          <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
+                            {valueStatusAssignmentDisplayName}
                           </td>
                         </tr>
                       );
@@ -288,4 +297,4 @@ function StudentRegisterAnalyst() {
   );
 }
 
-export default StudentRegisterAnalyst;
+export default AssignmentRegisterAnalyst;
