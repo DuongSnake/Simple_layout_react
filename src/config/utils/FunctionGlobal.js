@@ -33,3 +33,16 @@ export const getUserName = () => {
 export const checkSuccessDownload = res => {
   return res.status === 200 && res.data.size > 203; // 203 is content of response status fail
 };
+
+export const formatDateTime = (date) => {
+    const pad = (num) => String(num).padStart(2, "0"); // Ensure 2 digits
+
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1); // Months are 0-based
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${year}${month}${day}${hours}${minutes}${seconds}`;
+  };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { selectListScoreAssignmentRegisterAnalystApi, downloadFileScoreAssignmentProcessApi } from "./ScoreAssignmentAnalystAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
+import {formatDateTime} from '../../../config/utils/FunctionGlobal';
 import 'antd/dist/reset.css';
 import '../../../../src/App.css';
 
@@ -56,10 +57,13 @@ function ScoreAssignmentRegisterAnalyst() {
         const url = window.URL.createObjectURL(blob);
 
         const link = document.createElement("a");
+        let nowDate = new Date();
+        let stringFormatTime = formatDateTime(nowDate);
+        let nameFile = "danh_sach_diem_do_an_"+stringFormatTime+".xlsx";
 
         link.href = url;
 
-        link.download = "danh_sach_do_an.xlsx";
+        link.download = nameFile;
 
         document.body.appendChild(link);
 

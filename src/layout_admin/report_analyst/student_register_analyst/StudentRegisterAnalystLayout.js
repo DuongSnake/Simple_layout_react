@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
 import '../../../../src/App.css';
+import {formatDateTime} from '../../../config/utils/FunctionGlobal';
 
 function StudentRegisterAnalyst() {
   const dispatch = useDispatch();
@@ -52,10 +53,13 @@ function StudentRegisterAnalyst() {
         const url = window.URL.createObjectURL(blob);
 
         const link = document.createElement("a");
+        let nowDate = new Date();
+        let stringFormatTime = formatDateTime(nowDate);
+        let nameFile = "danh_sach_sinh_vien_"+stringFormatTime+".xlsx";
 
         link.href = url;
 
-        link.download = "danh_sach_sinh_vien_.xlsx";
+        link.download = nameFile;
 
         document.body.appendChild(link);
 
