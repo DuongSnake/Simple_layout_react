@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListStudentMapInstructorApi} from '../../layout_admin/student_map_instructor/StudentMapInstructorManagementAPI';
+import { createApi, updateApi, deleteApi, selectListStudentMapInstructorApi, getStudentInfoMapByStudentIdApi} from '../../layout_admin/student_map_instructor/StudentMapInstructorManagementAPI';
 
 const initialState = {
   create: {
@@ -22,7 +22,12 @@ const initialState = {
     loading: false,
     error: null,
     totalRecord: 0
-  }
+  },
+  getStudentInfoMapByStudentId: {
+    data: null,
+    loading: false,
+    error: null
+  },
 };
 
 const studentMapInstructorSlice = createSlice({
@@ -86,6 +91,20 @@ const studentMapInstructorSlice = createSlice({
       .addCase(deleteApi.rejected, (state, action) => {
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
+      })
+      // Get Student Info Map by Student ID handlers
+      .addCase(getStudentInfoMapByStudentIdApi.pending, (state) => {
+        state.getStudentInfoMapByStudentId.loading = true;
+        state.getStudentInfoMapByStudentId.error = null;
+      })
+      .addCase(getStudentInfoMapByStudentIdApi.fulfilled, (state, action) => {
+        state.getStudentInfoMapByStudentId.loading = false;
+        state.getStudentInfoMapByStudentId.error = null;
+        state.getStudentInfoMapByStudentId.data = (undefined === action.payload.data) ? null : action.payload.data;
+      })
+      .addCase(getStudentInfoMapByStudentIdApi.rejected, (state, action) => {
+        state.getStudentInfoMapByStudentId.loading = false;
+        state.getStudentInfoMapByStudentId.error = action.payload || action.error.message;
       })
   },
 });

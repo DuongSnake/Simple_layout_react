@@ -8,7 +8,8 @@ import {
   API_SELECT_LIST_USER,
   API_SELECT_ALL_ROLES,
   API_SELECT_ALL_STUDENTS,
-  API_SELECT_ALL_INSTRUCTORS
+  API_SELECT_ALL_INSTRUCTORS,
+  API_SELECT_ALL_STUDENTS_DONT_HAVE_ASSIGNMENT
 } from '../../config/constant/Api';
 
 export const createApi = createAsyncThunk(
@@ -94,10 +95,10 @@ export const selectAllRolesApi = createAsyncThunk(
 );
 
 export const selectAllStudentApi = createAsyncThunk(
-  'user/selectAllStudent',
+  'user/selectStudentNotHaveAssignment',
   async (authRequest, { rejectWithValue }) => {
     try {
-      let urlSelectAllStudent = SERVER_API_URL + API_SELECT_ALL_STUDENTS;
+      let urlSelectAllStudent = SERVER_API_URL + API_SELECT_ALL_STUDENTS_DONT_HAVE_ASSIGNMENT;
       const response = await apiClient.post(urlSelectAllStudent);
       return response.data;
     } catch (error) {

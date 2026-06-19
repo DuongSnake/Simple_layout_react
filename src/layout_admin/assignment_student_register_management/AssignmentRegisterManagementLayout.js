@@ -3,6 +3,7 @@ import { DatePicker } from 'antd';
 import { selectListAssignmentRegisterApi, createApi, updateApi, deleteApi } from "./AssignmentRegisterManagementAPI";
 import { selectAllInstructorApi , selectAllStudentApi } from "../user_management/UserManagementAPI";
 import { selectListPeriodAssignmentApi } from "../period_assignment_management/PeriodAssignmentManagementAPI";
+import {getStudentInfoMapByStudentIdApi} from "../student_map_instructor/StudentMapInstructorManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
 import { Pagination } from 'antd';
 import dayjs from "dayjs";
@@ -23,10 +24,12 @@ const { RangePicker } = DatePicker;
   const listAllInstructors = useSelector(state => state.userManagement.selectAllInstructors.data);
   const listAllStudents = useSelector(state => state.userManagement.selectAllStudents.data);
   const listDataPeriodAssignment = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.data);
+  const objectMapStudent = useSelector(state => state.studentMapInstructorManagement.getStudentInfoMapByStudentId.data);
   const [selectedFileAdd, setSelectedFileAdd] = useState(null);
   const [selectedFileUpdate, setSelectedFileUpdate] = useState(null);
   const [isAutoMapChecked, setIsAutoMapChecked] = useState(false);
   const [isAutoMapCheckedEdit, setIsAutoMapCheckedEdit] = useState(false);
+  const [valueIntructorIdInsert, setValueIntructorIdInsert] = useState(null);
 
   // State for form data (Add PeriodAssignment modal)
   const [formData, setFormData] = useState({
@@ -241,6 +244,22 @@ const { RangePicker } = DatePicker;
   useEffect(() => {
     // console.log('Redux listDataPeriodAssignment changed:', listDataPeriodAssignment);
     // Reset checkbox selection when period assignment list changes
+    console.log("valueo:"+JSON.stringify(objectMapStudent));
+    if(null !== objectMapStudent && objectMapStudent.studentMapInstructorId !== null){
+    setIsAutoMapChecked(true);
+    setFormData((prev) => ({ ...prev, statusAutoMap: "Y" }));
+    setFormData((prev) => ({ ...prev, instructorId: objectMapStudent.instructorId }));
+    }else{
+    setIsAutoMapChecked(false);
+    setFormData((prev) => ({ ...prev, instructorId: null }));
+    setFormData((prev) => ({ ...prev, statusAutoMap: "N" }));
+    }
+  }, [objectMapStudent]);
+
+  
+  useEffect(() => {
+    // console.log('Redux listDataPeriodAssignment changed:', listDataPeriodAssignment);
+    // Reset checkbox selection when period assignment list changes
     setSelectedPeriodAssignment(new Set());
   }, [listDataPeriodAssignment]);
 
@@ -363,6 +382,17 @@ const { RangePicker } = DatePicker;
       // Directly set the new role value
     const selectedValue = event.target.value;
       setFormData((prev) => ({ ...prev, studentId: selectedValue }));
+      //Handle case if query exist map before or not
+      try {
+      const response = dispatch(getStudentInfoMapByStudentIdApi({ studentId: selectedValue }));
+      if (response.type.endsWith('/fulfilled')) {
+        // console.log("delete successful:", response.payload);
+      } else {
+        // console.error("delete failed:", response.payload);
+      }
+    } catch (error) {
+    //   console.error("delete error:", error);
+    }
   };
   // Handler for student id change in edit user modal
   const handleStudentChangeEditModal = (event) => {
@@ -930,7 +960,7 @@ const { RangePicker } = DatePicker;
                     {isAutoMapChecked && (
                       <div className="col-span-6 sm:col-span-3">
                         <label htmlFor="category-instructor" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tên giảng viên</label>
-                        <select id="category-instructor" onChange={handleInstructorChange}
+                        <select id="category-instructor" value={formData.instructorId || ''} onChange={handleInstructorChange}
                           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
                           {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
                             <>

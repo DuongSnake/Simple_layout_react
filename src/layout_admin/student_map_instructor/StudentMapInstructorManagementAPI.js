@@ -5,7 +5,8 @@ import {
   API_CREATE_STUDENT_MAP_INSTRUCTOR,
   API_UPDATE_STUDENT_MAP_INSTRUCTOR,
   API_DELETE_STUDENT_MAP_INSTRUCTOR,
-  API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR
+  API_SELECT_LIST_STUDENT_MAP_INSTRUCTOR,
+  API_GET_STUDENT_INFO_MAP_BY_STUDENT_ID
 } from '../../config/constant/Api';
 
 export const createApi = createAsyncThunk(
@@ -68,6 +69,22 @@ export const selectListStudentMapInstructorApi = createAsyncThunk(
       // console.log('API URL:', urlSelectListStudentMapInstructor);
       const response = await apiClient.post(urlSelectListStudentMapInstructor, authRequest);
       // console.log('API select list student map instructor Success Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const getStudentInfoMapByStudentIdApi = createAsyncThunk(
+  'studentMapInstructor/selectInfoMapByStudentId',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      // console.log('authRequest:', authRequest);
+      let urlGetStudentInfoMapByStudentId= SERVER_API_URL + API_GET_STUDENT_INFO_MAP_BY_STUDENT_ID;
+      const response = await apiClient.post(urlGetStudentInfoMapByStudentId, authRequest);
+      // console.log('API get student info map by student id Success Response:', response.data);
       return response.data;
     } catch (error) {
       console.error('API Error:', error.message);

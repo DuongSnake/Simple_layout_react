@@ -24,6 +24,7 @@ export const API_SELECT_LIST_USER = PRE_FIX_API + 'user/selectList';
 export const API_SELECT_ALL_ROLES = PRE_FIX_API + 'user/selectAllRole';
 export const API_SELECT_ALL_STUDENTS = PRE_FIX_API + 'user/selectAllStudent';
 export const API_SELECT_ALL_INSTRUCTORS = PRE_FIX_API + 'user/selectAllInstructor';
+export const API_SELECT_ALL_STUDENTS_DONT_HAVE_ASSIGNMENT = PRE_FIX_API + 'user/selectStudentNotHaveAssignment';
 
 
 
