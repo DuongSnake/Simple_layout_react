@@ -296,10 +296,9 @@ function StudentManagement() {
     const { name, value } = event.target;
     setFormDataSearch(prev => ({ ...prev, [name]: value }));
   };
-      // Handle file selection
+  // Handle file selection
   const handleFileChangeUpdate = (event) => {
     const file = event.target.files?.[0]; // Get the first file
-    console.log('Selected file:', file);
     if (!file) {
       setSelectedFileUpdate(null);
       return;
@@ -634,14 +633,14 @@ function StudentManagement() {
                 </button>
               </div>
               <div className="p-6 pt-0 text-center">
-                      <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tin dang ky danh sach</label>
+                      <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tin đăng ký danh sách</label>
                         <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium
                         text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full
                         shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
                 <div className="flex items-center ml-auto space-x-2 sm:space-x-3" style={{ marginTop: '20px' }}>
                   <button onClick={handleDownloadTemplate} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Tải xuống tệp mẫu</button>
                 <button onClick={handleInsertListStudentStudent} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Chắc chắn</button>
-                <button onClick={closeInsertListStudentModal} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Không, hủy bỏ</button>
+                <button onClick={closeInsertListStudentModal} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Hủy đăng ký</button>
                 </div>
               </div>
             </div>

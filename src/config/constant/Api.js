@@ -77,6 +77,7 @@ export const API_DELETE_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstru
 export const API_SELECT_STUDENT_MAP_INSTRUCTOR = PRE_FIX_API + 'studentMapInstructor/select';
 export const API_GET_ALL_STUDENT_MAP_INSTRUCTOR_ACTIVE = PRE_FIX_API + 'studentMapInstructor/selectListAllActive';
 export const API_GET_STUDENT_READY_MAP_CRITICAL = PRE_FIX_API + 'studentMapInstructor/selectListUserToMapCritical';
+export const API_GET_STUDENT_INFO_MAP_BY_STUDENT_ID = PRE_FIX_API + 'studentMapInstructor/selectInfoMapByStudentId';
 
 
 /**
@@ -112,6 +113,8 @@ export const API_UPDATE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/update
 export const API_DELETE_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/delete';
 export const API_SELECT_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/select';
 export const API_SELECT_LIST_ASSIGNMENT_BY_PERIOD_TIME = PRE_FIX_API + 'scoreAssignment/selectListAssignmentReadyToAddScore';
+export const API_DOWNLOAD_TEMPLATE_BATCH_INSERT_SCORE_ASSIGNMENT = PRE_FIX_API + 'scoreAssignment/downloadTemplate';
+export const API_INSERT_LIST_SCORE_ASSIGNMENT_BY_FILE_UPLOAD = PRE_FIX_API + 'scoreAssignment/insertListScoreAssignment';
 
 /**
  * List Assignment register(admin site)

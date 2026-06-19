@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListAssignmentByPeriodTimeApi, selectListApiScoresApi } from '../../layout_admin/score_assignment_management/ScoreAssignmentManagementAPI.js';
+import { createApi, updateApi, deleteApi, selectListAssignmentByPeriodTimeApi, selectListApiScoresApi, insertListScoreAssignmentApi } from '../../layout_admin/score_assignment_management/ScoreAssignmentManagementAPI.js';
 import {selectListAssignmentRegisterUserSiteApi} from '../../layout_user/score_assignment_management/ScoreAssignmentManagementAPI.js';
 import {selectListAssignmentRegisterInstructorSiteApi, selectListScoreAssignmentInstructorSiteApi} from '../../layout_instructor/score_assignment_student/ScoreAssignmentInstructorSiteAPI.js';
 const initialState = {
@@ -47,6 +47,11 @@ const initialState = {
     loading: false,
     error: null,
     totalRecord: 0
+  },
+  insertListScoreAssignment: {
+    data: null,
+    loading: false,
+    error: null,
   }
 };
 
@@ -174,6 +179,20 @@ const scoreAssignmentManagementSlice = createSlice({
       .addCase(deleteApi.rejected, (state, action) => {
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
+      })
+      // Insert List Score Assignment handlers
+      .addCase(insertListScoreAssignmentApi.pending, (state) => {
+        state.insertListScoreAssignment.loading = true;
+        state.insertListScoreAssignment.error = null;
+      })
+      .addCase(insertListScoreAssignmentApi.fulfilled, (state, action) => {
+        state.insertListScoreAssignment.loading = false;
+        state.insertListScoreAssignment.data = action.payload;
+        state.insertListScoreAssignment.error = null;
+      })
+      .addCase(insertListScoreAssignmentApi.rejected, (state, action) => {
+        state.insertListScoreAssignment.loading = false;
+        state.insertListScoreAssignment.error = action.payload || action.error.message;
       });
   },
 });

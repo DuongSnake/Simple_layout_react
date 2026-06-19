@@ -661,7 +661,7 @@ function FileUploadAssignmentManagement() {
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
                               <div className={`h-2.5 w-2.5 rounded-full ${activeStatus ? 'bg-green-400' : 'bg-red-500'} mr-2`} />
-                              <span>{activeStatus ? 'Hoạt động' : 'Không hoạt động'}</span>
+                              <span>{activeStatus ? 'Đang sử dụng' : 'Đã xóa'}</span>
                             </div>
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">

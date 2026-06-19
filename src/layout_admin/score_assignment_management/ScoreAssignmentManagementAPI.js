@@ -1,12 +1,16 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../config/client/ApiClient.js';
+import axios from 'axios';
+import { getAuthToken } from '../../config/utils/FunctionGlobal.js';
 import {
   SERVER_API_URL,
   API_CREATE_SCORE_ASSIGNMENT,
   API_UPDATE_SCORE_ASSIGNMENT,
   API_DELETE_SCORE_ASSIGNMENT,
   API_SELECT_LIST_SCORE_ASSIGNMENT,
-  API_SELECT_LIST_ASSIGNMENT_BY_PERIOD_TIME
+  API_SELECT_LIST_ASSIGNMENT_BY_PERIOD_TIME,
+  API_DOWNLOAD_TEMPLATE_BATCH_INSERT_SCORE_ASSIGNMENT,
+  API_INSERT_LIST_SCORE_ASSIGNMENT_BY_FILE_UPLOAD
 } from '../../config/constant/Api';
 
 export const createApi = createAsyncThunk(
@@ -84,3 +88,37 @@ export const selectListAssignmentByPeriodTimeApi = createAsyncThunk(
     }
   }
 );
+
+export const insertListScoreAssignmentApi = createAsyncThunk(
+  'scoreAssignment/insertListScoreAssignment',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      let urlInsertListScore = SERVER_API_URL + API_INSERT_LIST_SCORE_ASSIGNMENT_BY_FILE_UPLOAD;
+      const response = await apiClient.post(urlInsertListScore, authRequest);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const downloadTemplateInsertScoreAssignment = async () => {
+    const token = getAuthToken();
+    return await axios.get(
+        SERVER_API_URL + API_DOWNLOAD_TEMPLATE_BATCH_INSERT_SCORE_ASSIGNMENT,
+        {
+            responseType: "blob",
+
+            headers: {
+                Authorization: token
+                    ? `Bearer ${token}`
+                    : "",
+
+                token: token || "",
+
+                lang: "vi"
+            }
+        }
+    );
+};

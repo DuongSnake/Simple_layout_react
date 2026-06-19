@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import { selectListAssignmentByPeriodTimeApi, createApi, updateApi, deleteApi, selectListApiScoresApi } from "./ScoreAssignmentManagementAPI";
+import { selectListAssignmentByPeriodTimeApi, createApi, updateApi, deleteApi, selectListApiScoresApi,
+  insertListScoreAssignmentApi,
+  downloadTemplateInsertScoreAssignment
+ } from "./ScoreAssignmentManagementAPI";
 
 import { selectListPeriodAssignmentApi } from "../period_assignment_management/PeriodAssignmentManagementAPI";
 import { useDispatch, useSelector } from "react-redux";
@@ -18,6 +21,10 @@ function ScoreAssignmentManagement() {
   const listDataAssignmentStudentRegisterLoading = useSelector(state => state.scoreAssignmentManagement.selectListApiScores.loading);
   const listDataPeriodAssignment = useSelector(state => state.periodAssignmentManagement.selectListPeriodAssignment.data);
   const [listAllAssignmentFinalApprove, setListAllAssignmentFinalApprove] = useState([]);
+  const [isInsertListScoreAssignmentModalOpen, setIsInsertListScoreAssignmentModalOpen] = useState(false);
+  const openInsertListScoreAssignmentModal = () => setIsInsertListScoreAssignmentModalOpen(true);
+  const closeInsertListScoreAssignmentModal = () => setIsInsertListScoreAssignmentModalOpen(false);
+  const [selectedFileUpdate, setSelectedFileUpdate] = useState(null);
 
   // State for form data (Add ScoreAssignment modal)
   const [formData, setFormData] = useState({
@@ -421,6 +428,70 @@ function ScoreAssignmentManagement() {
     setFormDataSearch((prev) => ({ ...prev, [name]: value }));
   };
 
+  //Donwload example file
+  const handleDownloadTemplate = async () => {
+  try {
+      const response = await downloadTemplateInsertScoreAssignment();
+      const blob = new Blob([response.data]);
+
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.download = "template_register_list_score_assignment.xlsx";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+
+      console.error("Download file error:", error);
+
+    }
+  };
+  
+  // Handle file selection
+    const handleFileChangeUpdate = (event) => {
+      const file = event.target.files?.[0]; // Get the first file
+      if (!file) {
+        setSelectedFileUpdate(null);
+        return;
+      }
+      setSelectedFileUpdate(file);
+    };
+  
+  //Handle for create admission period API call
+    const handleInsertListScoreAssignment = async () => {
+      try {
+      const formData123 = new FormData();
+      // danh sách file delete
+      formData123.append(
+        "fileUploadContent",
+        selectedFileUpdate
+      );
+  
+      const response = await dispatch(insertListScoreAssignmentApi(formData123));
+        if (response.type.endsWith('/fulfilled')) {
+          closeInsertListScoreAssignmentModal(); // Close modal after submit
+          setSelectedFileUpdate(null);
+          //set timeout to ensure the create API call completes before refreshing the list
+          setTimeout(() => {
+            handleSelectListScoreAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+          }, 500);
+        } else {
+          console.error("insert failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("insert error:", error);
+      }
+    };
   return (
     <>
       {/* Existing JSX with modifications for state */}
@@ -487,6 +558,14 @@ function ScoreAssignmentManagement() {
                 className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Xóa
+              </button>
+              <button
+                type="button"
+                id="insert-list-score-assignment-button"
+                onClick={openInsertListScoreAssignmentModal}
+                className="inline-flex items-center justify-center w-1/2 px-3 py-2 text-sm font-medium text-center text-white rounded-lg bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 sm:w-auto dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+              >
+                Thêm danh sách điểm đồ án
               </button>
             </div>
           </div>
@@ -596,7 +675,7 @@ function ScoreAssignmentManagement() {
                           <td className="p-4 text-base font-normal text-gray-900 whitespace-nowrap dark:text-white">
                             <div className="flex items-center">
                               <div className={`h-2.5 w-2.5 rounded-full ${activeStatus ? 'bg-green-400' : 'bg-red-500'} mr-2`} />
-                              <span>{activeStatus ? 'Hoạt động' : 'Không hoạt động'}</span>
+                              <span>{activeStatus ? 'Đang sử dụng' : 'Đã xóa'}</span>
                             </div>
                           </td>
                         </tr>
@@ -871,6 +950,32 @@ function ScoreAssignmentManagement() {
                   className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">
                   Không, hủy bỏ
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
+      {isInsertListScoreAssignmentModalOpen && (
+        <div onClick={closeInsertListScoreAssignmentModal} className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50" id="delete-student-modal">
+          <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md px-4 md:h-auto">
+            <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
+              <div className="flex justify-end p-2">
+                <button type="button" onClick={closeInsertListScoreAssignmentModal} className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
+                </button>
+              </div>
+              <div className="p-6 pt-0 text-center">
+                      <label htmlFor="category-period-admission-edit" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Tệp tin đăng ký danh sách</label>
+                        <input className="cursor-pointer bg-neutral-secondary-medium border border-default-medium
+                        text-heading text-sm rounded-base focus:ring-brand focus:border-brand block w-full
+                        shadow-xs placeholder:text-body" id="file_input" type="file" onChange={handleFileChangeUpdate} />
+                <div className="flex items-center ml-auto space-x-2 sm:space-x-3" style={{ marginTop: '20px' }}>
+                  <button onClick={handleDownloadTemplate} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Tải xuống tệp mẫu</button>
+                  <button onClick={handleInsertListScoreAssignment} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Chắc chắn</button>
+                  <button onClick={closeInsertListScoreAssignmentModal} className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700">Hủy đăng ký</button>
+                </div>
               </div>
             </div>
           </div>
