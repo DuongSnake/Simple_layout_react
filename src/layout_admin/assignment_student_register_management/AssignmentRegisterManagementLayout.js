@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 import 'antd/dist/reset.css';
 import '../.././App.css';
 import moment from 'moment';
-import { APP_DATE_FORMAT}  from '../../config/constant/Constants';
+import { APP_DATE_FORMAT, RESPONSECD_SUCCESS}  from '../../config/constant/Constants';
 function AssignmentRegisterManagement() {
 const { RangePicker } = DatePicker;
   // State for modal visibility
@@ -30,6 +30,9 @@ const { RangePicker } = DatePicker;
   const [isAutoMapChecked, setIsAutoMapChecked] = useState(false);
   const [isAutoMapCheckedEdit, setIsAutoMapCheckedEdit] = useState(false);
   const [valueIntructorIdInsert, setValueIntructorIdInsert] = useState(null);
+  const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const closeErrorModal = () => setIsErrorModalOpen(false);
+  const [errorModalMessage, setErrorModalMessage] = useState('');
 
   // State for form data (Add PeriodAssignment modal)
   const [formData, setFormData] = useState({
@@ -83,7 +86,7 @@ const { RangePicker } = DatePicker;
     if (e.target.checked) {
       // Select all periodAssignments in current page
       const allPeriodAssignmentIds = new Set(
-        listDataPeriodAssignment?.map((periodAssignment, idx) => periodAssignment?.periodAssignmentId ?? idx) || []
+        listDataAssignmentRegister?.map((periodAssignment, idx) => periodAssignment?.assignmentStudentRegisterId ?? idx) || []
       );
       setSelectedPeriodAssignment(allPeriodAssignmentIds);
     } else {
@@ -219,7 +222,7 @@ const { RangePicker } = DatePicker;
   const areAllSelected = 
     Array.isArray(listDataAssignmentRegister) && 
     listDataAssignmentRegister.length > 0 && 
-    listDataAssignmentRegister.every((periodAssignment, idx) => selectedPeriodAssignment.has(periodAssignment?.periodAssignmentId ?? idx));
+    listDataAssignmentRegister.every((periodAssignment, idx) => selectedPeriodAssignment.has(periodAssignment?.assignmentStudentRegisterId ?? idx));
   
   // Check if some (but not all) are selected
   const areSomeSelected = 
@@ -280,22 +283,12 @@ const { RangePicker } = DatePicker;
   const handleFormSubmit = (event) => {
     event.preventDefault();
     handleCreate(); // Call the create API function
-    closeAddModal(); // Close modal after submit
-    //set timeout to ensure the create API call completes before refreshing the list
-    setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
-    }, 2500);
   };
 
   // Handler for form submit in edit admission period modal
   const handleFormSubmitEditAdmissionPeriod = (event) => {
     event.preventDefault();
     handleUpdate(); // Call the update API function
-    closeEditModal(); // Close modal after submit
-    // set timeout to ensure the update API call completes before refreshing the list
-    setTimeout(() => {
-      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
-    }, 500);
   };
 
   //Handle for create admission period API call 
@@ -311,7 +304,10 @@ const { RangePicker } = DatePicker;
     formData123.append("statusAutoMap", formData.statusAutoMap || "N");
     try {
       const response = await dispatch(createApi(formData123));
-      if (response.type.endsWith('/fulfilled')) {
+      const errorMessage = typeof response.payload === 'string'
+        ? response.payload
+        : response.payload?.responseMsg || response.payload?.message || 'Đăng ký đồ án không thành công';
+      if (response.type.endsWith('/fulfilled') && response.data?.responseCd === RESPONSECD_SUCCESS) {
         setFormData({
           fileUpload: '',
           studentId: '',
@@ -321,8 +317,16 @@ const { RangePicker } = DatePicker;
           statusAutoMap: 'N'
         });
         setSelectedFileAdd(null);
+        
+    closeAddModal(); // Close modal after submit
+    //set timeout to ensure the create API call completes before refreshing the list
+    setTimeout(() => {
+      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after creation
+    }, 2500);
       } else {
-        // console.error("insert failed:", response.payload);
+        console.error("create fail", response.payload);
+        setErrorModalMessage(errorMessage);
+        setIsErrorModalOpen(true);
       }
     } catch (error) {
       // console.error("insert error:", error);
@@ -345,11 +349,21 @@ const { RangePicker } = DatePicker;
     formData123.append("oldValueId", formDataEdit.oldValueId || 0);
     // console.log("form data:"+JSON.stringify(formData123));
       const response = await dispatch(updateApi(formData123));
+      const errorMessage = typeof response.payload === 'string'
+        ? response.payload
+        : response.payload?.responseMsg || response.payload?.message || 'Sửa đồ án không thành công';
       // Check if update was successful
       if (response.type.endsWith('/fulfilled')) {
         // console.log("update successful:", response.payload);
+    closeEditModal(); // Close modal after submit
+    // set timeout to ensure the update API call completes before refreshing the list
+    setTimeout(() => {
+      handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after update
+    }, 500);
       } else {
-        // console.error("update failed:", response.payload);
+        console.error("create fail", response.payload);
+        setErrorModalMessage(errorMessage);
+        setIsErrorModalOpen(true);
       }
     } catch (error) {
     //   console.error("update error:", error);
@@ -434,6 +448,9 @@ const { RangePicker } = DatePicker;
     try {
       const response = await dispatch(deleteApi({ listData: Array.from(selectedPeriodAssignment) }));
       // Check if delete was successful
+      const errorMessage = typeof response.payload === 'string'
+        ? response.payload
+        : response.payload?.responseMsg || response.payload?.message || 'Xóa án không thành công';
       if (response.type.endsWith('/fulfilled')) {
         // console.log("delete successful:", response.payload);
         // set timeout to ensure the delete API call completes before refreshing the list
@@ -441,7 +458,9 @@ const { RangePicker } = DatePicker;
           handleSelectListPeriodAssignments(pager.pageNum, pager.pageSize); // Refresh period assignment list after deletion
         }, 500);
       } else {
-        // console.error("delete failed:", response.payload);
+        console.error("create fail", response.payload);
+        setErrorModalMessage(errorMessage);
+        setIsErrorModalOpen(true);
       }
     } catch (error) {
     //   console.error("delete error:", error);
@@ -812,7 +831,7 @@ const { RangePicker } = DatePicker;
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
+                            {periodAssignment.periodAssignmentId}-{periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
@@ -911,7 +930,7 @@ const { RangePicker } = DatePicker;
                         {listDataPeriodAssignment.map((periodAssignment, idx) => {
                           return (
                           <option key={idx} value={periodAssignment.periodAssignmentId}>
-                            {periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
+                            {periodAssignment.periodAssignmentId}-{periodAssignment.admissionPeriodIdName}-{periodAssignment.majorName}
                           </option>
                           );
                         })}
@@ -1038,6 +1057,45 @@ const { RangePicker } = DatePicker;
           </div>
         </div>
       )}
+
+      {/* <!-- Error message popup --> */}
+      {isErrorModalOpen && (
+      <div
+        onClick={closeErrorModal}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md px-4 md:h-auto">
+          <div className="relative bg-white rounded-lg shadow dark:bg-gray-800">
+            <div className="flex justify-end p-2">
+              <button
+                type="button"
+                onClick={closeErrorModal}
+                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 pt-0 text-center">
+              <svg className="w-16 h-16 mx-auto text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <h3 className="mt-5 mb-6 text-lg text-gray-500 dark:text-gray-400">{errorModalMessage}</h3>
+              <button
+                type="button"
+                onClick={closeErrorModal}
+                className="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-base px-3 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }

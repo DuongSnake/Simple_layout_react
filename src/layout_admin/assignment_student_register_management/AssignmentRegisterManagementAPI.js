@@ -8,6 +8,7 @@ API_UPDATE_ASSIGNMENT_STUDENT_ADMIN_SIDE,
 API_DELETE_ASSIGNMENT_STUDENT_ADMIN_SIDE,
 API_SELECT_ASSIGNMENT_STUDENT_ADMIN_SIDE
 } from '../../config/constant/Api.js';
+import { RESPONSECD_SUCCESS } from '../../config/constant/Constants';
 
 export const createApi = createAsyncThunk(
   'assignmentStudentRegister/create',
@@ -16,8 +17,12 @@ export const createApi = createAsyncThunk(
       let urlCreateAssignmentRegister= SERVER_API_URL + API_CREATE_ASSIGNMENT_STUDENT_ADMIN_SIDE;
       console.log('API URL:', urlCreateAssignmentRegister);
       const response = await apiClient.post(urlCreateAssignmentRegister, authRequest);
-      console.log('API create assignmentRegister Success Response:', response.data);
-      return response.data;
+      if (response.data?.responseCd === RESPONSECD_SUCCESS) {
+        return response.data;
+      }
+      return rejectWithValue(
+        response.data?.responseMsg || response.data?.responseCd || 'Thêm mới đồ án không thành công.'
+      );
     } catch (error) {
       // console.error('API Error:', error.message);
       return rejectWithValue(error.response?.data || error.message);
@@ -33,7 +38,12 @@ export const updateApi = createAsyncThunk(
       let urlUpdateAssignmentRegister= SERVER_API_URL + API_UPDATE_ASSIGNMENT_STUDENT_ADMIN_SIDE;
       // console.log('API URL:', urlUpdateAssignmentRegister);
       const response = await apiClient.post(urlUpdateAssignmentRegister, authRequest);
-      // console.log('API update assignmentRegister Success Response:', response.data);
+      if (response.data?.responseCd === RESPONSECD_SUCCESS) {
+        return response.data;
+      }
+      return rejectWithValue(
+        response.data?.responseMsg || response.data?.responseCd || 'Thêm mới đồ án không thành công.'
+      );
       return response.data;
     } catch (error) {
       // console.error('API Error:', error.message);
@@ -50,8 +60,12 @@ export const deleteApi = createAsyncThunk(
       let urlDeleteAssignmentRegister= SERVER_API_URL + API_DELETE_ASSIGNMENT_STUDENT_ADMIN_SIDE;
       // console.log('API URL:', urlDeleteAssignmentRegister);
       const response = await apiClient.post(urlDeleteAssignmentRegister, authRequest);
-      // console.log('API delete assignmentRegister Success Response:', response.data);
-      return response.data;
+      if (response.data?.responseCd === RESPONSECD_SUCCESS) {
+        return response.data;
+      }
+      return rejectWithValue(
+        response.data?.responseMsg || response.data?.responseCd || 'Thêm mới đồ án không thành công.'
+      );
     } catch (error) {
       // console.error('API Error:', error.message);
       return rejectWithValue(error.response?.data || error.message);
