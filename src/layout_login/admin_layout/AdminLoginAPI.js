@@ -1,5 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from '../../config/client/ApiClient.js';
+import { RESPONSECD_SUCCESS } from '../../config/constant/Constants';
 import {
   API_CHANGE_LOGIN_PASSWORD,
   API_CHANGE_PASSWORD,
@@ -17,9 +18,14 @@ export const authenticate = createAsyncThunk(
   async (authRequest, { rejectWithValue }) => {
     try {
       console.log('authRequest:', authRequest);
-      let urlLogin= SERVER_API_URL + APT_POST_SIGNIN;
+      let urlLogin = SERVER_API_URL + APT_POST_SIGNIN;
       const response = await apiClient.post(urlLogin, authRequest);
-      return response.data;
+      if (response.data?.responseCd === RESPONSECD_SUCCESS) {
+        return response.data;
+      }
+      return rejectWithValue(
+        response.data?.responseMsg || response.data?.responseCd || 'Đăng nhập không thành công.'
+      );
     } catch (error) {
       console.error('API Error:', error.message);
       return rejectWithValue(error.response?.data || error.message);
