@@ -5,13 +5,16 @@ import { Pagination } from 'antd';
 import {formatDateTime} from '../../../config/utils/FunctionGlobal';
 import 'antd/dist/reset.css';
 import '../../../../src/App.css';
+import { selectAllInstructorApi } from "../../user_management/UserManagementAPI";
+import { selectListApiMajorActiveApi } from "../../major_management/MajorManagementAPI";
 
 function ScoreAssignmentRegisterAnalyst() {
   const dispatch = useDispatch();
   const listDataAssignmentRegisterAnalyst = useSelector(state => state.reportAnalyst.selectListScoreAssignmentRegisterAnalyst.data);
   const totalRecord = useSelector(state => state.reportAnalyst.selectListScoreAssignmentRegisterAnalyst.totalRecord);
   const listDataAssignmentRegisterAnalystLoading = useSelector(state => state.reportAnalyst.selectListScoreAssignmentRegisterAnalyst.loading);
-
+    const listAllInstructors = useSelector(state => state.userManagement.selectAllInstructors.data);
+    const listAllMajors = useSelector(state => state.majorManagement.selectListApiMajorActive.data);
 
   // State for form data (Search Major modal)
   const [formDataSearch, setFormDataSearch] = useState({
@@ -84,6 +87,8 @@ function ScoreAssignmentRegisterAnalyst() {
   useEffect(() => {
     //Select list major when component mounts
     handleSelectListStudentRegisterAnalyst(pager.pageNum, pager.pageSize);
+    handleSelectListAllInstructors();
+    handleSelectListAllMajorActive();
   }, []); // Empty dependency array means this runs once on mount
 
 
@@ -134,7 +139,46 @@ function ScoreAssignmentRegisterAnalyst() {
       console.error("select list error:", error);
     }
   };
+    //Handle for select list all instructors API call 
+  const handleSelectListAllInstructors = async () => {
+    try {
+        const response = await dispatch(selectAllInstructorApi());
+        if (response.type.endsWith('/fulfilled')) {
+          // console.log("select all majors successful payload:", response.payload);
+        } else {
+          console.error("select all majors failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("select all majors error:", error);
+      }
+    };
 
+        //Handle for select list all major active
+  const handleSelectListAllMajorActive = async () => {
+    try {
+        const response = await dispatch(selectListApiMajorActiveApi());
+        if (response.type.endsWith('/fulfilled')) {
+          // console.log("select all majors successful payload:", response.payload);
+        } else {
+          console.error("select all majors failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("select all majors error:", error);
+      }
+    };
+  // Handler for instructor id change in edit user modal
+  const handleInstructorChange = (event) => {
+      // Directly set the new instructor id value
+    const selectedValue = event.target.value;
+      setFormDataSearch((prev) => ({ ...prev, instructorId: selectedValue }));
+  };
+  // Handler for instructor id change in edit user modal
+  const handleMajorChange = (event) => {
+      // Directly set the new instructor id value
+    const selectedValue = event.target.value;
+    console.log("select:"+selectedValue);
+      setFormDataSearch((prev) => ({ ...prev, majorId: selectedValue }));
+  };
 
   // Handler for search form input changes
   const handleInputChangeSearch = (event) => {
@@ -154,16 +198,54 @@ function ScoreAssignmentRegisterAnalyst() {
             <div className="items-center hidden mb-3 sm:flex sm:divide-x sm:mb-0 dark:divide-gray-700">
               <form className="lg:pr-3">
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="student-id-search">Mã đồ án</label>
+                  <label htmlFor="student-id-search">Mã điểm đồ án</label>
                   <input type="text" name="assignmentId" id="student-id-search"
                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                     placeholder="Tìm kiếm mã đồ án" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="instructor-id-search">Tên đồ án</label>
-                  <input type="text" name="instructorId" id="instructor-id-search"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm tên đồ án" onChange={handleInputChangeSearch} />
+                  <label htmlFor="instructor-id-search">Tên giảng viên</label>
+                      <div className="col-span-6 sm:col-span-3">
+                        <select id="category-instructor" onChange={handleInstructorChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                          {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
+                            <>
+                              <option value="">Chọn tất cả</option>
+                              {listAllInstructors.map((instructor, idx) => {
+                                return (
+                                  <option key={idx} value={instructor.id}>
+                                    {instructor.fullName}
+                                  </option>
+                                );
+                              })}
+                            </>
+                          ) : (
+                            <option value="">Không tìm thấy</option>
+                          )}
+                        </select>
+                      </div>
+                </div>
+                <div className="relative mt-1 lg:w-64 xl:w-96">
+                  <label htmlFor="instructor-id-search">Tên chuyên ngành</label>
+                      <div className="col-span-6 sm:col-span-3">
+                        <select id="category-major" onChange={handleMajorChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                          {Array.isArray(listAllMajors) && listAllMajors.length ? (
+                            <>
+                              <option value="">Chọn tất cả</option>
+                              {listAllMajors.map((instructor, idx) => {
+                                return (
+                                  <option key={idx} value={instructor.majorId}>
+                                    {instructor.majorName}
+                                  </option>
+                                );
+                              })}
+                            </>
+                          ) : (
+                            <option value="">Không tìm thấy</option>
+                          )}
+                        </select>
+                      </div>
                 </div>
               </form>
             </div>
@@ -236,7 +318,7 @@ function ScoreAssignmentRegisterAnalyst() {
                     </th>
                     <th scope="col"
                       className="p-4 text-xs font-medium text-left text-gray-500 uppercase dark:text-gray-400">
-                      Tên giảng viên phản biện
+                      Tên chuyên ngành
                     </th>
                   </tr>
                 </thead>
@@ -254,6 +336,8 @@ function ScoreAssignmentRegisterAnalyst() {
                       const scoreAverage = student?.scoreAverage;
                       const scoreInstructor = student?.scoreInstructor;
                       const scoreExaminer = student?.scoreExaminer;
+                      const majorId = student?.majorId;
+                      const majorName = student?.majorName;
                       return (
                         <tr key={scoreAssignmentId} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                           <td className="p-4 text-base font-medium text-gray-900 whitespace-nowrap dark:text-white">
@@ -278,7 +362,7 @@ function ScoreAssignmentRegisterAnalyst() {
                             {instructorName}
                           </td>
                           <td className="max-w-sm p-4 overflow-hidden text-base font-normal text-gray-500 truncate xl:max-w-xs dark:text-gray-400">
-                            {criticalName}
+                            {majorName}
                           </td>
                         </tr>
                       );

@@ -30,3 +30,34 @@ export const FORMAT_DATE_SLASH = 'DD/MM/YYYY';
 export const FORMAT_TIME = 'HH:mm';
 
 export const MAXIMUM_TO_DATE = '99999999';
+
+
+export const STATUS_MAP_USING = [
+  {
+    val: 'Y',
+    text: 'Đã phân công',
+  },
+  {
+    val: 'N',
+    text: 'Chưa phân công',
+  },
+];
+
+export const STATUS_ASSIGNMENT = [
+  {
+    val: 0,
+    text: 'Chưa phê duyệt đăng ký',
+  },
+  {
+    val: 1,
+    text: 'Chờ phê duyệt đăng ký',
+  },
+  {
+    val: 2,
+    text: 'Duyệt đăng ký xong',
+  },
+  {
+    val: 7,
+    text: 'Duyệt bảo vệ xong',
+  },
+];

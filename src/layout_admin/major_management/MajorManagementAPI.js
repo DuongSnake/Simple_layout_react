@@ -6,6 +6,7 @@ import {
   API_UPDATE_MAJOR,
   API_DELETE_MAJOR,
   API_GET_LIST_MAJOR,
+  API_GET_ALL_SELECT_MAJOR_ACITVE
 } from '../../config/constant/Api';
 
 export const createApi = createAsyncThunk(
@@ -65,6 +66,23 @@ export const selectListApiMajors = createAsyncThunk(
     try {
       // console.log('authRequest:', authRequest);
       let urlSelectListMajor = SERVER_API_URL + API_GET_LIST_MAJOR;
+      // console.log('API URL:', urlSelectListMajor);
+      const response = await apiClient.post(urlSelectListMajor, authRequest);
+      // console.log('API select list major Success Response:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('API Error:', error.message);
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const selectListApiMajorActiveApi = createAsyncThunk(
+  'major/selectListAllActive',
+  async (authRequest, { rejectWithValue }) => {
+    try {
+      // console.log('authRequest:', authRequest);
+      let urlSelectListMajor = SERVER_API_URL + API_GET_ALL_SELECT_MAJOR_ACITVE;
       // console.log('API URL:', urlSelectListMajor);
       const response = await apiClient.post(urlSelectListMajor, authRequest);
       // console.log('API select list major Success Response:', response.data);

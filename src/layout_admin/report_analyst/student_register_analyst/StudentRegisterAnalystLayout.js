@@ -5,14 +5,16 @@ import { Pagination } from 'antd';
 import 'antd/dist/reset.css';
 import '../../../../src/App.css';
 import {formatDateTime} from '../../../config/utils/FunctionGlobal';
+import {STATUS_MAP_USING} from '../../../config/constant/Constants'
+import { selectAllInstructorApi } from "../../user_management/UserManagementAPI";
 
 function StudentRegisterAnalyst() {
   const dispatch = useDispatch();
   const listDataStudentRegisterAnalyst = useSelector(state => state.reportAnalyst.selectListStudentRegisterAnalyst.data);
   const totalRecord = useSelector(state => state.reportAnalyst.selectListStudentRegisterAnalyst.totalRecord);
   const listDataStudentRegisterAnalystLoading = useSelector(state => state.reportAnalyst.selectListStudentRegisterAnalyst.loading);
-
-
+  const listAllInstructors = useSelector(state => state.userManagement.selectAllInstructors.data);
+  const [listStatusUse, setListStatusUse] = useState(STATUS_MAP_USING);
   // State for form data (Search Major modal)
   const [formDataSearch, setFormDataSearch] = useState({
     studentId: null,
@@ -80,6 +82,7 @@ function StudentRegisterAnalyst() {
   useEffect(() => {
     //Select list major when component mounts
     handleSelectListStudentRegisterAnalyst(pager.pageNum, pager.pageSize);
+    handleSelectListAllInstructors();
   }, []); // Empty dependency array means this runs once on mount
 
 
@@ -127,7 +130,33 @@ function StudentRegisterAnalyst() {
     }
   };
 
+    //Handle for select list all instructors API call 
+  const handleSelectListAllInstructors = async () => {
+    try {
+        const response = await dispatch(selectAllInstructorApi());
+        if (response.type.endsWith('/fulfilled')) {
+          // console.log("select all majors successful payload:", response.payload);
+        } else {
+          console.error("select all majors failed:", response.payload);
+        }
+      } catch (error) {
+        console.error("select all majors error:", error);
+      }
+    };
 
+  // Handler for instructor id change in edit user modal
+  const handleInstructorChange = (event) => {
+      // Directly set the new instructor id value
+    const selectedValue = event.target.value;
+      setFormDataSearch((prev) => ({ ...prev, instructorId: selectedValue }));
+  };
+
+  // Handler for instructor id change in edit user modal
+  const handleStatusMappingChange = (event) => {
+      // Directly set the new instructor id value
+    const selectedValue = event.target.value;
+      setFormDataSearch((prev) => ({ ...prev, statusMapping: selectedValue }));
+  };
   // Handler for search form input changes
   const handleInputChangeSearch = (event) => {
     const { name, value } = event.target;
@@ -152,10 +181,48 @@ function StudentRegisterAnalyst() {
                     placeholder="Tìm kiếm mã sinh viên" onChange={handleInputChangeSearch} />
                 </div>
                 <div className="relative mt-1 lg:w-64 xl:w-96">
-                  <label htmlFor="instructor-id-search">Mã giảng viên</label>
-                  <input type="text" name="instructorId" id="instructor-id-search"
-                    className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                    placeholder="Tìm kiếm mã giảng viên" onChange={handleInputChangeSearch} />
+                  <label htmlFor="instructor-id-search">Tên giảng viên</label>
+                      <div className="col-span-6 sm:col-span-3">
+                        <select id="category-instructor" onChange={handleInstructorChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                          {Array.isArray(listAllInstructors) && listAllInstructors.length ? (
+                            <>
+                              <option value="">Chọn tất cả</option>
+                              {listAllInstructors.map((instructor, idx) => {
+                                return (
+                                  <option key={idx} value={instructor.id}>
+                                    {instructor.fullName}
+                                  </option>
+                                );
+                              })}
+                            </>
+                          ) : (
+                            <option value="">Không tìm thấy</option>
+                          )}
+                        </select>
+                      </div>
+                </div>
+                <div className="relative mt-1 lg:w-64 xl:w-96">
+                  <label htmlFor="instructor-id-search">Phân công giảng viên hướng dẫn</label>
+                      <div className="col-span-6 sm:col-span-3">
+                        <select id="category-instructor" onChange={handleStatusMappingChange}
+                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                          {Array.isArray(listStatusUse) && listStatusUse.length ? (
+                            <>
+                              <option value="">Chọn tất cả</option>
+                              {listStatusUse.map((instructor, idx) => {
+                                return (
+                                  <option key={idx} value={instructor.val}>
+                                    {instructor.text}
+                                  </option>
+                                );
+                              })}
+                            </>
+                          ) : (
+                            <option value="">Không tìm thấy</option>
+                          )}
+                        </select>
+                      </div>
                 </div>
               </form>
             </div>

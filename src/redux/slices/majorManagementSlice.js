@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createApi, updateApi, deleteApi, selectListApiMajors } from '../../layout_admin/major_management/MajorManagementAPI';
+import { createApi, updateApi, deleteApi, selectListApiMajors, selectListApiMajorActiveApi } from '../../layout_admin/major_management/MajorManagementAPI';
 
 const initialState = {
   create: {
@@ -18,6 +18,12 @@ const initialState = {
     error: null,
   },
   selectListApiMajors: {
+    data: null,
+    loading: false,
+    error: null,
+    totalRecord: 0
+  },
+  selectListApiMajorActive: {
     data: null,
     loading: false,
     error: null,
@@ -86,6 +92,23 @@ const majorManagementSlice = createSlice({
       .addCase(deleteApi.rejected, (state, action) => {
         state.delete.loading = false;
         state.delete.error = action.payload || action.error.message;
+      })
+      
+      
+      // Select List handlers
+      .addCase(selectListApiMajorActiveApi.pending, (state) => {
+        state.selectListApiMajors.loading = true;
+        state.selectListApiMajors.error = null;
+      })
+      .addCase(selectListApiMajorActiveApi.fulfilled, (state, action) => {
+        state.selectListApiMajorActive.loading = false;
+        state.selectListApiMajorActive.error = null;
+        state.selectListApiMajorActive.data = (undefined === action.payload.data.data) ? null : action.payload.data.data;
+        state.selectListApiMajorActive.totalRecord = (undefined === action.payload.data.totalRecord) ? null : action.payload.data.totalRecord;
+      })
+      .addCase(selectListApiMajorActiveApi.rejected, (state, action) => {
+        state.selectListApiMajorActive.loading = false;
+        state.selectListApiMajorActive.error = action.payload || action.error.message;
       });
   },
 });
